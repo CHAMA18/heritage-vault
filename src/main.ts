@@ -268,11 +268,9 @@ function bindInteractions(): void {
   });
   const storySidebar = document.querySelector<HTMLElement>("#story-mode-screen aside");
   if (storySidebar) {
-    storySidebar.className = "vault-nav flex flex-col p-6";
-    storySidebar.dataset.sidebar = "true";
-    storySidebar.innerHTML = '<div class="mb-10"><img class="brand-logo" src="/heritagevault-logo.svg" alt="HeritageVault" /></div><nav class="flex-1 space-y-2"><a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#vault" data-dashboard-view="vault"><span class="material-symbols-outlined">inventory_2</span>The Vault</a><a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#family-map" data-dashboard-view="family-map"><span class="material-symbols-outlined">account_tree</span>Family Map</a><a class="vault-nav-link active flex items-center gap-3 rounded-xl px-4 py-3 font-label-md text-label-md" href="#story-mode"><span class="material-symbols-outlined">auto_stories</span>Story Mode</a><a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#settings"><span class="material-symbols-outlined">settings</span>Archive Settings</a></nav><button class="theme-toggle mb-5" type="button" data-theme-toggle><span class="flex items-center gap-3"><span class="material-symbols-outlined" data-theme-icon>dark_mode</span><span class="font-label-md text-label-md" data-theme-label>Dark mode</span></span><span class="material-symbols-outlined text-base">contrast</span></button><button class="theme-toggle text-secondary" type="button" data-logout><span class="flex items-center gap-3"><span class="material-symbols-outlined">logout</span><span class="font-label-md text-label-md">Log out</span></span><span class="material-symbols-outlined text-base">arrow_forward</span></button><div class="mt-6 border-t border-outline-variant/20 pt-5"><div class="flex items-center gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container text-secondary"><span class="material-symbols-outlined">person</span></div><div><p class="font-label-md text-label-md font-semibold text-primary">Vault keeper</p><p class="font-caption text-caption text-on-surface-variant">Your private archive</p></div></div></div>';
-    storySidebar.querySelector<HTMLAnchorElement>('a[href="#settings"]')?.remove();
-    storySidebar.querySelector("nav")?.insertAdjacentHTML("beforeend", '<a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#atlas" data-dashboard-view="atlas"><span class="material-symbols-outlined">auto_awesome</span>HeritageAtlas</a>');
+    storySidebar.setAttribute("data-sidebar", "");
+    storySidebar.className = "vault-nav hidden flex-col p-6 lg:flex";
+    storySidebar.innerHTML = '<div class="mb-10"><img class="brand-logo" src="/heritagevault-logo.svg" alt="HeritageVault" /></div><nav class="flex-1 space-y-2"><a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#vault" data-dashboard-view="vault"><span class="material-symbols-outlined">inventory_2</span>The Vault</a><a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#family-map" data-dashboard-view="family-map"><span class="material-symbols-outlined">account_tree</span>Family Map</a><a class="vault-nav-link active flex items-center gap-3 rounded-xl px-4 py-3 font-label-md text-label-md" href="#story-mode" data-dashboard-view="story-mode"><span class="material-symbols-outlined">auto_stories</span>Story Mode</a><a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#atlas" data-dashboard-view="atlas"><span class="material-symbols-outlined">auto_awesome</span>HeritageAtlas</a></nav><button data-new-memory class="mb-6 flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 font-label-md text-label-md text-on-primary shadow-lg transition hover:-translate-y-0.5 hover:bg-primary-container"><span class="material-symbols-outlined">add</span>New memory</button><button class="theme-toggle mb-5" type="button" data-theme-toggle><span class="flex items-center gap-3"><span class="material-symbols-outlined" data-theme-icon>dark_mode</span><span class="font-label-md text-label-md" data-theme-label>Dark mode</span></span><span class="material-symbols-outlined text-base">contrast</span></button><button class="theme-toggle mb-5 text-secondary" type="button" data-logout><span class="flex items-center gap-3"><span class="material-symbols-outlined">logout</span><span class="font-label-md text-label-md">Log out</span></span><span class="material-symbols-outlined text-base">arrow_forward</span></button><div class="border-t border-outline-variant/20 pt-5"><div class="flex items-center gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container text-secondary"><span class="material-symbols-outlined">person</span></div><div><p class="font-label-md text-label-md font-semibold text-primary">Vault keeper</p><p class="font-caption text-caption text-on-surface-variant">Your private archive</p></div></div></div>';
   }
   const relativeModal = document.createElement("div");
   relativeModal.className = "invite-backdrop";
@@ -349,6 +347,58 @@ function bindInteractions(): void {
     } catch (error) {
       if (inviteStatus) { inviteStatus.textContent = error instanceof Error ? error.message : "We could not create the invitation. Please try again."; inviteStatus.className = "rounded-lg bg-error-container px-4 py-3 text-sm text-on-error-container"; }
     } finally { submit?.removeAttribute("disabled"); }
+  });
+
+  const memoryDetailModal = document.getElementById("memoryDetailModal");
+  const memoryDetailImage = document.getElementById("memoryDetailImage");
+  const memoryDetailTitle = document.getElementById("memoryDetailTitle");
+  const memoryDetailType = document.getElementById("memoryDetailType");
+  const memoryDetailYear = document.getElementById("memoryDetailYear");
+  const memoryDetailDescription = document.getElementById("memoryDetailDescription");
+  const memoryDetailDateLabel = document.getElementById("memoryDetailDateLabel");
+  function openMemoryDetail(card: HTMLElement): void {
+    const title = card.dataset.memoryTitle || "Untitled memory";
+    const description = card.dataset.memoryDescription || "";
+    const type = card.dataset.memoryType || "";
+    const year = card.dataset.memoryYear || "";
+    const image = card.dataset.memoryImage || "";
+    if (memoryDetailTitle) memoryDetailTitle.textContent = title;
+    if (memoryDetailType) {
+      memoryDetailType.textContent = type;
+      memoryDetailType.style.display = type ? "" : "none";
+    }
+    if (memoryDetailYear) {
+      memoryDetailYear.textContent = year;
+      memoryDetailYear.style.display = year ? "" : "none";
+    }
+    if (memoryDetailDescription) memoryDetailDescription.textContent = description;
+    if (memoryDetailImage) {
+      if (image) {
+        memoryDetailImage.style.backgroundImage = `url("${image}")`;
+        memoryDetailImage.style.display = "";
+      } else {
+        memoryDetailImage.style.display = "none";
+      }
+    }
+    if (memoryDetailDateLabel) {
+      memoryDetailDateLabel.textContent = year ? `Captured in ${year}` : "Date unknown";
+    }
+    memoryDetailModal?.classList.add("is-open");
+  }
+  document.querySelectorAll<HTMLElement>("[data-memory-detail]").forEach((card) => {
+    card.addEventListener("click", () => openMemoryDetail(card));
+    card.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        openMemoryDetail(card);
+      }
+    });
+  });
+  document.querySelectorAll<HTMLElement>("[data-close-memory-detail]").forEach((button) => {
+    button.addEventListener("click", () => memoryDetailModal?.classList.remove("is-open"));
+  });
+  memoryDetailModal?.addEventListener("click", (event) => {
+    if (event.target === memoryDetailModal) memoryDetailModal.classList.remove("is-open");
   });
 
   initializeSidebars({ onNavigate: (view: SidebarView) => setView(view) });
