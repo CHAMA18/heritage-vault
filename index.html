@@ -263,13 +263,18 @@
       #family-map-screen { display: none; min-height: 100vh; background: #fff8f4; }
       #story-mode-screen { display: none; min-height: 100vh; background: #fff8f4; }
       #vault-screen .vault-nav { width: 260px; flex: 0 0 260px; background: #faf2ed; border-right: 1px solid rgba(196,200,192,.35); }
+      /* Story Mode shares the dashboard's persistent desktop navigation rail. */
+      #story-mode-screen > .flex { display:flex !important; min-height:100vh; width:100%; }
+      #story-mode-screen .vault-nav { position:sticky; top:0; display:flex !important; box-sizing:border-box; width:260px !important; min-width:260px; max-width:260px; height:100vh; flex:0 0 260px !important; overflow-y:auto; background:#faf2ed; border-right:1px solid rgba(196,200,192,.35); }
+      #story-mode-screen > .flex > section { min-width:0; flex:1 1 auto; }
       #vault-screen .vault-card { background: #fffdfb; border: 1px solid rgba(196,200,192,.42); box-shadow: 0 4px 20px rgba(62,74,61,.05); transition: transform .25s ease, box-shadow .25s ease; }
       #vault-screen .vault-card:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(62,74,61,.09); }
       #vault-screen .vault-nav-link { transition: background .2s ease, color .2s ease; }
       #vault-screen .vault-nav-link:hover { background: rgba(232,225,220,.65); color: #283327; }
       #vault-screen .vault-nav-link.active { background: #3e4a3d; color: #fff; }
       #vault-screen .vault-main { max-width: 1280px; }
-      @media (max-width: 1023px) { #vault-screen .vault-nav { display: none; } }
+      @media (min-width:1024px) { #story-mode-screen > header { display:none; } }
+      @media (max-width: 1023px) { #vault-screen .vault-nav, #story-mode-screen .vault-nav { display: none !important; } }
       .family-map-canvas { background-color: #f4ede8; background-image: linear-gradient(rgba(196,200,192,.24) 1px, transparent 1px), linear-gradient(90deg, rgba(196,200,192,.24) 1px, transparent 1px); background-size: 42px 42px; }
       .map-node { box-shadow: 0 8px 24px rgba(62,74,61,.12); transition: transform .25s ease, box-shadow .25s ease; }
       .map-node:hover { transform: translateY(-4px); box-shadow: 0 14px 30px rgba(62,74,61,.18); }
@@ -359,6 +364,13 @@
       .brand-logo--footer { height:27px; max-width:160px; }
       .brand-logo--inverse { filter: drop-shadow(0 2px 12px rgba(0,0,0,.2)); }
       .atlas-screen { display:none; min-height:100vh; background:#f7f0eb; color:#283327; }
+      /* Atlas lives inside the same two-column application shell as the rest of the product. */
+      #atlas-screen .atlas-app-shell { display:flex !important; flex-flow:row nowrap; align-items:stretch; width:100%; min-height:100vh; }
+      #atlas-screen .atlas-sidebar { position:sticky; top:0; display:flex !important; box-sizing:border-box; width:260px !important; min-width:260px; max-width:260px; height:100vh; flex:0 0 260px !important; overflow-y:auto; background:#faf2ed; border-right:1px solid rgba(196,200,192,.35); }
+      .atlas-sidebar .vault-nav-link { transition:background .2s ease, color .2s ease; }
+      .atlas-sidebar .vault-nav-link:hover { background:rgba(232,225,220,.65); color:#283327; }
+      .atlas-sidebar .vault-nav-link.active { background:#3e4a3d; color:#fff; }
+      #atlas-screen .atlas-main { display:block; min-width:0; width:calc(100% - 260px); flex:1 1 auto; }
       .atlas-topbar { position:sticky; top:0; z-index:20; display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:1rem max(1.25rem, calc((100vw - 1380px)/2)); border-bottom:1px solid rgba(119,87,77,.16); background:rgba(255,250,247,.88); backdrop-filter:blur(16px); }
       .atlas-brand { display:flex; align-items:center; gap:.65rem; border:0; background:transparent; color:#283327; font:600 1.1rem 'Playfair Display', Georgia, serif; }
       .atlas-brand img { width:2rem; height:2rem; border-radius:.55rem; }
@@ -389,7 +401,8 @@
       .atlas-map { position:relative; min-height:13rem; margin-top:1.25rem; overflow:hidden; border-radius:1rem; background:radial-gradient(circle at 25% 25%,rgba(215,231,210,.8),transparent 20%),radial-gradient(circle at 75% 70%,rgba(255,211,199,.75),transparent 22%),#eef2eb; }.atlas-map:before { position:absolute; inset:0; content:""; background-image:linear-gradient(rgba(121,145,119,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(121,145,119,.16) 1px,transparent 1px); background-size:2.6rem 2.6rem; }.atlas-map__place { position:absolute; z-index:1; display:flex; align-items:center; gap:.4rem; border:0; background:transparent; color:#283327; text-align:left; transform:translate(-50%,-50%); }.atlas-map__place i { width:var(--size); height:var(--size); border:3px solid #fffdfb; border-radius:999px; background:#8a6456; box-shadow:0 4px 12px rgba(90,58,47,.25); }.atlas-map__place span { padding:.3rem .5rem; border-radius:.45rem; background:rgba(255,253,251,.88); font-size:.72rem; font-weight:700; }.atlas-map__place.is-selected i { background:#283327; }
       .atlas-evidence { display:grid; gap:.55rem; margin-top:1.2rem; }.atlas-evidence__card { display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:.7rem; padding:.7rem; border-radius:.8rem; background:#fbf6f2; }.atlas-evidence__card>span { color:#8a6456; }.atlas-evidence__card p,.atlas-evidence__card small { display:block; margin:0; }.atlas-evidence__card p { overflow:hidden; color:#283327; font-weight:700; text-overflow:ellipsis; white-space:nowrap; }.atlas-evidence__card small { overflow:hidden; margin-top:.15rem; color:#6e6b66; font-size:.72rem; text-overflow:ellipsis; white-space:nowrap; }.atlas-evidence__card>b { color:#77574d; font-size:.7rem; }.atlas-empty,.atlas-loading { display:grid; min-height:12rem; place-items:center; padding:1.5rem; color:#77574d; text-align:center; }.atlas-empty--large { max-width:42rem; margin:3rem auto; border:1px dashed rgba(119,87,77,.28); border-radius:1.5rem; background:#fffdfb; }.atlas-empty--large span { font-size:3rem; color:#8a6456; }.atlas-empty--large h3 { margin:.75rem 0 0; font-family:'Playfair Display',Georgia,serif; font-size:1.5rem; }.atlas-empty--large p { max-width:30rem; margin:.6rem 0 0; color:#585651; line-height:1.6; }.atlas-loading { border-radius:1.25rem; background:#fffdfb; font-weight:700; }
       @keyframes atlas-rise { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-      html.dark .atlas-screen { background:#171512; color:#f5eee8; }.dark .atlas-topbar { border-color:rgba(231,189,177,.14); background:rgba(28,25,22,.92); }.dark .atlas-brand,.dark .atlas-close { color:#f5eee8; }.dark .atlas-close { border-color:rgba(231,189,177,.2); background:#25201c; }.dark .atlas-intro,.dark .atlas-panel,.dark .atlas-loading,.dark .atlas-empty--large { border-color:rgba(231,189,177,.15); background:linear-gradient(145deg,#25201c,#201c18); box-shadow:0 18px 50px rgba(0,0,0,.2); }.dark .atlas-intro h2,.dark .atlas-hero h1,.dark .atlas-panel header p,.dark .atlas-person,.dark .atlas-evidence__card p { color:#f5eee8; }.dark .atlas-intro>div>p:last-child,.dark .atlas-hero p:last-child,.dark .atlas-empty--large p { color:#c9bdb4; }.dark .atlas-query { border-color:rgba(231,189,177,.2); background:#171512; }.dark .atlas-query input { color:#f5eee8; }.dark .atlas-suggestions button,.dark .atlas-person,.dark .atlas-evidence__card { border-color:rgba(231,189,177,.12); background:#2b2520; }.dark .atlas-map { background:#202a20; }.dark .atlas-map__place span { background:#2b2520; color:#f5eee8; }
+      html.dark .atlas-screen { background:#171512; color:#f5eee8; }.dark .atlas-sidebar { background:#211d19; border-color:rgba(231,189,177,.12); }.dark .atlas-sidebar .vault-nav-link:not(.active) { color:#c9bdb4; }.dark .atlas-sidebar .vault-nav-link.active { background:linear-gradient(135deg,#4a5b49,#344333); color:#fffdf9; box-shadow:inset 0 1px rgba(255,255,255,.08),0 8px 20px rgba(0,0,0,.18); }.dark .atlas-topbar { border-color:rgba(231,189,177,.14); background:rgba(28,25,22,.92); }.dark .atlas-brand,.dark .atlas-close { color:#f5eee8; }.dark .atlas-close { border-color:rgba(231,189,177,.2); background:#25201c; }.dark .atlas-intro,.dark .atlas-panel,.dark .atlas-loading,.dark .atlas-empty--large { border-color:rgba(231,189,177,.15); background:linear-gradient(145deg,#25201c,#201c18); box-shadow:0 18px 50px rgba(0,0,0,.2); }.dark .atlas-intro h2,.dark .atlas-hero h1,.dark .atlas-panel header p,.dark .atlas-person,.dark .atlas-evidence__card p { color:#f5eee8; }.dark .atlas-intro>div>p:last-child,.dark .atlas-hero p:last-child,.dark .atlas-empty--large p { color:#c9bdb4; }.dark .atlas-query { border-color:rgba(231,189,177,.2); background:#171512; }.dark .atlas-query input { color:#f5eee8; }.dark .atlas-suggestions button,.dark .atlas-person,.dark .atlas-evidence__card { border-color:rgba(231,189,177,.12); background:#2b2520; }.dark .atlas-map { background:#202a20; }.dark .atlas-map__place span { background:#2b2520; color:#f5eee8; }
+      @media (max-width:1023px) { #atlas-screen .atlas-sidebar { display:none !important; } #atlas-screen .atlas-main { width:100%; } }
       @media (max-width:800px) { .atlas-topbar>p { display:none; }.atlas-intro { grid-template-columns:1fr; padding:1.5rem; }.atlas-grid { grid-template-columns:1fr; }.atlas-panel--wide { grid-column:span 1; }.atlas-network { grid-template-columns:repeat(2,minmax(0,1fr)); }.atlas-query { flex-wrap:wrap; }.atlas-query input { min-width:12rem; }.atlas-query button { width:100%; justify-content:center; }.atlas-hero { padding-top:1.4rem; }.atlas-answer-mark { display:none; } }
       .invite-backdrop { display:none; position:fixed; inset:0; z-index:90; align-items:center; justify-content:center; padding:1.25rem; background:rgba(30,27,24,.48); backdrop-filter:blur(8px); }
       .invite-backdrop.is-open { display:flex; }
@@ -491,7 +504,7 @@
         <div class="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/30 to-transparent"></div>
         <div class="absolute inset-0 sepia-glow"></div>
         <div class="relative z-10 flex h-full flex-col justify-between p-margin-mobile md:p-margin-desktop">
-          <img data-logo-inverse class="brand-logo brand-logo--inverse" src="/heritagevault-logo-light.svg" alt="HeritageVault" />
+          <img data-logo-inverse class="brand-logo brand-logo--inverse" src="/heritageatlas-logo-light.svg" alt="HeritageAtlas" />
           <div class="max-w-lg ambient-float">
             <p class="mb-6 font-display-lg text-display-lg-mobile leading-tight text-white md:text-display-lg">
               "We are the stories we leave behind"
@@ -501,17 +514,14 @@
               Join the sanctuary for your most precious memories. A digital heirloom designed for generations.
             </p>
           </div>
-          <div class="hidden font-caption text-primary-fixed-dim/50 lg:block">© 2024 HeritageVault Archival Systems.</div>
+          <div class="hidden font-caption text-primary-fixed-dim/50 lg:block">© 2026 HeritageAtlas.</div>
         </div>
       </section>
 
       <section class="flex w-full items-center justify-center bg-surface p-margin-mobile md:p-margin-desktop lg:w-1/2">
         <div class="fade-in-up w-full max-w-md rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-8 md:p-10 card-elevation">
           <header class="mb-8 text-center">
-            <div class="mb-6 inline-flex items-center rounded-full border border-outline-variant/30 bg-surface-container-low px-3 py-1">
-              <svg class="mr-2 h-5 w-5 shrink-0" viewBox="0 0 64 64" role="img" aria-label="HeritageVault mark" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" rx="18" fill="#283327"/><path d="M15 26 32 15l17 11v23H15Z M21 32h22v12H21z M32 32v12M26 38h12" fill="none" stroke="#FFF8F4" stroke-linejoin="round" stroke-width="4"/><path d="m32 7 3.4 6.4 7.2 1.3-5.2 5.1 1.1 7.2-6.5-3.2-6.5 3.2 1.1-7.2-5.2-5.1 7.2-1.3z" fill="#FFD6CA"/></svg>
-              <span class="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant">Archival Grade Security</span>
-            </div>
+            <img class="mx-auto mb-6 h-12 w-12" src="/heritageatlas-mark.svg" alt="HeritageAtlas" />
             <h2 class="mb-2 font-display-lg text-headline-md text-primary">Enter the Vault</h2>
             <p class="font-body-md text-on-surface-variant">Sign in to continue preserving what matters.</p>
             <p id="authError" class="mt-4 hidden rounded-lg border border-error/20 bg-error-container/60 px-4 py-3 text-left text-sm text-on-error-container" role="alert"></p>

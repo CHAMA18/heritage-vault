@@ -1,14 +1,14 @@
-export type SidebarView = "vault" | "family-map" | "story-mode";
+export type SidebarView = "vault" | "family-map" | "story-mode" | "atlas";
 
 export interface SidebarOptions {
   onNavigate?: (view: SidebarView) => void;
 }
 
-const supportedViews = new Set<SidebarView>(["vault", "family-map", "story-mode"]);
+const supportedViews = new Set<SidebarView>(["vault", "family-map", "story-mode", "atlas"]);
 
 export function initializeSidebars(options: SidebarOptions = {}): void {
   document.querySelectorAll<HTMLElement>("[data-sidebar]").forEach((sidebar) => {
-    sidebar.setAttribute("aria-label", "HeritageVault navigation");
+    sidebar.setAttribute("aria-label", "HeritageAtlas navigation");
 
     sidebar.querySelectorAll<HTMLAnchorElement>("[data-dashboard-view]").forEach((link) => {
       const view = link.dataset.dashboardView as SidebarView | undefined;
