@@ -1,0 +1,63 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function vaultMember(vaultId) {
+      return signedIn() && exists(/databases/$(database)/documents/vaults/$(vaultId))
+        && request.auth.uid in get(/databases/$(database)/documents/vaults/$(vaultId)).data.memberIds;
+    }
+
+    match /users/{userId} {
+      allow read, create, update: if isOwner(userId);
+      allow delete: if false;
+    }
+
+    match /vaults/{vaultId} {
+      allow read: if vaultMember(vaultId);
+      allow create: if signedIn() && request.auth.uid in request.resource.data.memberIds;
+      allow update: if vaultMember(vaultId)
+        && request.auth.uid in request.resource.data.memberIds;
+      allow delete: if false;
+
+      match /memories/{memoryId} {
+        allow read, create, update: if vaultMember(vaultId);
+        allow delete: if vaultMember(vaultId)
+          && request.auth.uid == resource.data.createdBy;
+      }
+
+      match /familyMembers/{memberId} {
+        allow read, create, update: if vaultMember(vaultId);
+        allow delete: if vaultMember(vaultId);
+      }
+
+      match /stories/{storyId} {
+        allow read, create, update: if vaultMember(vaultId);
+        allow delete: if vaultMember(vaultId)
+          && request.auth.uid == resource.data.createdBy;
+      }
+
+      match /activity/{activityId} {
+        allow read: if vaultMember(vaultId);
+        allow create: if vaultMember(vaultId);
+        allow update, delete: if false;
+      }
+
+      match /invitations/{invitationId} {
+        allow create: if vaultMember(vaultId)
+          && request.resource.data.invitedBy == request.auth.uid
+          && request.resource.data.status == 'pending';
+        allow read: if vaultMember(vaultId);
+        allow update: if vaultMember(vaultId);
+        allow delete: if false;
+      }
+    }
+  }
+}

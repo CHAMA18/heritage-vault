@@ -1,0 +1,26 @@
+{
+  "name": "heritage-vault",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "clickhouse:schema": "node scripts/apply-clickhouse-schema.mjs",
+    "trigger:dev": "npx trigger.dev@latest dev",
+    "trigger:deploy": "npx trigger.dev@latest deploy"
+  },
+  "dependencies": {
+    "@clickhouse/client": "^1.23.1",
+    "@trigger.dev/sdk": "^4.5.6",
+    "firebase": "^12.16.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  }
+}
