@@ -27,9 +27,8 @@ try {
     scopes: { read: { sessions: "test-session" }, write: { sessions: "test-session" } },
     expirationTime: "1m",
   });
-  console.log("✓ SDK authenticated with secret key from .env");
-  console.log("  Token (first 40 chars):", token.slice(0, 40) + "...");
-  console.log("  Token length:", token.length, "chars");
+  if (!token) throw new Error("Trigger.dev returned an empty token");
+  console.log("✓ Trigger.dev SDK authenticated with the configured key.");
 } catch (err) {
   console.error("✗ Auth failed:", err.message?.slice(0, 300));
   process.exit(1);

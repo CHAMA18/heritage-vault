@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="title">
-  <title id="title">HeritageAtlas mark</title>
+  <title id="title">Heritage Atlas mark</title>
   <defs><linearGradient id="ground" x1="12" y1="8" x2="82" y2="88" gradientUnits="userSpaceOnUse"><stop stop-color="#40533F"/><stop offset="1" stop-color="#202D22"/></linearGradient></defs>
   <rect width="96" height="96" rx="27" fill="url(#ground)"/>
   <path d="M48 18v60M18 48h60M26.8 26.8l42.4 42.4M69.2 26.8 26.8 69.2" stroke="#FFF8F4" stroke-linecap="round" stroke-width="3" opacity=".5"/>

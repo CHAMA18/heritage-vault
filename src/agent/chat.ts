@@ -13,6 +13,7 @@ import type { AtlasDataset } from "../atlas/types";
 import type { AgentMessage } from "./spec";
 import { runTurn, isTriggerConfigured, isClickHouseLive, isLive } from "./trigger-transport";
 import { renderViz } from "./renderers";
+import { initializeSidebars } from "../components/sidebar";
 
 const SUGGESTED_PROMPTS = [
   "Show me the timeline of memories",
@@ -99,8 +100,8 @@ export class AgentChat {
     // Hand off to the trigger-transport adapter. When Trigger.dev +
     // ClickHouse credentials are configured (VITE_TRIGGER_PROJECT_REF +
     // VITE_TRIGGER_PUBLIC_TOKEN), this invokes the deployed chat.agent()
-    // worker whose tools query ClickHouse. Otherwise it falls back to the
-    // local mock runtime, which produces the same VizSpec shape.
+    // worker whose tools query ClickHouse. When live ClickHouse is configured,
+    // any transport failure is surfaced rather than replacing live data with a demo.
     const start = Date.now();
     try {
       const result = await runTurn(
@@ -117,7 +118,7 @@ export class AgentChat {
       );
       result.spec.elapsedMs = Date.now() - start;
       // Surface the data source so the chat footer shows whether this came
-      // from ClickHouse (production) or the mock runtime (fallback).
+      // from ClickHouse (production) or the offline demonstration runtime.
       if (!result.spec.source) {
         result.spec.source = isTriggerConfigured
           ? "Trigger.dev chat.agent() · ClickHouse"
@@ -143,13 +144,9 @@ export class AgentChat {
     this.mount.innerHTML = `
       <aside class="hv-agent-sidebar" data-sidebar aria-label="Agent navigation">
         <div class="hv-agent-sidebar__brand">
-          <a href="#vault" data-dashboard-view="vault" aria-label="HeritageAtlas home">
-            <img data-brand-logo class="brand-logo" src="/heritageatlas-logo.svg" alt="HeritageAtlas" />
+          <a href="#vault" data-dashboard-view="vault" aria-label="Heritage Atlas home">
+            <img data-brand-logo class="brand-logo" src="/heritageatlas-logo.svg" alt="Heritage Atlas" />
           </a>
-          <div class="hv-agent-sidebar__brand-text">
-            <span class="hv-agent-sidebar__brand-name">HeritageAtlas</span>
-            <span class="hv-agent-sidebar__brand-tag">Explore the stories that connect us</span>
-          </div>
         </div>
         <nav class="hv-agent-sidebar__nav" aria-label="Primary">
           <a class="hv-agent-sidebar__nav-link" href="#vault" data-dashboard-view="vault">
@@ -160,6 +157,9 @@ export class AgentChat {
           </a>
           <a class="hv-agent-sidebar__nav-link" href="#story-mode" data-dashboard-view="story-mode">
             <span class="material-symbols-outlined">auto_stories</span><span>Story Mode</span>
+          </a>
+          <a class="hv-agent-sidebar__nav-link" href="#atlas" data-dashboard-view="atlas">
+            <span class="material-symbols-outlined">explore</span><span>Heritage Atlas</span>
           </a>
           <a class="hv-agent-sidebar__nav-link is-active" href="#agent" data-dashboard-view="agent" aria-current="page">
             <span class="material-symbols-outlined">smart_toy</span><span>Agent</span>
@@ -187,9 +187,9 @@ export class AgentChat {
             <span>Log out</span>
           </button>
           <div class="hv-agent-sidebar__user">
-            <div class="hv-agent-sidebar__avatar">AK</div>
+            <div class="hv-agent-sidebar__avatar" data-auth-user-initials>AK</div>
             <div>
-              <p class="hv-agent-sidebar__user-name">Amara Kabwe</p>
+              <p class="hv-agent-sidebar__user-name" data-auth-user-name>Amara Kabwe</p>
               <p class="hv-agent-sidebar__user-role">Vault keeper</p>
             </div>
           </div>
@@ -201,7 +201,7 @@ export class AgentChat {
           <div class="hv-agent__header-left">
             <span class="material-symbols-outlined hv-agent__header-icon">auto_awesome</span>
             <div>
-              <h2>HeritageAtlas Agent</h2>
+              <h2>Heritage Atlas Agent</h2>
               <p>Ask anything about your archive — the answer is a chart, map, or diagram.</p>
             </div>
           </div>
@@ -243,7 +243,7 @@ export class AgentChat {
               data-agent-input
               placeholder="Ask: where did my family live? what are the oldest memories?"
               autocomplete="off"
-              aria-label="Ask the HeritageAtlas agent"
+              aria-label="Ask the Heritage Atlas agent"
             />
             <button type="submit" class="hv-agent__send" data-agent-send aria-label="Send">
               <span class="material-symbols-outlined">arrow_upward</span>
@@ -256,6 +256,7 @@ export class AgentChat {
         </form>
       </div>
     `;
+    initializeSidebars();
 
     // Wire form
     const form = this.mount.querySelector<HTMLFormElement>("[data-agent-form]");

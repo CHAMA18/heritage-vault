@@ -1,11 +1,21 @@
-export type SidebarView = "vault" | "family-map" | "story-mode" | "atlas";
+export type SidebarView = "vault" | "family-map" | "story-mode" | "atlas" | "agent";
 
 export interface SidebarOptions {
   onNavigate?: (view: SidebarView) => void;
 }
 
-const supportedViews = new Set<SidebarView>(["vault", "family-map", "story-mode", "atlas"]);
+const supportedViews = new Set<SidebarView>(["vault", "family-map", "story-mode", "atlas", "agent"]);
 const collapseStorageKey = "heritageatlas-sidebar-collapsed";
+
+function hydrateAuthenticatedIdentity(sidebar: HTMLElement): void {
+  const name = document.documentElement.dataset.authUserName;
+  const initials = document.documentElement.dataset.authUserInitials;
+  if (!name) return;
+
+  sidebar.querySelectorAll<HTMLElement>("[data-auth-user-name]").forEach((element) => { element.textContent = name; });
+  sidebar.querySelectorAll<HTMLElement>("[data-auth-user-initials]").forEach((element) => { element.textContent = initials || "AK"; });
+  sidebar.querySelectorAll<HTMLElement>(":scope > div:last-child p.font-semibold").forEach((element) => { element.textContent = name; });
+}
 
 function wrapSidebarText(sidebar: HTMLElement): void {
   const walker = document.createTreeWalker(sidebar, NodeFilter.SHOW_TEXT);
@@ -26,6 +36,7 @@ function wrapSidebarText(sidebar: HTMLElement): void {
 
 export function initializeSidebars(options: SidebarOptions = {}): void {
   const sidebars = [...document.querySelectorAll<HTMLElement>("[data-sidebar]")];
+  const onNavigate = options.onNavigate;
   const setCollapsed = (collapsed: boolean): void => {
     sidebars.forEach((sidebar) => {
       sidebar.classList.toggle("is-collapsed", collapsed);
@@ -38,7 +49,10 @@ export function initializeSidebars(options: SidebarOptions = {}): void {
   };
 
   sidebars.forEach((sidebar) => {
-    sidebar.setAttribute("aria-label", "HeritageAtlas navigation");
+    if (sidebar.dataset.sidebarInitialized === "true") return;
+    sidebar.dataset.sidebarInitialized = "true";
+    sidebar.setAttribute("aria-label", "Heritage Atlas navigation");
+    hydrateAuthenticatedIdentity(sidebar);
     wrapSidebarText(sidebar);
     const collapseButton = document.createElement("button");
     collapseButton.type = "button";
@@ -51,17 +65,18 @@ export function initializeSidebars(options: SidebarOptions = {}): void {
     const mark = document.createElement("img");
     mark.className = "sidebar-collapse-mark";
     mark.src = "/heritageatlas-mark.svg";
-    mark.alt = "HeritageAtlas";
+    mark.alt = "Heritage Atlas";
     brand?.append(mark);
     collapseButton.addEventListener("click", () => setCollapsed(!sidebar.classList.contains("is-collapsed")));
 
     sidebar.querySelectorAll<HTMLAnchorElement>("[data-dashboard-view]").forEach((link) => {
       const view = link.dataset.dashboardView as SidebarView | undefined;
-      if (!view || !supportedViews.has(view)) return;
+      if (!view || !supportedViews.has(view) || !onNavigate) return;
 
       link.addEventListener("click", (event) => {
         event.preventDefault();
-        options.onNavigate?.(view);
+        event.stopPropagation();
+        onNavigate(view);
       });
     });
   });

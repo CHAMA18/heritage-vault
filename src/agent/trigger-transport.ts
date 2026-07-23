@@ -36,15 +36,18 @@
  *   │  + materialised views   │
  *   └─────────────────────────┘
  *
- * Two modes:
+ * Three modes:
  *   1. PRODUCTION: Trigger.dev + ClickHouse credentials are configured.
  *      We instantiate TriggerChatTransport, which talks to the deployed
  *      chat.agent() worker. The worker's tools query ClickHouse. Every
  *      response is a VizSpec streamed back as a tool part.
  *
- *   2. FALLBACK: No credentials. We fall back to the local mock runtime
- *      (mock.ts) so the chat is fully interactive in any context. The
- *      VizSpec shape is identical, so the renderer doesn't care.
+ *   2. CLICKHOUSE LIVE: The Vite middleware queries ClickHouse Cloud directly
+ *      while keeping credentials on the server.
+ *
+ *   3. OFFLINE DEMO: No live connection is configured. The local runtime is
+ *      available for static previews only. A configured live archive never
+ *      silently substitutes demonstration data.
  *
  * Detect which mode at runtime via Vite env vars (import.meta.env).
  */
@@ -70,7 +73,7 @@ const TASK_ID = "heritage-atlas-agent";
  *      live ClickHouse Cloud directly with the same intent→tool logic as
  *      the trigger task. Credentials stay server-side.
  *
- *   3. MOCK FALLBACK — neither set. The in-memory mock runtime synthesises
+ *   3. OFFLINE DEMO — neither set. The in-memory runtime synthesises
  *      the same VizSpec shape from demo-data.ts.
  */
 const TRIGGER_PROJECT_REF =
@@ -206,7 +209,7 @@ export async function runClickHouseTurn(
     const spec: VizSpec = await res.json();
     return { spec, caption: spec.verdict ?? "" };
   } catch (err) {
-    console.warn("[agent] ClickHouse turn failed, falling back to mock:", err);
+    console.warn("[agent] Live ClickHouse turn failed:", err);
     return null;
   }
 }
@@ -246,7 +249,7 @@ export async function runMockTurn(
  * Routes to (in priority order):
  *   1. Trigger.dev production path when VITE_TRIGGER_* creds are set
  *   2. ClickHouse live middleware when VITE_CLICKHOUSE_LIVE=true
- *   3. Local mock runtime (fallback)
+ *   3. Local demonstration runtime only when no live connection is configured
  *
  * All paths return the same `AgentTurnResult` shape — the chat UI doesn't branch.
  */
@@ -263,6 +266,9 @@ export async function runTurn(
   if (isClickHouseLive) {
     const result = await runClickHouseTurn(prompt, onPhase);
     if (result) return result;
+    throw new Error(
+      "The live ClickHouse archive could not be reached. No demonstration data was shown. Please try again."
+    );
   }
   return runMockTurn(dataset, prompt, onPhase);
 }

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>HeritageAtlas</title>
+    <title>Heritage Atlas</title>
     <link rel="icon" type="image/svg+xml" href="/heritageatlas-favicon.svg" />
     <link href="https://api.fontshare.com" rel="preconnect" />
     <link href="https://fonts.googleapis.com" rel="preconnect" />
@@ -267,14 +267,15 @@
       #vault-screen { display: none; min-height: 100vh; background: #fff8f4; }
       #family-map-screen { display: none; min-height: 100vh; background: #fff8f4; }
       #story-mode-screen { display: none; min-height: 100vh; background: #fff8f4; }
-      #vault-screen .vault-nav { width: 260px; flex: 0 0 260px; background: #faf2ed; border-right: 1px solid rgba(196,200,192,.35); }
+      #vault-screen .vault-nav { width: 280px; flex: 0 0 280px; background: #faf2ed; border-right: 1px solid rgba(196,200,192,.35); }
       /* Shared collapsible navigation rail. */
       [data-sidebar] { transition:width .28s ease, min-width .28s ease, flex-basis .28s ease, padding .28s ease; }
       .sidebar-collapse-toggle { display:flex; align-items:center; gap:.65rem; width:100%; margin:-.65rem 0 1.25rem; padding:.6rem .72rem; border:1px solid rgba(196,200,192,.28); border-radius:.7rem; color:#585651; font-size:.75rem; font-weight:700; transition:background .2s ease,color .2s ease; }.sidebar-collapse-toggle:hover { background:rgba(232,225,220,.65); color:#283327; }.sidebar-collapse-mark { display:none; width:2.55rem; height:2.55rem; margin:0 auto; border-radius:.7rem; }
       #vault-screen [data-sidebar].is-collapsed,
       #family-map-screen [data-sidebar].is-collapsed,
       #story-mode-screen [data-sidebar].is-collapsed,
-      #atlas-screen [data-sidebar].is-collapsed { width:84px !important; min-width:84px !important; max-width:84px !important; flex:0 0 84px !important; padding:1.15rem .8rem !important; }
+      #atlas-screen [data-sidebar].is-collapsed,
+      #agent-screen [data-sidebar].is-collapsed { width:84px !important; min-width:84px !important; max-width:84px !important; flex:0 0 84px !important; padding:1.15rem .8rem !important; }
       [data-sidebar].is-collapsed .sidebar-copy,
       [data-sidebar].is-collapsed [data-theme-label],
       [data-sidebar].is-collapsed [data-logout-label] { display:none !important; }
@@ -284,9 +285,30 @@
       [data-sidebar].is-collapsed .theme-toggle { justify-content:center; padding-left:.6rem; padding-right:.6rem; }
       [data-sidebar].is-collapsed .vault-nav-link { gap:0; } [data-sidebar].is-collapsed .theme-toggle>span:first-child { gap:0; } [data-sidebar].is-collapsed .theme-toggle>span:last-child { display:none; }
       [data-sidebar].is-collapsed .mt-6.border-t { display:none; }
+      /* The shared workspace navigator follows the Agent rail's dimensions,
+         hierarchy, and active state on every desktop workspace. */
+      #vault-screen .vault-nav,
+      #family-map-screen .vault-nav,
+      #story-mode-screen .vault-nav,
+      #atlas-screen .atlas-sidebar {
+        width:280px !important; min-width:280px !important; max-width:280px !important;
+        flex:0 0 280px !important; padding:28px 22px !important;
+        background:linear-gradient(180deg,rgba(243,234,217,.92) 0%,rgba(251,245,236,.88) 100%) !important;
+        border-right:1px solid rgba(28,32,24,.08) !important;
+      }
+      [data-sidebar]:not(.hv-agent-sidebar) .vault-nav-link {
+        gap:12px; padding:11px 14px; border-radius:12px; font-size:.9rem; font-weight:500;
+        color:#3a3f33; transition:all .25s cubic-bezier(.22,1,.36,1);
+      }
+      [data-sidebar]:not(.hv-agent-sidebar) .vault-nav-link .material-symbols-outlined { font-size:20px; color:#6b7060; transition:color .25s ease; }
+      [data-sidebar]:not(.hv-agent-sidebar) .vault-nav-link:hover { background:rgba(28,32,24,.05); color:#1d2018; }
+      [data-sidebar]:not(.hv-agent-sidebar) .vault-nav-link.active { background:linear-gradient(135deg,#2c3a2e,#1c2820); color:#fbf5ec; box-shadow:0 4px 14px rgba(28,40,32,.22); }
+      [data-sidebar]:not(.hv-agent-sidebar) .vault-nav-link.active .material-symbols-outlined { color:#d4a44c; }
+      #atlas-screen .atlas-main { width:calc(100% - 280px); }
+      #atlas-screen .atlas-sidebar.is-collapsed + .atlas-main { width:calc(100% - 84px); }
       /* Story Mode shares the dashboard's persistent desktop navigation rail. */
       #story-mode-screen > .flex { display:flex !important; min-height:100vh; width:100%; }
-      #story-mode-screen .vault-nav { position:sticky; top:0; display:flex !important; box-sizing:border-box; width:260px !important; min-width:260px; max-width:260px; height:100vh; flex:0 0 260px !important; overflow-y:auto; background:#faf2ed; border-right:1px solid rgba(196,200,192,.35); }
+      #story-mode-screen .vault-nav { position:sticky; top:0; display:flex !important; box-sizing:border-box; width:280px !important; min-width:280px; max-width:280px; height:100vh; flex:0 0 280px !important; overflow-y:auto; background:#faf2ed; border-right:1px solid rgba(196,200,192,.35); }
       #story-mode-screen > .flex > section { min-width:0; flex:1 1 auto; }
       #vault-screen .vault-card { background: #fffdfb; border: 1px solid rgba(196,200,192,.42); box-shadow: 0 4px 20px rgba(62,74,61,.05); transition: transform .25s ease, box-shadow .25s ease; }
       #vault-screen .vault-card:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(62,74,61,.09); }
@@ -391,11 +413,11 @@
       .atlas-screen { display:none; width:100%; min-height:100vh; background:#f7f0eb; color:#283327; }
       /* Atlas lives inside the same two-column application shell as the rest of the product. */
       #atlas-screen .atlas-app-shell { display:flex !important; flex:1 1 auto; flex-flow:row nowrap; align-items:stretch; width:100%; min-height:100vh; }
-      #atlas-screen .atlas-sidebar { position:sticky; top:0; display:flex !important; box-sizing:border-box; width:260px !important; min-width:260px; max-width:260px; height:100vh; flex:0 0 260px !important; overflow-y:auto; background:#faf2ed; border-right:1px solid rgba(196,200,192,.35); }
+      #atlas-screen .atlas-sidebar { position:sticky; top:0; display:flex !important; box-sizing:border-box; width:280px !important; min-width:280px; max-width:280px; height:100vh; flex:0 0 280px !important; overflow-y:auto; background:#faf2ed; border-right:1px solid rgba(196,200,192,.35); }
       .atlas-sidebar .vault-nav-link { transition:background .2s ease, color .2s ease; }
       .atlas-sidebar .vault-nav-link:hover { background:rgba(232,225,220,.65); color:#283327; }
       .atlas-sidebar .vault-nav-link.active { background:#3e4a3d; color:#fff; }
-      #atlas-screen .atlas-main { display:block; min-width:0; width:calc(100% - 260px); flex:1 1 auto; }
+      #atlas-screen .atlas-main { display:block; min-width:0; width:calc(100% - 280px); flex:1 1 auto; }
       #atlas-screen .atlas-sidebar.is-collapsed + .atlas-main { width:calc(100% - 84px); }
       .atlas-topbar { position:sticky; top:0; z-index:20; display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:1rem max(1.25rem, calc((100vw - 1380px)/2)); border-bottom:1px solid rgba(119,87,77,.16); background:rgba(255,250,247,.88); backdrop-filter:blur(16px); }
       .atlas-brand { display:flex; align-items:center; gap:.65rem; border:0; background:transparent; color:#283327; font:600 1.1rem 'Playfair Display', Georgia, serif; }
@@ -3565,39 +3587,34 @@
 .hv-agent-screen .hv-agent-sidebar::-webkit-scrollbar-thumb { background: rgba(28, 32, 24, 0.14); border-radius: 3px; }
 
 .hv-agent-screen .hv-agent-sidebar__brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  display: block;
   margin-bottom: 28px;
   padding-bottom: 20px;
   border-bottom: 1px solid rgba(28, 32, 24, 0.06);
 }
 .hv-agent-screen .hv-agent-sidebar__brand img {
-  height: 38px;
-  width: auto;
-  flex-shrink: 0;
+  display: block;
+  width: 100%;
+  max-width: 14rem;
+  height: auto;
+  max-height: 44px;
 }
-.hv-agent-screen .hv-agent-sidebar__brand-text {
+.hv-agent-screen .hv-agent-sidebar.is-collapsed .hv-agent-sidebar__brand {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
+  justify-content: center;
+  padding-bottom: 16px;
 }
-.hv-agent-screen .hv-agent-sidebar__brand-name {
-  font-family: "Fraunces", serif !important;
-  font-weight: 600;
-  font-size: 1.05rem;
-  letter-spacing: -0.01em;
-  color: var(--hv-ink, #1d2018);
+.hv-agent-screen .hv-agent-sidebar.is-collapsed .hv-agent-sidebar__brand > a,
+.hv-agent-screen .hv-agent-sidebar.is-collapsed .hv-agent-sidebar__brand .brand-logo,
+.hv-agent-screen .hv-agent-sidebar.is-collapsed .hv-agent-sidebar__info,
+.hv-agent-screen .hv-agent-sidebar.is-collapsed .hv-agent-sidebar__divider,
+.hv-agent-screen .hv-agent-sidebar.is-collapsed .hv-agent-sidebar__user { display:none; }
+.hv-agent-screen .hv-agent-sidebar.is-collapsed .sidebar-collapse-mark {
+  display:block; width:2.55rem; height:2.55rem; max-width:none; max-height:none; margin:0; object-fit:contain;
 }
-.hv-agent-screen .hv-agent-sidebar__brand-tag {
-  font-size: 0.62rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--hv-ink-mute, #6b7060);
-  line-height: 1.2;
-}
+.hv-agent-screen .hv-agent-sidebar.is-collapsed .hv-agent-sidebar__nav-link,
+.hv-agent-screen .hv-agent-sidebar.is-collapsed .hv-agent-sidebar__theme,
+.hv-agent-screen .hv-agent-sidebar.is-collapsed .hv-agent-sidebar__logout { justify-content:center; padding-left:.6rem; padding-right:.6rem; }
 
 .hv-agent-screen .hv-agent-sidebar__nav {
   display: flex;
@@ -4689,9 +4706,8 @@
       <!-- Navigation -->
       <header class="hv-nav">
         <nav class="hv-nav__inner">
-          <a href="#top" class="hv-nav__brand" aria-label="HeritageAtlas home">
-            <img data-brand-logo class="brand-logo brand-logo--compact" src="/heritageatlas-logo.svg" alt="HeritageAtlas" />
-            <span class="hv-nav__brand-text">HeritageAtlas</span>
+          <a href="#top" class="hv-nav__brand" aria-label="Heritage Atlas home">
+            <img data-brand-logo class="brand-logo brand-logo--compact" src="/heritageatlas-logo.svg" alt="Heritage Atlas" />
           </a>
           <div class="hv-nav__links">
             <a class="hv-nav__link" href="#how-it-works">How it works</a>
@@ -4875,7 +4891,7 @@
             <blockquote class="hv-stories__quote">
               The most meaningful gift we can give the next generation is <em>a way back</em> to where they began.
             </blockquote>
-            <span class="hv-stories__attrib">The HeritageAtlas promise</span>
+            <span class="hv-stories__attrib">The Heritage Atlas promise</span>
           </div>
         </section>
 
@@ -4904,11 +4920,11 @@
       <footer class="hv-footer">
         <div class="hv-footer__inner">
           <div class="hv-footer__brand">
-            <img data-brand-logo class="brand-logo brand-logo--footer" src="/heritageatlas-logo.svg" alt="HeritageAtlas" />
-            <span>HeritageAtlas</span>
+            <img data-brand-logo class="brand-logo brand-logo--footer" src="/heritageatlas-logo.svg" alt="Heritage Atlas" />
+            <span>Heritage Atlas</span>
           </div>
           <span>Preserving what matters, for generations.</span>
-          <span>© 2026 HeritageAtlas.</span>
+          <span>© 2026 Heritage Atlas.</span>
         </div>
       </footer>
     </div>
@@ -4917,7 +4933,7 @@
     <button id="global-theme-toggle" type="button" data-theme-toggle aria-label="Toggle dark and light mode"><span class="material-symbols-outlined" data-theme-icon>dark_mode</span></button>
     <section class="memory-detail-page" id="memoryDetailModal" role="dialog" aria-modal="true" aria-labelledby="memoryDetailTitle">
       <header class="memory-detail-page__topbar">
-        <a href="#vault" class="memory-detail-page__brand" aria-label="Return to the vault"><img src="/heritageatlas-mark.svg" alt="" />HeritageAtlas</a>
+        <a href="#vault" class="memory-detail-page__brand" aria-label="Return to the vault"><img src="/heritageatlas-mark.svg" alt="" />Heritage Atlas</a>
         <button type="button" data-close-memory-detail class="memory-detail-page__close" aria-label="Return to vault"><span class="material-symbols-outlined">close</span><span>Close memory</span></button>
       </header>
       <div id="memoryDetailImage" class="memory-detail-page__hero" role="img" aria-label="Memory image"></div>
@@ -4944,7 +4960,7 @@
         <div class="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/30 to-transparent"></div>
         <div class="absolute inset-0 sepia-glow"></div>
         <div class="relative z-10 flex h-full flex-col justify-between p-margin-mobile md:p-margin-desktop">
-          <img data-logo-inverse class="brand-logo brand-logo--inverse" src="/heritageatlas-logo-light.svg" alt="HeritageAtlas" />
+          <img data-logo-inverse class="brand-logo brand-logo--inverse" src="/heritageatlas-logo-light.svg" alt="Heritage Atlas" />
           <div class="max-w-lg ambient-float">
             <p class="mb-6 font-display-lg text-display-lg-mobile leading-tight text-white md:text-display-lg">
               "We are the stories we leave behind"
@@ -4954,14 +4970,14 @@
               Join the sanctuary for your most precious memories. A digital heirloom designed for generations.
             </p>
           </div>
-          <div class="hidden font-caption text-primary-fixed-dim/50 lg:block">© 2026 HeritageAtlas.</div>
+          <div class="hidden font-caption text-primary-fixed-dim/50 lg:block">© 2026 Heritage Atlas.</div>
         </div>
       </section>
 
       <section class="flex w-full items-center justify-center bg-surface p-margin-mobile md:p-margin-desktop lg:w-1/2">
         <div class="fade-in-up w-full max-w-md rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-8 md:p-10 card-elevation">
           <header class="mb-8 text-center">
-            <img class="mx-auto mb-6 h-12 w-12" src="/heritageatlas-mark.svg" alt="HeritageAtlas" />
+            <img class="mx-auto mb-6 h-12 w-12" src="/heritageatlas-mark.svg" alt="Heritage Atlas" />
             <h2 class="mb-2 font-display-lg text-headline-md text-primary">Enter the Vault</h2>
             <p class="font-body-md text-on-surface-variant">Sign in to continue preserving what matters.</p>
             <p id="authError" class="mt-4 hidden rounded-lg border border-error/20 bg-error-container/60 px-4 py-3 text-left text-sm text-on-error-container" role="alert"></p>
@@ -5141,17 +5157,18 @@
     </main>
 
     <main id="vault-screen" class="font-body-md text-on-surface"><aside data-sidebar class="vault-nav hidden flex-col p-6 lg:flex">
-        <div class="mb-10"><img data-brand-logo class="brand-logo" src="/heritageatlas-logo.svg" alt="HeritageAtlas" /></div>
+        <div class="mb-10"><img data-brand-logo class="brand-logo" src="/heritageatlas-logo.svg" alt="Heritage Atlas" /></div>
         <nav class="flex-1 space-y-2">
           <a class="vault-nav-link active flex items-center gap-3 rounded-xl px-4 py-3 font-label-md text-label-md" href="#vault" data-dashboard-view="vault"><span class="material-symbols-outlined">inventory_2</span>The Vault</a>
           <a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#family-map" data-dashboard-view="family-map"><span class="material-symbols-outlined">account_tree</span>Family Map</a>
           <a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#story-mode" data-dashboard-view="story-mode"><span class="material-symbols-outlined">auto_stories</span>Story Mode</a>
-          <a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#atlas" data-dashboard-view="atlas"><span class="material-symbols-outlined">auto_awesome</span>HeritageAtlas</a>
+          <a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#atlas" data-dashboard-view="atlas"><span class="material-symbols-outlined">auto_awesome</span>Heritage Atlas</a>
+          <a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#agent" data-dashboard-view="agent"><span class="material-symbols-outlined">smart_toy</span>Agent</a>
         </nav>
         <button data-new-memory class="mb-6 flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 font-label-md text-label-md text-on-primary shadow-lg transition hover:-translate-y-0.5 hover:bg-primary-container"><span class="material-symbols-outlined">add</span>New memory</button>
         <button class="theme-toggle mb-5" type="button" data-theme-toggle><span class="flex items-center gap-3"><span class="material-symbols-outlined" data-theme-icon>dark_mode</span><span class="font-label-md text-label-md" data-theme-label>Dark mode</span></span><span class="material-symbols-outlined text-base">contrast</span></button>
         <button class="theme-toggle mb-5 text-secondary" type="button" data-logout><span class="flex items-center gap-3"><span class="material-symbols-outlined">logout</span><span class="font-label-md text-label-md">Log out</span></span><span class="material-symbols-outlined text-base">arrow_forward</span></button>
-        <div class="border-t border-outline-variant/20 pt-5"><div class="flex items-center gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container text-secondary"><span class="material-symbols-outlined">person</span></div><div><p class="font-label-md text-label-md font-semibold text-primary">Amara Kabwe</p><p class="font-caption text-caption text-on-surface-variant">Vault keeper</p></div></div></div>
+        <div class="border-t border-outline-variant/20 pt-5"><div class="flex items-center gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container text-secondary"><span class="material-symbols-outlined">person</span></div><div><p class="font-label-md text-label-md font-semibold text-primary" data-auth-user-name>Vault keeper</p><p class="font-caption text-caption text-on-surface-variant">Vault keeper</p></div></div></div>
       </aside>
       <!-- === HV-VAULT-DASH:CONTENT-START === -->
       <!-- The dashboard must render inside this content column. Keeping it
@@ -5163,15 +5180,15 @@
 
     <main id="family-map-screen" class="font-body-md text-on-surface">
       <aside data-sidebar class="vault-nav hidden flex-col p-6 lg:flex">
-        <div class="mb-10"><img data-brand-logo class="brand-logo" src="/heritageatlas-logo.svg" alt="HeritageAtlas" /></div>
-        <nav class="flex-1 space-y-2"><a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#vault" data-dashboard-view="vault"><span class="material-symbols-outlined">inventory_2</span>The Vault</a><a class="vault-nav-link active flex items-center gap-3 rounded-xl px-4 py-3 font-label-md text-label-md" href="#family-map" data-dashboard-view="family-map"><span class="material-symbols-outlined">account_tree</span>Family Map</a><a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#story-mode" data-dashboard-view="story-mode"><span class="material-symbols-outlined">auto_stories</span>Story Mode</a><a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#atlas" data-dashboard-view="atlas"><span class="material-symbols-outlined">auto_awesome</span>HeritageAtlas</a></nav>
+        <div class="mb-10"><img data-brand-logo class="brand-logo" src="/heritageatlas-logo.svg" alt="Heritage Atlas" /></div>
+        <nav class="flex-1 space-y-2"><a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#vault" data-dashboard-view="vault"><span class="material-symbols-outlined">inventory_2</span>The Vault</a><a class="vault-nav-link active flex items-center gap-3 rounded-xl px-4 py-3 font-label-md text-label-md" href="#family-map" data-dashboard-view="family-map"><span class="material-symbols-outlined">account_tree</span>Family Map</a><a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#story-mode" data-dashboard-view="story-mode"><span class="material-symbols-outlined">auto_stories</span>Story Mode</a><a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#atlas" data-dashboard-view="atlas"><span class="material-symbols-outlined">auto_awesome</span>HeritageAtlas</a><a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#agent" data-dashboard-view="agent"><span class="material-symbols-outlined">smart_toy</span>Agent</a></nav>
         <button data-new-memory class="mb-6 flex w-full items-center justify-center gap-2 rounded-full bg-secondary px-4 py-3 font-label-md text-label-md text-on-secondary shadow-lg"><span class="material-symbols-outlined">add</span>New memory</button>
         <button class="theme-toggle mb-5" type="button" data-theme-toggle><span class="flex items-center gap-3"><span class="material-symbols-outlined" data-theme-icon>dark_mode</span><span class="font-label-md text-label-md" data-theme-label>Dark mode</span></span><span class="material-symbols-outlined text-base">contrast</span></button>
         <button class="theme-toggle mb-5 text-secondary" type="button" data-logout><span class="flex items-center gap-3"><span class="material-symbols-outlined">logout</span><span class="font-label-md text-label-md">Log out</span></span><span class="material-symbols-outlined text-base">arrow_forward</span></button>
-        <div class="border-t border-outline-variant/20 pt-5"><div class="flex items-center gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container text-secondary"><span class="material-symbols-outlined">person</span></div><div><p class="font-label-md text-label-md font-semibold text-primary">Amara Kabwe</p><p class="font-caption text-caption text-on-surface-variant">Vault keeper</p></div></div></div>
+        <div class="border-t border-outline-variant/20 pt-5"><div class="flex items-center gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container text-secondary"><span class="material-symbols-outlined">person</span></div><div><p class="font-label-md text-label-md font-semibold text-primary" data-auth-user-name>Vault keeper</p><p class="font-caption text-caption text-on-surface-variant">Vault keeper</p></div></div></div>
       </aside>
       <section class="flex min-w-0 flex-1 flex-col">
-        <header class="border-b border-outline-variant/25 bg-surface/80 px-5 py-4 backdrop-blur-md md:px-10"><div class="mx-auto flex max-w-[1280px] items-center justify-between"><div><p class="font-caption text-caption uppercase tracking-[.2em] text-secondary">Your lineage, connected</p><h2 class="mt-1 font-display-lg text-headline-md text-primary">Family Map</h2></div><button data-invite-family class="rounded-full bg-primary px-5 py-3 font-label-md text-label-md text-on-primary shadow-sm transition hover:bg-primary-container"><span class="material-symbols-outlined mr-2 align-middle text-base">person_add</span>Invite family</button></div></header>
+        <header class="border-b border-outline-variant/25 bg-surface/80 px-5 py-4 backdrop-blur-md md:px-10"><div class="mx-auto flex max-w-[1280px] items-center justify-between gap-4"><div><p class="font-caption text-caption uppercase tracking-[.2em] text-secondary">Your lineage, connected</p><h2 class="mt-1 font-display-lg text-headline-md text-primary">Family Map</h2></div><div class="flex items-center gap-3"><button data-add-relative class="rounded-full border border-secondary/35 bg-surface-container-lowest px-5 py-3 font-label-md text-label-md text-secondary shadow-sm transition hover:-translate-y-0.5 hover:border-secondary hover:bg-secondary-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"><span class="material-symbols-outlined mr-2 align-middle text-base">person_add</span>Add relative</button><button data-invite-family class="rounded-full bg-primary px-5 py-3 font-label-md text-label-md text-on-primary shadow-sm transition hover:-translate-y-0.5 hover:bg-primary-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"><span class="material-symbols-outlined mr-2 align-middle text-base">group_add</span>Invite family</button></div></div></header>
         <div class="relative flex min-h-[calc(100vh-89px)] flex-1 flex-col overflow-hidden lg:flex-row"><aside class="z-10 w-full border-b border-outline-variant/30 bg-surface-container-low p-6 lg:w-72 lg:border-b-0 lg:border-r"><p class="mb-2 font-label-md text-label-md uppercase tracking-[.18em] text-secondary">Living archive</p><h3 class="font-display-lg text-2xl font-semibold text-primary">Your lineage</h3><p class="mt-3 text-sm leading-6 text-on-surface-variant">Explore the people and stories that connect your family across generations.</p><div class="mt-8 space-y-3"><div class="rounded-xl bg-surface-container-lowest p-4"><p class="text-xs uppercase tracking-widest text-secondary">Known ancestors</p><p class="mt-1 text-2xl font-semibold text-primary">36</p></div><div class="rounded-xl bg-surface-container-lowest p-4"><p class="text-xs uppercase tracking-widest text-secondary">Generations</p><p class="mt-1 text-2xl font-semibold text-primary">5</p></div></div><button data-add-relative class="mt-8 flex w-full items-center justify-center gap-2 rounded-xl bg-secondary px-4 py-3 font-label-md text-label-md text-on-secondary"><span class="material-symbols-outlined text-lg">add</span>Add relative</button></aside>
           <div class="family-map-canvas relative min-h-[600px] flex-1 overflow-hidden p-8 md:p-14"><div class="absolute right-6 top-6 z-10 flex flex-col overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest shadow-lg"><button class="p-3 text-primary transition hover:bg-surface-container-low"><span class="material-symbols-outlined">add</span></button><button class="border-t border-outline-variant/20 p-3 text-primary transition hover:bg-surface-container-low"><span class="material-symbols-outlined">remove</span></button><button class="border-t border-outline-variant/20 p-3 text-primary transition hover:bg-surface-container-low"><span class="material-symbols-outlined">center_focus_strong</span></button></div><svg class="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true"><path d="M50% 32% C50% 41%, 34% 41%, 34% 52% M50% 32% C50% 41%, 66% 41%, 66% 52% M34% 60% C34% 70%, 23% 70%, 23% 80% M34% 60% C34% 70%, 45% 70%, 45% 80%" fill="none" stroke="#aeb5a8" stroke-width="2" stroke-dasharray="5 5" /></svg><div class="relative mx-auto flex max-w-3xl flex-col items-center gap-16 pt-4 md:pt-12"><article class="map-node relative z-10 w-64 rounded-2xl border border-secondary/30 bg-surface-container-lowest p-4 text-center"><div class="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-secondary-container text-secondary"><span class="material-symbols-outlined text-3xl">person</span></div><h4 class="font-display-lg text-xl font-semibold text-primary">Samuel Kabwe</h4><p class="mt-1 text-xs uppercase tracking-widest text-secondary">Root ancestor · 1897–1964</p></article><div class="grid w-full gap-8 sm:grid-cols-2"><article class="map-node relative z-10 rounded-2xl border border-outline-variant/30 bg-surface-container-lowest p-4 text-center"><div class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-primary-fixed text-primary"><span class="material-symbols-outlined text-2xl">person</span></div><h4 class="font-display-lg text-lg font-semibold text-primary">Martha Banda</h4><p class="mt-1 text-xs uppercase tracking-widest text-secondary">Daughter · 1921–2008</p></article><article class="map-node relative z-10 rounded-2xl border border-outline-variant/30 bg-surface-container-lowest p-4 text-center"><div class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-primary-fixed text-primary"><span class="material-symbols-outlined text-2xl">person</span></div><h4 class="font-display-lg text-lg font-semibold text-primary">Joseph Kabwe</h4><p class="mt-1 text-xs uppercase tracking-widest text-secondary">Son · 1924–1999</p></article></div><div class="grid w-full gap-8 sm:grid-cols-2"><article class="map-node relative z-10 rounded-2xl border border-outline-variant/30 bg-surface-container-lowest p-4 text-center"><div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-secondary-container text-secondary"><span class="material-symbols-outlined">person</span></div><h4 class="font-display-lg text-lg font-semibold text-primary">Amara Kabwe</h4><p class="mt-1 text-xs uppercase tracking-widest text-secondary">You · Present</p></article><article class="map-node relative z-10 flex items-center justify-center rounded-2xl border border-dashed border-secondary/40 bg-surface-container-low p-4 text-center"><div><span class="material-symbols-outlined mb-1 text-2xl text-secondary">add</span><p class="font-label-md text-label-md text-secondary">Add a branch</p></div></article></div></div></div>
         </div>
@@ -5193,12 +5210,12 @@
         storySidebarInline.setAttribute("data-sidebar", "");
         storySidebarInline.className = "vault-nav hidden flex-col p-6 lg:flex";
         storySidebarInline.innerHTML = `
-          <div class="mb-10"><img data-brand-logo class="brand-logo" src="/heritageatlas-logo.svg" alt="HeritageAtlas" /></div>
-          <nav class="flex-1 space-y-2" aria-label="HeritageAtlas navigation">
+          <div class="mb-10"><img data-brand-logo class="brand-logo" src="/heritageatlas-logo.svg" alt="Heritage Atlas" /></div>
+          <nav class="flex-1 space-y-2" aria-label="Heritage Atlas navigation">
             <a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#vault" data-dashboard-view="vault"><span class="material-symbols-outlined">inventory_2</span>The Vault</a>
             <a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#family-map" data-dashboard-view="family-map"><span class="material-symbols-outlined">account_tree</span>Family Map</a>
             <a class="vault-nav-link active flex items-center gap-3 rounded-xl px-4 py-3 font-label-md text-label-md" href="#story-mode" data-dashboard-view="story-mode"><span class="material-symbols-outlined">auto_stories</span>Story Mode</a>
-            <a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#atlas" data-dashboard-view="atlas"><span class="material-symbols-outlined">auto_awesome</span>HeritageAtlas</a>
+            <a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#atlas" data-dashboard-view="atlas"><span class="material-symbols-outlined">auto_awesome</span>Heritage Atlas</a>
           </nav>
           <button data-new-memory class="mb-6 flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 font-label-md text-label-md text-on-primary shadow-lg transition hover:-translate-y-0.5 hover:bg-primary-container"><span class="material-symbols-outlined">add</span>New memory</button>
           <button class="theme-toggle mb-5" type="button" data-theme-toggle><span class="flex items-center gap-3"><span class="material-symbols-outlined" data-theme-icon>dark_mode</span><span class="font-label-md text-label-md" data-theme-label>Dark mode</span></span><span class="material-symbols-outlined text-base">contrast</span></button>
@@ -5848,40 +5865,13 @@
         storyModeInitialised = true;
       }
 
-      // Intercept clicks on the Story Mode nav link
-      document.addEventListener("click", (e) => {
-        const link = e.target.closest('[data-dashboard-view="story-mode"]');
-        if (!link) return;
-        e.preventDefault();
-        const landingPage = document.querySelector(".landing-page");
-        const loginScreen = document.getElementById("login-screen");
-        const vaultScreen = document.getElementById("vault-screen");
-        const familyMapScreen = document.getElementById("family-map-screen");
-        const storyModeScreen = document.getElementById("story-mode-screen");
-        if (!storyModeScreen) return;
-        if (landingPage) landingPage.classList.add("is-hidden");
-        if (loginScreen) loginScreen.style.display = "none";
-        if (vaultScreen) vaultScreen.style.display = "none";
-        if (familyMapScreen) familyMapScreen.style.display = "none";
-        storyModeScreen.style.display = "flex";
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        history.pushState({ view: "story-mode" }, "", "#story-mode");
-        // Defer init until after the screen is visible so layout/scroll work
+      // The shared application router owns navigation. Story Mode only owns
+      // the lazy rendering of its dedicated workspace.
+      document.addEventListener("heritage:story-route", () => {
         requestAnimationFrame(() => ensureStoryMode());
       });
 
-      // Auto-open if arriving on #story-mode
-      if (window.location.hash === "#story-mode") {
-        document.addEventListener("DOMContentLoaded", () => {
-          const landingPage = document.querySelector(".landing-page");
-          const storyModeScreen = document.getElementById("story-mode-screen");
-          if (landingPage && storyModeScreen) {
-            landingPage.classList.add("is-hidden");
-            storyModeScreen.style.display = "flex";
-            requestAnimationFrame(() => ensureStoryMode());
-          }
-        });
-      }
+      if (window.location.hash === "#story-mode") ensureStoryMode();
     </script>
     <!-- === HV-STORY-MODE:SCRIPT-END === -->
         <!-- === HV-AGENT:SCREEN-START === -->
@@ -5908,61 +5898,14 @@
         return agentChatInstance;
       }
 
-      // Wire up nav + dashboard view links
-      document.addEventListener("click", (e) => {
-        const link = e.target.closest('[data-dashboard-view="agent"]');
-        if (!link) return;
-        e.preventDefault();
-        const landingPage = document.querySelector(".landing-page");
-        const loginScreen = document.getElementById("login-screen");
-        const vaultScreen = document.getElementById("vault-screen");
-        const familyMapScreen = document.getElementById("family-map-screen");
-        const storyModeScreen = document.getElementById("story-mode-screen");
-        const agentScreen = document.getElementById("agent-screen");
-        if (!agentScreen) return;
-        if (landingPage) landingPage.classList.add("is-hidden");
-        if (loginScreen) loginScreen.style.display = "none";
-        if (vaultScreen) vaultScreen.style.display = "none";
-        if (familyMapScreen) familyMapScreen.style.display = "none";
-        if (storyModeScreen) storyModeScreen.style.display = "none";
-        agentScreen.style.display = "block";
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        history.pushState({ view: "agent" }, "", "#agent");
+      // The TypeScript application router owns the #agent route. This keeps
+      // AgentChat initialisation local to its dedicated, persistent workspace.
+      document.addEventListener("heritage:agent-route", () => {
         ensureAgentChat();
       });
 
-      // Handle hash routing for #agent
-      window.addEventListener("popstate", () => {
-        if (window.location.hash === "#agent") {
-          const landingPage = document.querySelector(".landing-page");
-          const loginScreen = document.getElementById("login-screen");
-          const vaultScreen = document.getElementById("vault-screen");
-          const familyMapScreen = document.getElementById("family-map-screen");
-          const storyModeScreen = document.getElementById("story-mode-screen");
-          const agentScreen = document.getElementById("agent-screen");
-          if (!agentScreen) return;
-          if (landingPage) landingPage.classList.add("is-hidden");
-          if (loginScreen) loginScreen.style.display = "none";
-          if (vaultScreen) vaultScreen.style.display = "none";
-          if (familyMapScreen) familyMapScreen.style.display = "none";
-          if (storyModeScreen) storyModeScreen.style.display = "none";
-          agentScreen.style.display = "block";
-          ensureAgentChat();
-        }
-      });
-
-      // Auto-open if arriving on #agent
-      if (window.location.hash === "#agent") {
-        document.addEventListener("DOMContentLoaded", () => {
-          const landingPage = document.querySelector(".landing-page");
-          const agentScreen = document.getElementById("agent-screen");
-          if (landingPage && agentScreen) {
-            landingPage.classList.add("is-hidden");
-            agentScreen.style.display = "block";
-            ensureAgentChat();
-          }
-        });
-      }
+      // A direct link can load before the application router is ready.
+      if (window.location.hash === "#agent") ensureAgentChat();
     </script>
     <!-- === HV-AGENT:SCRIPT-END === -->
     <script type="module" src="/src/main.ts"></script>

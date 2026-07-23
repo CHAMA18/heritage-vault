@@ -12,7 +12,7 @@ import { bindAtlas, createAtlasScreen } from "./atlas/ui";
 import type { AtlasDataset } from "./atlas/types";
 import { demoAtlasDataset } from "./demo-data";
 
-type View = "landing" | "login" | "vault" | "family-map" | "story-mode" | "atlas";
+type View = "landing" | "login" | "vault" | "family-map" | "story-mode" | "atlas" | "agent";
 type AuthMode = "login" | "register";
 
 interface AppElements {
@@ -21,6 +21,7 @@ interface AppElements {
   vault: HTMLElement;
   familyMap: HTMLElement;
   storyMode: HTMLElement;
+  agent: HTMLElement;
   loginForm: HTMLFormElement;
   registerForm: HTMLFormElement;
   authHeading: HTMLElement;
@@ -43,6 +44,7 @@ const elements: AppElements = {
   vault: query<HTMLElement>("#vault-screen"),
   familyMap: query<HTMLElement>("#family-map-screen"),
   storyMode: query<HTMLElement>("#story-mode-screen"),
+  agent: query<HTMLElement>("#agent-screen"),
   loginForm: query<HTMLFormElement>("#loginForm"),
   registerForm: query<HTMLFormElement>("#registerForm"),
   authHeading: query<HTMLElement>("#login-screen header h2"),
@@ -61,6 +63,22 @@ let stopFamilyMap: Unsubscribe | undefined;
 let selectedFamilyNodeId: string | null = null;
 let demoMode = false;
 let familyMapZoom = 1;
+
+function standardizeProductName(root: ParentNode = document): void {
+  root.querySelectorAll<HTMLImageElement>("img[alt='HeritageAtlas']").forEach((image) => {
+    image.alt = "Heritage Atlas";
+  });
+  root.querySelectorAll<HTMLElement>("[aria-label='HeritageAtlas navigation']").forEach((navigation) => {
+    navigation.setAttribute("aria-label", "Heritage Atlas navigation");
+  });
+  root.querySelectorAll<HTMLElement>("[data-dashboard-view='atlas'], .relative-page__brand").forEach((element) => {
+    Array.from(element.childNodes).forEach((node) => {
+      if (node.nodeType === Node.TEXT_NODE && node.textContent?.includes("HeritageAtlas")) {
+        node.textContent = node.textContent.replaceAll("HeritageAtlas", "Heritage Atlas");
+      }
+    });
+  });
+}
 
 async function loadAtlasDataset(): Promise<AtlasDataset | null> {
   if (demoMode) return demoAtlasDataset;
@@ -247,8 +265,11 @@ function setView(view: View): void {
   elements.vault.style.display = view === "vault" ? "flex" : "none";
   elements.familyMap.style.display = view === "family-map" ? "flex" : "none";
   elements.storyMode.style.display = view === "story-mode" ? "flex" : "none";
+  elements.agent.style.display = view === "agent" ? "flex" : "none";
   const atlas = document.getElementById("atlas-screen");
   if (atlas) atlas.style.display = view === "atlas" ? "flex" : "none";
+  if (view === "story-mode") document.dispatchEvent(new Event("heritage:story-route"));
+  if (view === "agent") document.dispatchEvent(new Event("heritage:agent-route"));
   window.scrollTo({ top: 0, behavior: "smooth" });
   history.pushState({ view }, "", view === "landing" ? "#" : `#${view}`);
 }
@@ -313,12 +334,15 @@ function applyAuthenticatedIdentity(displayName: string | null | undefined, emai
   const fallback = email?.split("@")[0]?.replace(/[._-]+/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase()) || "Vault keeper";
   const name = displayName?.trim() || fallback;
   const firstName = name.split(/\s+/)[0] || "there";
+  document.documentElement.dataset.authUserName = name;
+  document.documentElement.dataset.authUserInitials = userInitials(name);
   document.querySelectorAll<HTMLElement>("[data-auth-user-name]").forEach((element) => { element.textContent = name; });
   document.querySelectorAll<HTMLElement>("[data-sidebar] > div:last-child p.font-semibold").forEach((element) => { element.textContent = name; });
   document.querySelectorAll<HTMLElement>("[data-auth-user-initials]").forEach((element) => { element.textContent = userInitials(name); });
   document.querySelectorAll<HTMLElement>("#vault-screen > section > header .bg-primary.font-label-md, #story-mode-screen header .bg-primary.text-xs").forEach((element) => { element.textContent = userInitials(name); });
   document.querySelectorAll<HTMLElement>("[data-auth-greeting]").forEach((element) => { element.textContent = `Good morning, ${firstName}.`; });
   document.querySelectorAll<HTMLElement>("#vault-screen > section > header h2").forEach((element) => { element.textContent = `Good morning, ${firstName}.`; });
+  document.dispatchEvent(new CustomEvent("heritage:identity", { detail: { name, initials: userInitials(name) } }));
 }
 
 function bindArchiveCanvas(): void {
@@ -390,7 +414,7 @@ function bindInteractions(): void {
   memoryModal.innerHTML = '<div class="invite-modal p-7 md:p-9"><div class="mb-7 flex items-start justify-between gap-5"><div><span class="material-symbols-outlined mb-3 text-3xl text-secondary">add_photo_alternate</span><h2 class="font-display-lg text-3xl font-semibold text-primary">Add a new memory</h2><p class="mt-2 text-sm leading-6 text-on-surface-variant">Preserve a photo, document, recording, or the story behind it.</p></div><button type="button" data-close-memory aria-label="Close dialog" class="rounded-full p-2 text-on-surface-variant"><span class="material-symbols-outlined">close</span></button></div><form class="space-y-5"><div><label class="mb-2 block font-label-md text-label-md text-secondary">Memory title</label><input name="title" required class="w-full rounded-xl border border-outline-variant/50 bg-transparent px-4 py-3" placeholder="e.g. Sunday at grandmother’s table" /></div><div class="grid grid-cols-2 gap-4"><div><label class="mb-2 block font-label-md text-label-md text-secondary">Type</label><select name="type" class="w-full rounded-xl border border-outline-variant/50 bg-transparent px-4 py-3"><option value="photo">Photo</option><option value="document">Document</option><option value="audio">Audio</option><option value="video">Video</option><option value="letter">Letter</option></select></div><div><label class="mb-2 block font-label-md text-label-md text-secondary">Year</label><input name="year" type="number" min="1000" max="2100" class="w-full rounded-xl border border-outline-variant/50 bg-transparent px-4 py-3" placeholder="1958" /></div></div><div><label class="mb-2 block font-label-md text-label-md text-secondary">Description</label><textarea name="description" required rows="3" class="w-full resize-none rounded-xl border border-outline-variant/50 bg-transparent px-4 py-3" placeholder="What should your family remember about this?" /></div><div><label class="mb-2 block font-label-md text-label-md text-secondary">Attachment <span class="font-normal text-on-surface-variant">(optional)</span></label><input name="asset" type="file" class="block w-full text-sm text-on-surface-variant" accept="image/*,audio/*,video/*,.pdf,.doc,.docx" /></div><p data-memory-status class="hidden rounded-lg px-4 py-3 text-sm" role="status"></p><div class="flex justify-end gap-3"><button type="button" data-close-memory class="rounded-full border border-secondary px-5 py-3 font-label-md text-label-md text-secondary">Cancel</button><button type="submit" class="rounded-full bg-primary px-6 py-3 font-label-md text-label-md text-on-primary"><span class="material-symbols-outlined mr-2 align-middle text-base">save</span>Save memory</button></div></form></div>';
   memoryModal.innerHTML = `
     <header class="memory-page__topbar">
-      <div class="memory-page__brand"><img src="/heritageatlas-mark.svg" alt="" /><span>HeritageAtlas</span></div>
+      <div class="memory-page__brand"><img src="/heritageatlas-mark.svg" alt="" /><span>Heritage Atlas</span></div>
       <button type="button" class="memory-page__close" data-close-memory aria-label="Close memory editor"><span class="material-symbols-outlined">close</span></button>
     </header>
     <main class="memory-page__content">
@@ -449,7 +473,7 @@ function bindInteractions(): void {
   if (storySidebar) {
     storySidebar.setAttribute("data-sidebar", "");
     storySidebar.className = "vault-nav hidden flex-col p-6 lg:flex";
-    storySidebar.innerHTML = '<div class="mb-10"><img class="brand-logo" src="/heritageatlas-logo.svg" alt="HeritageAtlas" /></div><nav class="flex-1 space-y-2" aria-label="HeritageAtlas navigation"><a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#vault" data-dashboard-view="vault"><span class="material-symbols-outlined">inventory_2</span>The Vault</a><a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#family-map" data-dashboard-view="family-map"><span class="material-symbols-outlined">account_tree</span>Family Map</a><a class="vault-nav-link active flex items-center gap-3 rounded-xl px-4 py-3 font-label-md text-label-md" href="#story-mode" data-dashboard-view="story-mode"><span class="material-symbols-outlined">auto_stories</span>Story Mode</a><a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#atlas" data-dashboard-view="atlas"><span class="material-symbols-outlined">auto_awesome</span>HeritageAtlas</a></nav><button data-new-memory class="mb-6 flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 font-label-md text-label-md text-on-primary shadow-lg transition hover:-translate-y-0.5 hover:bg-primary-container"><span class="material-symbols-outlined">add</span>New memory</button><button class="theme-toggle mb-5" type="button" data-theme-toggle><span class="flex items-center gap-3"><span class="material-symbols-outlined" data-theme-icon>dark_mode</span><span class="font-label-md text-label-md" data-theme-label>Dark mode</span></span><span class="material-symbols-outlined text-base">contrast</span></button><button class="theme-toggle mb-5 text-secondary" type="button" data-logout><span class="flex items-center gap-3"><span class="material-symbols-outlined">logout</span><span class="font-label-md text-label-md">Log out</span></span><span class="material-symbols-outlined text-base">arrow_forward</span></button><div class="border-t border-outline-variant/20 pt-5"><div class="flex items-center gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container text-secondary"><span class="material-symbols-outlined">person</span></div><div><p class="font-label-md text-label-md font-semibold text-primary">Atlas keeper</p><p class="font-caption text-caption text-on-surface-variant">Your private archive</p></div></div></div>';
+    storySidebar.innerHTML = '<div class="mb-10"><img class="brand-logo" src="/heritageatlas-logo.svg" alt="HeritageAtlas" /></div><nav class="flex-1 space-y-2" aria-label="HeritageAtlas navigation"><a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#vault" data-dashboard-view="vault"><span class="material-symbols-outlined">inventory_2</span>The Vault</a><a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#family-map" data-dashboard-view="family-map"><span class="material-symbols-outlined">account_tree</span>Family Map</a><a class="vault-nav-link active flex items-center gap-3 rounded-xl px-4 py-3 font-label-md text-label-md" href="#story-mode" data-dashboard-view="story-mode"><span class="material-symbols-outlined">auto_stories</span>Story Mode</a><a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#atlas" data-dashboard-view="atlas"><span class="material-symbols-outlined">auto_awesome</span>HeritageAtlas</a><a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#agent" data-dashboard-view="agent"><span class="material-symbols-outlined">smart_toy</span>Agent</a></nav><button data-new-memory class="mb-6 flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 font-label-md text-label-md text-on-primary shadow-lg transition hover:-translate-y-0.5 hover:bg-primary-container"><span class="material-symbols-outlined">add</span>New memory</button><button class="theme-toggle mb-5" type="button" data-theme-toggle><span class="flex items-center gap-3"><span class="material-symbols-outlined" data-theme-icon>dark_mode</span><span class="font-label-md text-label-md" data-theme-label>Dark mode</span></span><span class="material-symbols-outlined text-base">contrast</span></button><button class="theme-toggle mb-5 text-secondary" type="button" data-logout><span class="flex items-center gap-3"><span class="material-symbols-outlined">logout</span><span class="font-label-md text-label-md">Log out</span></span><span class="material-symbols-outlined text-base">arrow_forward</span></button><div class="border-t border-outline-variant/20 pt-5"><div class="flex items-center gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container text-secondary"><span class="material-symbols-outlined">person</span></div><div><p class="font-label-md text-label-md font-semibold text-primary">Atlas keeper</p><p class="font-caption text-caption text-on-surface-variant">Your private archive</p></div></div></div>';
   }
   renderStoryModeExperience();
   const relativeModal = document.createElement("div");
@@ -458,6 +482,7 @@ function bindInteractions(): void {
   relativeModal.setAttribute("aria-modal", "true");
   relativeModal.setAttribute("aria-labelledby", "relativePageTitle");
   relativeModal.innerHTML = `<header class="relative-page__topbar"><a href="#family-map" class="relative-page__brand" aria-label="Return to family map"><img src="/heritageatlas-mark.svg" alt="" />HeritageAtlas</a><button type="button" data-close-relative class="relative-page__close" aria-label="Return to family map"><span class="material-symbols-outlined">close</span><span>Close editor</span></button></header><main class="relative-page__content"><section class="relative-page__heading"><span class="material-symbols-outlined">account_tree</span><div><h2 id="relativePageTitle">Add a relative</h2><p>Create a person, then connect them to their parent or ancestor. Your relationship line will appear on the Family Map as soon as it is saved.</p></div></section><div class="relative-page__guide"><span><span class="material-symbols-outlined text-base">person_add</span>Describe the person</span><span><span class="material-symbols-outlined text-base">account_tree</span>Connect their branch</span><span><span class="material-symbols-outlined text-base">map</span>See the map update</span></div><form class="relative-page__form"><div class="relative-page__field relative-page__field--wide"><label>Full name</label><input name="fullName" placeholder="e.g. Martha Banda" required /></div><div class="relative-page__field"><label>Relationship</label><input name="relationship" placeholder="e.g. Daughter, grandfather, cousin" required /></div><div class="relative-page__field"><label>Connect to</label><select name="parentId"><option value="">No connection yet — start a new branch</option></select><small>Choose a parent or ancestor to draw a relationship line on the map.</small></div><div class="relative-page__field"><label>Birth year</label><input name="birthYear" type="number" min="1000" max="2100" placeholder="e.g. 1921" /></div><div class="relative-page__field"><label>Death year <span class="normal-case font-normal">(optional)</span></label><input name="deathYear" type="number" min="1000" max="2100" placeholder="e.g. 2008" /></div><div class="relative-page__field relative-page__field--wide"><label>Notes</label><textarea name="notes" placeholder="What should your family remember about this person?"></textarea></div><div class="relative-page__footer"><p data-relative-status class="hidden rounded-lg px-4 py-3 text-sm" role="status"></p><div class="relative-page__actions"><button type="button" data-close-relative class="border border-secondary text-secondary">Cancel</button><button type="submit" class="bg-primary text-on-primary"><span class="material-symbols-outlined mr-2 align-middle text-base">save</span>Save relative</button></div></div></form></main>`;
+  standardizeProductName(relativeModal);
   document.body.append(relativeModal);
   const openRelative = (): void => {
     const select = relativeModal.querySelector<HTMLSelectElement>('select[name="parentId"]');
@@ -687,7 +712,7 @@ function bindInteractions(): void {
     link.addEventListener("click", (event) => {
       event.preventDefault();
       const view = link.dataset.dashboardView as View | undefined;
-      if (view === "vault" || view === "family-map" || view === "story-mode" || view === "atlas") setView(view);
+      if (view === "vault" || view === "family-map" || view === "story-mode" || view === "atlas" || view === "agent") setView(view);
     });
   });
   document.querySelectorAll<HTMLButtonElement>("[data-atlas-open]").forEach((button) => button.addEventListener("click", () => setView("atlas")));
@@ -731,12 +756,13 @@ function bindInteractions(): void {
 
   window.addEventListener("popstate", () => {
     const hash = window.location.hash.replace("#", "") as View;
-    setView(hash === "login" || hash === "vault" || hash === "family-map" || hash === "story-mode" || hash === "atlas" ? hash : "landing");
+    setView(hash === "login" || hash === "vault" || hash === "family-map" || hash === "story-mode" || hash === "atlas" || hash === "agent" ? hash : "landing");
   });
 }
 
 function boot(): void {
   document.documentElement.dataset.tsRuntime = "true";
+  standardizeProductName();
   const atlasScreen = createAtlasScreen(() => setView("vault"));
   elements.storyMode.before(atlasScreen);
   bindAtlas(atlasScreen, loadAtlasDataset);
@@ -752,7 +778,7 @@ function boot(): void {
   }
   document.querySelectorAll<HTMLElement>("#family-map-screen .text-2xl").forEach((stat) => { stat.textContent = "—"; });
   const initialHash = window.location.hash.replace("#", "") as View;
-  currentView = initialHash === "login" || initialHash === "vault" || initialHash === "family-map" || initialHash === "story-mode" || initialHash === "atlas" ? initialHash : "landing";
+  currentView = initialHash === "login" || initialHash === "vault" || initialHash === "family-map" || initialHash === "story-mode" || initialHash === "atlas" || initialHash === "agent" ? initialHash : "landing";
   setAuthMode(authMode);
   bindInteractions();
   elements.landing.classList.toggle("is-hidden", currentView !== "landing");
@@ -760,7 +786,10 @@ function boot(): void {
   elements.vault.style.display = currentView === "vault" ? "flex" : "none";
   elements.familyMap.style.display = currentView === "family-map" ? "flex" : "none";
   elements.storyMode.style.display = currentView === "story-mode" ? "flex" : "none";
+  elements.agent.style.display = currentView === "agent" ? "flex" : "none";
   atlasScreen.style.display = currentView === "atlas" ? "flex" : "none";
+  if (currentView === "story-mode") document.dispatchEvent(new Event("heritage:story-route"));
+  if (currentView === "agent") document.dispatchEvent(new Event("heritage:agent-route"));
   onAuthStateChanged(firebaseAuth, async (user) => {
     if (demoMode) return;
     if (user) {

@@ -81,14 +81,25 @@ console.log("\n→ Loading demo dataset…");
 const { demoAtlasDataset } = await import(resolve(root, "src/demo-data.ts"));
 const VAULT_ID = "demo-vault";
 
-// Clear existing rows for this vault (idempotent re-run)
-for (const table of ["heritage_atlas_facts", "heritage_atlas_members", "heritage_atlas_stories", "heritage_atlas_edges"]) {
+// Clear this vault from the source tables and rollup views. Mutations are
+// synchronous so a repeat run cannot retain stale aggregate rows or double
+// count facts in the visual-answer timeline.
+for (const table of [
+  "heritage_atlas_facts",
+  "heritage_atlas_members",
+  "heritage_atlas_stories",
+  "heritage_atlas_edges",
+  "heritage_atlas_timeline_yearly",
+  "heritage_atlas_locations",
+  "heritage_atlas_types",
+  "heritage_atlas_decades",
+]) {
   await client.query({
-    query: `ALTER TABLE ${table} DELETE WHERE vault_id = {vaultId:String}`,
+    query: `ALTER TABLE ${table} DELETE WHERE vault_id = {vaultId:String} SETTINGS mutations_sync = 2`,
     query_params: { vaultId: VAULT_ID },
   });
 }
-console.log("  ✓ Cleared existing rows for vault:", VAULT_ID);
+console.log("  ✓ Synchronously reset source and aggregate rows for vault:", VAULT_ID);
 
 // Members
 await client.insert({

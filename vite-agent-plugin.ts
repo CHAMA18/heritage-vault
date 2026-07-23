@@ -404,10 +404,9 @@ export function heritageAgentPlugin() {
             configured: TRIGGER_CONFIGURED,
             projectRef: env.TRIGGER_PROJECT_REF ?? null,
             taskId: TASK_ID,
-            // The worker is deployed via `npx trigger.dev@latest deploy`
-            // (requires interactive CLI login). The SDK + token-minting
-            // endpoints are live now; the worker deployment is the final step.
-            workerDeployed: false,
+            // Set after a successful `npx trigger.dev@latest deploy` so the
+            // local health endpoint reflects the production worker accurately.
+            workerDeployed: env.TRIGGER_WORKER_DEPLOYED === "true",
           },
         }));
       });
