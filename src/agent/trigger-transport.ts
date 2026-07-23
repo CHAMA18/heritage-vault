@@ -59,18 +59,39 @@ import { buildSpec as buildMockSpec } from "./mock";
 const TASK_ID = "heritage-atlas-agent";
 
 /**
- * Vite env detection. When you set `VITE_TRIGGER_PROJECT_REF` and
- * `VITE_TRIGGER_PUBLIC_TOKEN` in `.env`, the chat switches to the
- * production path.
+ * Vite env detection. Three modes:
+ *
+ *   1. TRIGGER LIVE — VITE_TRIGGER_PROJECT_REF + VITE_TRIGGER_PUBLIC_TOKEN set.
+ *      Browser talks to the deployed Trigger.dev chat.agent() worker whose
+ *      tools query ClickHouse.
+ *
+ *   2. CLICKHOUSE LIVE (current) — VITE_CLICKHOUSE_LIVE=true. Browser POSTs
+ *      to the Vite dev-server middleware (/api/agent-query), which queries
+ *      live ClickHouse Cloud directly with the same intent→tool logic as
+ *      the trigger task. Credentials stay server-side.
+ *
+ *   3. MOCK FALLBACK — neither set. The in-memory mock runtime synthesises
+ *      the same VizSpec shape from demo-data.ts.
  */
 const TRIGGER_PROJECT_REF =
   (import.meta.env?.VITE_TRIGGER_PROJECT_REF as string | undefined) ?? "";
-const TRIGGER_PUBLIC_TOKEN =
-  (import.meta.env?.VITE_TRIGGER_PUBLIC_TOKEN as string | undefined) ?? "";
+const TRIGGER_TOKEN_ENDPOINT =
+  (import.meta.env?.VITE_TRIGGER_TOKEN_ENDPOINT as string | undefined) ?? "/api/chat-access-token";
+const TRIGGER_START_ENDPOINT =
+  (import.meta.env?.VITE_TRIGGER_START_ENDPOINT as string | undefined) ?? "/api/chat-start";
+const CLICKHOUSE_LIVE =
+  (import.meta.env?.VITE_CLICKHOUSE_LIVE as string | undefined) === "true";
+const AGENT_ENDPOINT =
+  (import.meta.env?.VITE_AGENT_ENDPOINT as string | undefined) ?? "/api/agent-query";
 
-export const isTriggerConfigured = Boolean(
-  TRIGGER_PROJECT_REF && TRIGGER_PUBLIC_TOKEN
-);
+/**
+ * Trigger.dev is "configured" when the project ref is set AND the
+ * token-minting endpoint is reachable. The secret key itself stays
+ * server-side — the browser only knows the endpoint URLs.
+ */
+export const isTriggerConfigured = Boolean(TRIGGER_PROJECT_REF && TRIGGER_TOKEN_ENDPOINT);
+export const isClickHouseLive = CLICKHOUSE_LIVE;
+export const isLive = isTriggerConfigured || isClickHouseLive;
 
 /**
  * The shape returned by `send()` — what the chat UI renders.
@@ -99,29 +120,23 @@ async function loadTransport(): Promise<
     const { TriggerChatTransport } = await import("@trigger.dev/sdk/chat");
     return new TriggerChatTransport({
       task: TASK_ID,
-      // In a Next.js app these would be server actions. In Vite without a
-      // backend, you'd deploy a tiny serverless function (Vercel, Cloudflare
-      // Workers, etc.) that wraps `auth.createPublicToken` and
-      // `chat.createStartSessionAction(TASK_ID)`. The browser hits those
-      // endpoints to mint session-scoped PATs.
+      // Mint a session-scoped PAT via the Vite middleware, which wraps
+      // auth.createPublicToken with the server-side secret key.
       accessToken: async ({ chatId }) => {
-        const res = await fetch(`/api/chat/${chatId}/access-token`, {
+        const res = await fetch(TRIGGER_TOKEN_ENDPOINT, {
           method: "POST",
-          headers: {
-            "x-trigger-public-token": TRIGGER_PUBLIC_TOKEN,
-          },
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chatId }),
         });
         if (!res.ok) throw new Error(`Token refresh failed: ${res.status}`);
-        return res.text();
+        const data = await res.json();
+        return data.publicAccessToken;
       },
-      startSession: async ({ chatId, clientData }) => {
-        const res = await fetch(`/api/chat/${chatId}/start`, {
+      startSession: async ({ chatId }) => {
+        const res = await fetch(TRIGGER_START_ENDPOINT, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-trigger-public-token": TRIGGER_PUBLIC_TOKEN,
-          },
-          body: JSON.stringify({ taskId: TASK_ID, clientData }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chatId, taskId: TASK_ID }),
         });
         if (!res.ok) throw new Error(`Session start failed: ${res.status}`);
         return res.json();
@@ -163,6 +178,36 @@ export async function runTriggerTurn(
 }
 
 /**
+ * ClickHouse-live path: POST the prompt to the Vite dev-server middleware,
+ * which queries live ClickHouse Cloud with the same intent→tool logic as
+ * the Trigger.dev task. Credentials stay server-side; the browser only
+ * sees the resulting VizSpec.
+ */
+export async function runClickHouseTurn(
+  prompt: string,
+  onPhase: (phase: "interpreting" | "querying" | "rendering") => void
+): Promise<AgentTurnResult | null> {
+  if (!isClickHouseLive) return null;
+  onPhase("interpreting");
+  await new Promise((r) => setTimeout(r, 200));
+  onPhase("querying");
+  try {
+    const res = await fetch(AGENT_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt }),
+    });
+    if (!res.ok) throw new Error(`Agent endpoint ${res.status}`);
+    onPhase("rendering");
+    const spec: VizSpec = await res.json();
+    return { spec, caption: spec.verdict ?? "" };
+  } catch (err) {
+    console.warn("[agent] ClickHouse turn failed, falling back to mock:", err);
+    return null;
+  }
+}
+
+/**
  * Fallback path: run a turn against the local mock runtime.
  *
  * Produces an identical VizSpec shape — the renderer doesn't know the
@@ -194,9 +239,12 @@ export async function runMockTurn(
 /**
  * The single entry point the chat UI calls.
  *
- * Routes to the Trigger.dev production path when credentials are configured,
- * otherwise falls back to the mock runtime. Both paths return the same
- * `AgentTurnResult` shape — the chat UI doesn't branch.
+ * Routes to (in priority order):
+ *   1. Trigger.dev production path when VITE_TRIGGER_* creds are set
+ *   2. ClickHouse live middleware when VITE_CLICKHOUSE_LIVE=true
+ *   3. Local mock runtime (fallback)
+ *
+ * All paths return the same `AgentTurnResult` shape — the chat UI doesn't branch.
  */
 export async function runTurn(
   dataset: AtlasDataset,
@@ -207,8 +255,10 @@ export async function runTurn(
   if (isTriggerConfigured) {
     const result = await runTriggerTurn(dataset, prompt, vaultId, onPhase);
     if (result) return result;
-    // If the transport failed to load or the worker didn't respond,
-    // fall through to the mock runtime so the chat stays alive.
+  }
+  if (isClickHouseLive) {
+    const result = await runClickHouseTurn(prompt, onPhase);
+    if (result) return result;
   }
   return runMockTurn(dataset, prompt, onPhase);
 }

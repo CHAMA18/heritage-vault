@@ -11,7 +11,7 @@
  */
 import type { AtlasDataset } from "../atlas/types";
 import type { AgentMessage } from "./spec";
-import { runTurn, isTriggerConfigured } from "./trigger-transport";
+import { runTurn, isTriggerConfigured, isClickHouseLive, isLive } from "./trigger-transport";
 import { renderViz } from "./renderers";
 
 const SUGGESTED_PROMPTS = [
@@ -121,6 +121,8 @@ export class AgentChat {
       if (!result.spec.source) {
         result.spec.source = isTriggerConfigured
           ? "Trigger.dev chat.agent() · ClickHouse"
+          : isClickHouseLive
+          ? "ClickHouse Cloud · live (Vite middleware)"
           : "Mock runtime · (configure Trigger.dev + ClickHouse for production)";
       }
       agentMsg.spec = result.spec;
@@ -150,16 +152,24 @@ export class AgentChat {
           </div>
           <div class="hv-agent__header-right">
             <span class="hv-agent__powered${
-              isTriggerConfigured ? " hv-agent__powered--live" : " hv-agent__powered--fallback"
+              isLive ? " hv-agent__powered--live" : " hv-agent__powered--fallback"
             }" title="${
               isTriggerConfigured
                 ? "Live: Trigger.dev chat.agent() worker querying ClickHouse Cloud"
-                : "Fallback mode: set VITE_TRIGGER_PROJECT_REF + VITE_TRIGGER_PUBLIC_TOKEN and deploy the worker to switch to live Trigger.dev + ClickHouse"
+                : isClickHouseLive
+                ? "Live: Vite middleware querying ClickHouse Cloud directly. Trigger.dev secret key pending — once set, the chat.agent() worker takes over."
+                : "Fallback mode: set VITE_TRIGGER_PROJECT_REF + VITE_TRIGGER_PUBLIC_TOKEN or VITE_CLICKHOUSE_LIVE=true in .env"
             }">
               <span class="material-symbols-outlined" style="font-size:14px">${
-                isTriggerConfigured ? "bolt" : "cloud_off"
+                isLive ? "bolt" : "cloud_off"
               }</span>
-              ${isTriggerConfigured ? "Trigger.dev + ClickHouse · live" : "Mock runtime · configure Trigger.dev + ClickHouse"}
+              ${
+                isTriggerConfigured
+                  ? "Trigger.dev + ClickHouse · live"
+                  : isClickHouseLive
+                  ? "ClickHouse · live"
+                  : "Mock runtime · configure Trigger.dev + ClickHouse"
+              }
             </span>
           </div>
         </header>
