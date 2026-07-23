@@ -4689,6 +4689,175 @@
 
       /* === HV-AGENT:CSS-END === */
     
+/* === HV-FAMILY-MAP:CSS-START === */
+/* ===================================================================
+   HeritageAtlas — World-class Family Map (cinematic constellation)
+   =================================================================== */
+
+#family-map-screen {
+  background: var(--hv-cream, #fbf5ec) !important;
+  color: var(--hv-ink, #1d2018) !important;
+  font-family: "Satoshi", system-ui, sans-serif !important;
+  display: flex !important;
+  align-items: stretch;
+  min-height: 100vh;
+  overflow-x: clip;
+}
+
+/* ── Backdrop ───────────────────────────────────────────────────────── */
+#family-map-screen .hv-fm-backdrop { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+#family-map-screen .hv-fm-aurora {
+  position: fixed; inset: -20%; z-index: 0; pointer-events: none; opacity: 0.7;
+  background:
+    radial-gradient(44rem 32rem at 8% 12%, rgba(192, 98, 58, 0.14), transparent 65%),
+    radial-gradient(40rem 28rem at 95% 85%, rgba(111, 130, 102, 0.16), transparent 60%),
+    radial-gradient(52rem 36rem at 50% 50%, rgba(212, 164, 76, 0.10), transparent 70%);
+  filter: blur(30px);
+  animation: hvFmAurora 34s ease-in-out infinite alternate;
+}
+@keyframes hvFmAurora {
+  0% { transform: translate3d(-1.5%, -1%, 0) scale(1); }
+  50% { transform: translate3d(2%, 1.5%, 0) scale(1.05); }
+  100% { transform: translate3d(-1%, 1%, 0) scale(1.03); }
+}
+#family-map-screen .hv-fm-grain {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.035; mix-blend-mode: multiply;
+  background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png");
+}
+
+/* ── Sidebar (matches other screens) ────────────────────────────────── */
+#family-map-screen .hv-fm-sidebar {
+  position: sticky; top: 0; flex: 0 0 280px; width: 280px; min-width: 280px; max-width: 280px;
+  height: 100vh; overflow-y: auto;
+  background: linear-gradient(180deg, rgba(243, 234, 217, 0.92) 0%, rgba(251, 245, 236, 0.88) 100%);
+  border-right: 1px solid rgba(28, 32, 24, 0.08);
+  backdrop-filter: blur(14px); display: flex; flex-direction: column; padding: 28px 22px; z-index: 10;
+}
+#family-map-screen .hv-fm-sidebar::-webkit-scrollbar { width: 6px; }
+#family-map-screen .hv-fm-sidebar::-webkit-scrollbar-thumb { background: rgba(28, 32, 24, 0.14); border-radius: 3px; }
+
+#family-map-screen .hv-fm-sidebar__brand { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid rgba(28, 32, 24, 0.06); }
+#family-map-screen .hv-fm-sidebar__brand img { height: 38px; width: auto; flex-shrink: 0; }
+#family-map-screen .hv-fm-sidebar__brand-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+#family-map-screen .hv-fm-sidebar__brand-name { font-family: "Fraunces", serif !important; font-weight: 600; font-size: 1.05rem; letter-spacing: -0.01em; color: var(--hv-ink, #1d2018); }
+#family-map-screen .hv-fm-sidebar__brand-tag { font-size: 0.62rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--hv-ink-mute, #6b7060); line-height: 1.2; }
+
+#family-map-screen .hv-fm-sidebar__nav { display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px; }
+#family-map-screen .hv-fm-sidebar__nav-link { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 12px; font-size: 0.9rem; font-weight: 500; color: var(--hv-ink-soft, #3a3f33); text-decoration: none; transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1); }
+#family-map-screen .hv-fm-sidebar__nav-link .material-symbols-outlined { font-size: 20px; color: var(--hv-ink-mute, #6b7060); transition: color 0.25s ease; }
+#family-map-screen .hv-fm-sidebar__nav-link:hover { background: rgba(28, 32, 24, 0.05); color: var(--hv-ink, #1d2018); }
+#family-map-screen .hv-fm-sidebar__nav-link.is-active { background: linear-gradient(135deg, var(--hv-forest, #2c3a2e), var(--hv-forest-deep, #1c2820)); color: var(--hv-cream, #fbf5ec); box-shadow: 0 4px 14px rgba(28, 40, 32, 0.22); }
+#family-map-screen .hv-fm-sidebar__nav-link.is-active .material-symbols-outlined { color: var(--hv-amber, #d4a44c); }
+
+#family-map-screen .hv-fm-sidebar__divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(28, 32, 24, 0.12), transparent); margin: 8px 0 20px; }
+
+#family-map-screen .hv-fm-sidebar__stats { padding: 18px; border-radius: 14px; background: rgba(251, 245, 236, 0.6); border: 1px solid rgba(28, 32, 24, 0.06); margin-bottom: auto; }
+#family-map-screen .hv-fm-sidebar__stats-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--hv-terracotta, #c0623a); margin: 0 0 8px; }
+#family-map-screen .hv-fm-sidebar__stats-value { font-family: "Fraunces", serif; font-weight: 500; font-size: 2rem; color: var(--hv-ink, #1d2018); margin: 0; line-height: 1; }
+#family-map-screen .hv-fm-sidebar__stats-value em { font-style: italic; font-weight: 300; color: var(--hv-terracotta, #c0623a); }
+#family-map-screen .hv-fm-sidebar__stats-sub { font-family: "Spectral", serif; font-style: italic; font-size: 0.82rem; color: var(--hv-ink-mute, #6b7060); margin: 6px 0 0; }
+
+#family-map-screen .hv-fm-sidebar__footer { margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(28, 32, 24, 0.06); display: flex; flex-direction: column; gap: 8px; }
+#family-map-screen .hv-fm-sidebar__theme, #family-map-screen .hv-fm-sidebar__logout { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: none; border-radius: 10px; background: transparent; font-size: 0.85rem; font-weight: 500; color: var(--hv-ink-soft, #3a3f33); cursor: pointer; transition: background 0.2s ease; text-align: left; }
+#family-map-screen .hv-fm-sidebar__theme:hover, #family-map-screen .hv-fm-sidebar__logout:hover { background: rgba(28, 32, 24, 0.05); }
+#family-map-screen .hv-fm-sidebar__theme .material-symbols-outlined, #family-map-screen .hv-fm-sidebar__logout .material-symbols-outlined { font-size: 18px; color: var(--hv-ink-mute, #6b7060); }
+#family-map-screen .hv-fm-sidebar__user { display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin-top: 8px; border-radius: 12px; background: rgba(251, 245, 236, 0.6); }
+#family-map-screen .hv-fm-sidebar__avatar { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, var(--hv-forest, #2c3a2e), var(--hv-forest-deep, #1c2820)); color: var(--hv-amber, #d4a44c); font-family: "Fraunces", serif; font-weight: 500; font-size: 0.88rem; flex-shrink: 0; }
+#family-map-screen .hv-fm-sidebar__user-name { font-size: 0.86rem; font-weight: 600; color: var(--hv-ink, #1d2018); margin: 0; }
+#family-map-screen .hv-fm-sidebar__user-role { font-size: 0.72rem; color: var(--hv-ink-mute, #6b7060); margin: 0; }
+
+/* ── Main content ───────────────────────────────────────────────────── */
+#family-map-screen .hv-fm-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; position: relative; z-index: 2; }
+
+#family-map-screen .hv-fm-topbar { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 24px 40px; border-bottom: 1px solid rgba(28, 32, 24, 0.08); background: linear-gradient(180deg, rgba(251, 245, 236, 0.6) 0%, transparent 100%); backdrop-filter: blur(14px); }
+#family-map-screen .hv-fm-topbar__eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--hv-terracotta, #c0623a); margin: 0 0 4px; }
+#family-map-screen .hv-fm-topbar__title { font-family: "Fraunces", serif !important; font-weight: 400; font-size: clamp(1.8rem, 3vw, 2.4rem); letter-spacing: -0.02em; color: var(--hv-ink, #1d2018); margin: 0; }
+#family-map-screen .hv-fm-topbar__title em { font-style: italic; font-weight: 300; color: var(--hv-forest, #2c3a2e); }
+#family-map-screen .hv-fm-topbar__actions { display: flex; gap: 10px; }
+#family-map-screen .hv-fm-topbar__btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 18px; border-radius: 999px; border: 1px solid rgba(28, 32, 24, 0.14); background: rgba(251, 245, 236, 0.6); color: var(--hv-ink, #1d2018); font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1); }
+#family-map-screen .hv-fm-topbar__btn .material-symbols-outlined { font-size: 16px; }
+#family-map-screen .hv-fm-topbar__btn:hover { background: var(--hv-forest, #2c3a2e); color: var(--hv-cream, #fbf5ec); border-color: var(--hv-forest, #2c3a2e); transform: translateY(-1px); }
+#family-map-screen .hv-fm-topbar__btn--primary { background: linear-gradient(135deg, var(--hv-forest, #2c3a2e), var(--hv-forest-deep, #1c2820)); color: var(--hv-cream, #fbf5ec); border-color: var(--hv-forest, #2c3a2e); }
+#family-map-screen .hv-fm-topbar__btn--primary:hover { box-shadow: 0 6px 18px rgba(28, 40, 32, 0.25); }
+
+/* ── Canvas (constellation) ─────────────────────────────────────────── */
+#family-map-screen .hv-fm-canvas { flex: 1 1 auto; position: relative; overflow-y: auto; padding: 40px; display: grid; grid-template-columns: 1fr 320px; gap: 32px; }
+#family-map-screen .hv-fm-edges { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+
+#family-map-screen .hv-fm-generations { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 48px; padding: 20px 0; }
+#family-map-screen .hv-fm-generation { display: flex; flex-direction: column; gap: 16px; animation: hvFmGenIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: var(--gen-delay, 0ms); }
+@keyframes hvFmGenIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+#family-map-screen .hv-fm-generation__label { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--hv-terracotta, #c0623a); margin: 0; padding-left: 8px; }
+#family-map-screen .hv-fm-generation__row { display: flex; flex-wrap: wrap; gap: 20px; }
+
+#family-map-screen .hv-fm-node { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-radius: 18px; background: rgba(255, 253, 247, 0.85); border: 1px solid rgba(28, 32, 24, 0.08); cursor: pointer; transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1); min-width: 220px; animation: hvFmNodeIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: var(--node-delay, 0ms); backdrop-filter: blur(8px); }
+@keyframes hvFmNodeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+#family-map-screen .hv-fm-node:hover { transform: translateY(-3px); border-color: var(--hv-terracotta, #c0623a); box-shadow: 0 8px 24px rgba(192, 98, 58, 0.12); }
+#family-map-screen .hv-fm-node.is-selected { background: linear-gradient(135deg, var(--hv-forest, #2c3a2e), var(--hv-forest-deep, #1c2820)); border-color: var(--hv-forest, #2c3a2e); box-shadow: 0 8px 24px rgba(28, 40, 32, 0.25); }
+#family-map-screen .hv-fm-node--root { border-color: var(--hv-terracotta, #c0623a); box-shadow: 0 0 0 3px rgba(192, 98, 58, 0.12); }
+#family-map-screen .hv-fm-node__dot { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; background: rgba(111, 130, 102, 0.18); color: var(--hv-forest, #2c3a2e); flex-shrink: 0; transition: all 0.3s ease; }
+#family-map-screen .hv-fm-node--root .hv-fm-node__dot { background: var(--hv-terracotta, #c0623a); color: var(--hv-cream, #fbf5ec); }
+#family-map-screen .hv-fm-node.is-selected .hv-fm-node__dot { background: var(--hv-amber, #d4a44c); color: var(--hv-forest, #2c3a2e); }
+#family-map-screen .hv-fm-node__dot .material-symbols-outlined { font-size: 22px; }
+#family-map-screen .hv-fm-node__body { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+#family-map-screen .hv-fm-node__name { font-family: "Fraunces", serif; font-weight: 500; font-size: 0.95rem; color: var(--hv-ink, #1d2018); line-height: 1.2; }
+#family-map-screen .hv-fm-node.is-selected .hv-fm-node__name { color: var(--hv-cream, #fbf5ec); }
+#family-map-screen .hv-fm-node__meta { font-size: 0.76rem; color: var(--hv-ink-mute, #6b7060); font-family: "Spectral", serif; font-style: italic; }
+#family-map-screen .hv-fm-node.is-selected .hv-fm-node__meta { color: rgba(251, 245, 236, 0.7); }
+#family-map-screen .hv-fm-node__years { font-size: 0.72rem; color: var(--hv-ink-mute, #6b7060); font-variant-numeric: tabular-nums; }
+#family-map-screen .hv-fm-node.is-selected .hv-fm-node__years { color: rgba(251, 245, 236, 0.6); }
+#family-map-screen .hv-fm-node__count { font-size: 0.68rem; font-weight: 600; color: var(--hv-terracotta, #c0623a); margin-top: 2px; }
+#family-map-screen .hv-fm-node.is-selected .hv-fm-node__count { color: var(--hv-amber, #d4a44c); }
+
+/* ── Inspector ──────────────────────────────────────────────────────── */
+#family-map-screen .hv-fm-inspector { position: sticky; top: 40px; align-self: start; max-height: calc(100vh - 120px); overflow-y: auto; }
+#family-map-screen .hv-fm-inspector::-webkit-scrollbar { width: 6px; }
+#family-map-screen .hv-fm-inspector::-webkit-scrollbar-thumb { background: rgba(28, 32, 24, 0.14); border-radius: 3px; }
+#family-map-screen .hv-fm-inspector__empty { padding: 40px 24px; text-align: center; color: var(--hv-ink-mute, #6b7060); }
+#family-map-screen .hv-fm-inspector__empty .material-symbols-outlined { font-size: 32px; color: var(--hv-ink-mute, #6b7060); opacity: 0.5; }
+#family-map-screen .hv-fm-inspector__empty p { font-family: "Spectral", serif; font-style: italic; font-size: 0.88rem; margin: 12px 0 0; }
+
+#family-map-screen .hv-fm-inspector__card { padding: 24px; border-radius: 20px; background: linear-gradient(140deg, var(--hv-forest, #2c3a2e), var(--hv-forest-deep, #1c2820)); color: var(--hv-cream, #fbf5ec); box-shadow: 0 12px 36px rgba(28, 40, 32, 0.18); animation: hvFmInspectIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes hvFmInspectIn { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }
+#family-map-screen .hv-fm-inspector__top { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+#family-map-screen .hv-fm-inspector__avatar { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 14px; background: rgba(212, 164, 76, 0.18); color: var(--hv-amber, #d4a44c); flex-shrink: 0; }
+#family-map-screen .hv-fm-inspector__avatar .material-symbols-outlined { font-size: 24px; }
+#family-map-screen .hv-fm-inspector__name { font-family: "Fraunces", serif; font-weight: 500; font-size: 1.2rem; color: var(--hv-cream, #fbf5ec); margin: 0; line-height: 1.15; }
+#family-map-screen .hv-fm-inspector__role { font-family: "Spectral", serif; font-style: italic; font-size: 0.82rem; color: rgba(251, 245, 236, 0.65); margin: 4px 0 0; }
+#family-map-screen .hv-fm-inspector__notes { font-family: "Spectral", serif; font-size: 0.85rem; line-height: 1.55; color: rgba(251, 245, 236, 0.78); margin: 0 0 18px; padding: 14px; border-radius: 12px; background: rgba(251, 245, 236, 0.06); border-left: 2px solid var(--hv-amber, #d4a44c); }
+#family-map-screen .hv-fm-inspector__meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
+#family-map-screen .hv-fm-inspector__meta div { text-align: center; padding: 12px 8px; border-radius: 12px; background: rgba(251, 245, 236, 0.06); }
+#family-map-screen .hv-fm-inspector__meta b { display: block; font-family: "Fraunces", serif; font-weight: 500; font-size: 1.1rem; color: var(--hv-amber, #d4a44c); }
+#family-map-screen .hv-fm-inspector__meta small { font-size: 0.68rem; color: rgba(251, 245, 236, 0.55); text-transform: uppercase; letter-spacing: 0.1em; }
+#family-map-screen .hv-fm-inspector__section { margin-top: 18px; }
+#family-map-screen .hv-fm-inspector__section-label { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--hv-amber, #d4a44c); margin: 0 0 10px; }
+#family-map-screen .hv-fm-inspector__link { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 14px; border: none; border-radius: 10px; background: rgba(251, 245, 236, 0.06); color: var(--hv-cream, #fbf5ec); font-family: "Satoshi", sans-serif; font-size: 0.86rem; font-weight: 500; cursor: pointer; transition: background 0.2s ease; text-align: left; margin-bottom: 6px; }
+#family-map-screen .hv-fm-inspector__link:hover { background: rgba(251, 245, 236, 0.12); }
+#family-map-screen .hv-fm-inspector__link .material-symbols-outlined { font-size: 16px; color: var(--hv-amber, #d4a44c); }
+#family-map-screen .hv-fm-inspector__memory { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; background: rgba(251, 245, 236, 0.04); margin-bottom: 6px; }
+#family-map-screen .hv-fm-inspector__memory .material-symbols-outlined { font-size: 18px; color: var(--hv-amber, #d4a44c); flex-shrink: 0; }
+#family-map-screen .hv-fm-inspector__memory b { display: block; font-size: 0.84rem; color: var(--hv-cream, #fbf5ec); font-weight: 500; }
+#family-map-screen .hv-fm-inspector__memory small { font-size: 0.72rem; color: rgba(251, 245, 236, 0.55); font-family: "Spectral", serif; font-style: italic; }
+
+/* ── Responsive ─────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  #family-map-screen { display: block; }
+  #family-map-screen .hv-fm-sidebar { position: fixed; top: 0; left: 0; z-index: 100; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1); box-shadow: 0 0 60px rgba(28, 32, 24, 0.2); }
+  #family-map-screen .hv-fm-sidebar.is-open { transform: translateX(0); }
+  #family-map-screen .hv-fm-canvas { grid-template-columns: 1fr; }
+  #family-map-screen .hv-fm-inspector { position: static; max-height: none; }
+}
+@media (max-width: 768px) {
+  #family-map-screen .hv-fm-topbar { padding: 16px 20px; flex-direction: column; align-items: flex-start; gap: 14px; }
+  #family-map-screen .hv-fm-canvas { padding: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #family-map-screen .hv-fm-aurora, #family-map-screen .hv-fm-generation, #family-map-screen .hv-fm-node, #family-map-screen .hv-fm-inspector__card { animation: none !important; transition: none !important; }
+}
+
+      /* === HV-FAMILY-MAP:CSS-END === */
+    
       /* === HV-AUTH:CSS-START === */
 /* ===================================================================
    HeritageAtlas — World-class Authentication Screen
@@ -5169,6 +5338,68 @@ html.dark #login-screen > section:last-child > div > .grid button {
   #login-screen > section:last-child > div > header h2 {
     font-size: 1.8rem !important;
   }
+}
+
+/* ── Mobile sidebar toggle (hamburger button) ───────────────────────── */
+.hv-mobile-toggle {
+  display: none;
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 200;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid rgba(28, 32, 24, 0.12);
+  background: rgba(251, 245, 236, 0.9);
+  backdrop-filter: blur(12px);
+  color: var(--hv-ink, #1d2018);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hv-mobile-toggle .material-symbols-outlined { font-size: 22px; }
+.hv-mobile-toggle:hover {
+  background: var(--hv-forest, #2c3a2e);
+  color: var(--hv-cream, #fbf5ec);
+  border-color: var(--hv-forest, #2c3a2e);
+}
+.hv-mobile-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(28, 32, 24, 0.4);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.hv-mobile-backdrop.is-visible {
+  display: block;
+  opacity: 1;
+}
+
+@media (max-width: 1024px) {
+  .hv-mobile-toggle { display: inline-flex; }
+  /* When any sidebar is open, show the backdrop */
+  [data-sidebar].is-open ~ .hv-mobile-backdrop,
+  .hv-sm-sidebar.is-open ~ .hv-mobile-backdrop,
+  .hv-agent-sidebar.is-open ~ .hv-mobile-backdrop,
+  .hv-fm-sidebar.is-open ~ .hv-mobile-backdrop {
+    display: block;
+    opacity: 1;
+  }
+}
+
+html.dark .hv-mobile-toggle {
+  background: rgba(36, 33, 30, 0.9);
+  border-color: rgba(231, 189, 177, 0.12);
+  color: #f5eee8;
+}
+html.dark .hv-mobile-toggle:hover {
+  background: #4a5b49;
+  color: #fffdf9;
 }
 
       /* === HV-AUTH:CSS-END === */
@@ -5663,20 +5894,7 @@ html.dark #login-screen > section:last-child > div > .grid button {
     </main>
 
     <main id="family-map-screen" class="font-body-md text-on-surface">
-      <aside data-sidebar class="vault-nav hidden flex-col p-6 lg:flex">
-        <div class="mb-10"><img data-brand-logo class="brand-logo" src="/heritageatlas-logo.svg" alt="Heritage Atlas" /></div>
-        <nav class="flex-1 space-y-2"><a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#vault" data-dashboard-view="vault"><span class="material-symbols-outlined">inventory_2</span>The Vault</a><a class="vault-nav-link active flex items-center gap-3 rounded-xl px-4 py-3 font-label-md text-label-md" href="#family-map" data-dashboard-view="family-map"><span class="material-symbols-outlined">account_tree</span>Family Map</a><a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#story-mode" data-dashboard-view="story-mode"><span class="material-symbols-outlined">auto_stories</span>Story Mode</a><a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#atlas" data-dashboard-view="atlas"><span class="material-symbols-outlined">auto_awesome</span>HeritageAtlas</a><a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#agent" data-dashboard-view="agent"><span class="material-symbols-outlined">smart_toy</span>Agent</a></nav>
-        <button data-new-memory class="mb-6 flex w-full items-center justify-center gap-2 rounded-full bg-secondary px-4 py-3 font-label-md text-label-md text-on-secondary shadow-lg"><span class="material-symbols-outlined">add</span>New memory</button>
-        <button class="theme-toggle mb-5" type="button" data-theme-toggle><span class="flex items-center gap-3"><span class="material-symbols-outlined" data-theme-icon>dark_mode</span><span class="font-label-md text-label-md" data-theme-label>Dark mode</span></span><span class="material-symbols-outlined text-base">contrast</span></button>
-        <button class="theme-toggle mb-5 text-secondary" type="button" data-logout><span class="flex items-center gap-3"><span class="material-symbols-outlined">logout</span><span class="font-label-md text-label-md">Log out</span></span><span class="material-symbols-outlined text-base">arrow_forward</span></button>
-        <div class="border-t border-outline-variant/20 pt-5"><div class="flex items-center gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container text-secondary"><span class="material-symbols-outlined">person</span></div><div><p class="font-label-md text-label-md font-semibold text-primary" data-auth-user-name>Vault keeper</p><p class="font-caption text-caption text-on-surface-variant">Vault keeper</p></div></div></div>
-      </aside>
-      <section class="flex min-w-0 flex-1 flex-col">
-        <header class="border-b border-outline-variant/25 bg-surface/80 px-5 py-4 backdrop-blur-md md:px-10"><div class="mx-auto flex max-w-[1280px] items-center justify-between gap-4"><div><p class="font-caption text-caption uppercase tracking-[.2em] text-secondary">Your lineage, connected</p><h2 class="mt-1 font-display-lg text-headline-md text-primary">Family Map</h2></div><div class="flex items-center gap-3"><button data-add-relative class="rounded-full border border-secondary/35 bg-surface-container-lowest px-5 py-3 font-label-md text-label-md text-secondary shadow-sm transition hover:-translate-y-0.5 hover:border-secondary hover:bg-secondary-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"><span class="material-symbols-outlined mr-2 align-middle text-base">person_add</span>Add relative</button><button data-invite-family class="rounded-full bg-primary px-5 py-3 font-label-md text-label-md text-on-primary shadow-sm transition hover:-translate-y-0.5 hover:bg-primary-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"><span class="material-symbols-outlined mr-2 align-middle text-base">group_add</span>Invite family</button></div></div></header>
-        <div class="relative flex min-h-[calc(100vh-89px)] flex-1 flex-col overflow-hidden lg:flex-row"><aside class="z-10 w-full border-b border-outline-variant/30 bg-surface-container-low p-6 lg:w-72 lg:border-b-0 lg:border-r"><p class="mb-2 font-label-md text-label-md uppercase tracking-[.18em] text-secondary">Living archive</p><h3 class="font-display-lg text-2xl font-semibold text-primary">Your lineage</h3><p class="mt-3 text-sm leading-6 text-on-surface-variant">Explore the people and stories that connect your family across generations.</p><div class="mt-8 space-y-3"><div class="rounded-xl bg-surface-container-lowest p-4"><p class="text-xs uppercase tracking-widest text-secondary">Known ancestors</p><p class="mt-1 text-2xl font-semibold text-primary">36</p></div><div class="rounded-xl bg-surface-container-lowest p-4"><p class="text-xs uppercase tracking-widest text-secondary">Generations</p><p class="mt-1 text-2xl font-semibold text-primary">5</p></div></div><button data-add-relative class="mt-8 flex w-full items-center justify-center gap-2 rounded-xl bg-secondary px-4 py-3 font-label-md text-label-md text-on-secondary"><span class="material-symbols-outlined text-lg">add</span>Add relative</button></aside>
-          <div class="family-map-canvas relative min-h-[600px] flex-1 overflow-hidden p-8 md:p-14"><div class="absolute right-6 top-6 z-10 flex flex-col overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest shadow-lg"><button class="p-3 text-primary transition hover:bg-surface-container-low"><span class="material-symbols-outlined">add</span></button><button class="border-t border-outline-variant/20 p-3 text-primary transition hover:bg-surface-container-low"><span class="material-symbols-outlined">remove</span></button><button class="border-t border-outline-variant/20 p-3 text-primary transition hover:bg-surface-container-low"><span class="material-symbols-outlined">center_focus_strong</span></button></div><svg class="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true"><path d="M50% 32% C50% 41%, 34% 41%, 34% 52% M50% 32% C50% 41%, 66% 41%, 66% 52% M34% 60% C34% 70%, 23% 70%, 23% 80% M34% 60% C34% 70%, 45% 70%, 45% 80%" fill="none" stroke="#aeb5a8" stroke-width="2" stroke-dasharray="5 5" /></svg><div class="relative mx-auto flex max-w-3xl flex-col items-center gap-16 pt-4 md:pt-12"><article class="map-node relative z-10 w-64 rounded-2xl border border-secondary/30 bg-surface-container-lowest p-4 text-center"><div class="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-secondary-container text-secondary"><span class="material-symbols-outlined text-3xl">person</span></div><h4 class="font-display-lg text-xl font-semibold text-primary">Samuel Kabwe</h4><p class="mt-1 text-xs uppercase tracking-widest text-secondary">Root ancestor · 1897–1964</p></article><div class="grid w-full gap-8 sm:grid-cols-2"><article class="map-node relative z-10 rounded-2xl border border-outline-variant/30 bg-surface-container-lowest p-4 text-center"><div class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-primary-fixed text-primary"><span class="material-symbols-outlined text-2xl">person</span></div><h4 class="font-display-lg text-lg font-semibold text-primary">Martha Banda</h4><p class="mt-1 text-xs uppercase tracking-widest text-secondary">Daughter · 1921–2008</p></article><article class="map-node relative z-10 rounded-2xl border border-outline-variant/30 bg-surface-container-lowest p-4 text-center"><div class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-primary-fixed text-primary"><span class="material-symbols-outlined text-2xl">person</span></div><h4 class="font-display-lg text-lg font-semibold text-primary">Joseph Kabwe</h4><p class="mt-1 text-xs uppercase tracking-widest text-secondary">Son · 1924–1999</p></article></div><div class="grid w-full gap-8 sm:grid-cols-2"><article class="map-node relative z-10 rounded-2xl border border-outline-variant/30 bg-surface-container-lowest p-4 text-center"><div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-secondary-container text-secondary"><span class="material-symbols-outlined">person</span></div><h4 class="font-display-lg text-lg font-semibold text-primary">Amara Kabwe</h4><p class="mt-1 text-xs uppercase tracking-widest text-secondary">You · Present</p></article><article class="map-node relative z-10 flex items-center justify-center rounded-2xl border border-dashed border-secondary/40 bg-surface-container-low p-4 text-center"><div><span class="material-symbols-outlined mb-1 text-2xl text-secondary">add</span><p class="font-label-md text-label-md text-secondary">Add a branch</p></div></article></div></div></div>
-        </div>
-      </section>
+      <!-- Family Map content rendered by /src/family-map.ts -->
     </main>
 
     <main id="story-mode-screen" class="font-body-md text-on-surface">
@@ -5830,6 +6048,100 @@ html.dark #login-screen > section:last-child > div > .grid button {
           passwordToggle.querySelector(".material-symbols-outlined").textContent = isPassword ? "visibility_off" : "visibility";
         });
       }
+
+      // ── Password reset (Firebase sendPasswordResetEmail) ──────────
+      const forgotLink = document.querySelector("[data-forgot-password]");
+      if (forgotLink) {
+        forgotLink.addEventListener("click", async (e) => {
+          e.preventDefault();
+          const email = document.getElementById("email")?.value || "";
+          if (!email) {
+            alert("Enter your email address first, then click 'Forgot password?'");
+            document.getElementById("email")?.focus();
+            return;
+          }
+          try {
+            const { sendPasswordResetEmail } = await import("firebase/auth");
+            const { firebaseAuth } = await import("/src/firebase.ts");
+            await sendPasswordResetEmail(firebaseAuth, email);
+            alert("Password reset email sent to " + email + ". Check your inbox.");
+          } catch (err) {
+            alert("Could not send reset email: " + err.message);
+          }
+        });
+      }
+
+      // ── Google / Apple social auth (Firebase signInWithPopup) ─────
+      const socialButtons = document.querySelectorAll("#login-screen .grid button[type='button']");
+      if (socialButtons.length >= 2) {
+        // Google button (first)
+        socialButtons[0].addEventListener("click", async () => {
+          try {
+            const { GoogleAuthProvider, signInWithPopup } = await import("firebase/auth");
+            const { firebaseAuth } = await import("/src/firebase.ts");
+            const provider = new GoogleAuthProvider();
+            await signInWithPopup(firebaseAuth, provider);
+            showVault();
+          } catch (err) {
+            console.warn("[google-auth]", err.message);
+            alert("Google sign-in failed: " + err.message);
+          }
+        });
+        // Apple button (second) — uses AppleAuthProvider
+        socialButtons[1].addEventListener("click", async () => {
+          try {
+            const { OAuthProvider, signInWithPopup } = await import("firebase/auth");
+            const { firebaseAuth } = await import("/src/firebase.ts");
+            const provider = new OAuthProvider("apple.com");
+            await signInWithPopup(firebaseAuth, provider);
+            showVault();
+          } catch (err) {
+            console.warn("[apple-auth]", err.message);
+            alert("Apple sign-in failed: " + err.message);
+          }
+        });
+      }
+
+      // ── Mobile sidebar toggle (hamburger button < 1024px) ─────────
+      // Add a hamburger button to every screen's sidebar for mobile
+      function addMobileSidebarToggles() {
+        const sidebars = document.querySelectorAll("[data-sidebar], .hv-sm-sidebar, .hv-agent-sidebar, .hv-fm-sidebar");
+        sidebars.forEach((sidebar) => {
+          if (sidebar.querySelector(".hv-mobile-toggle")) return;
+          const toggle = document.createElement("button");
+          toggle.className = "hv-mobile-toggle";
+          toggle.type = "button";
+          toggle.setAttribute("aria-label", "Toggle navigation");
+          toggle.innerHTML = '<span class="material-symbols-outlined">menu</span>';
+          toggle.addEventListener("click", (e) => {
+            e.stopPropagation();
+            sidebar.classList.toggle("is-open");
+          });
+          // Insert at the top of the sidebar
+          sidebar.insertBefore(toggle, sidebar.firstChild);
+        });
+
+        // Add a backdrop that closes the sidebar when clicked
+        if (!document.querySelector(".hv-mobile-backdrop")) {
+          const backdrop = document.createElement("div");
+          backdrop.className = "hv-mobile-backdrop";
+          backdrop.addEventListener("click", () => {
+            document.querySelectorAll("[data-sidebar], .hv-sm-sidebar, .hv-agent-sidebar, .hv-fm-sidebar").forEach((s) => s.classList.remove("is-open"));
+          });
+          document.body.appendChild(backdrop);
+        }
+
+        // Close sidebar when clicking a nav link
+        document.querySelectorAll("[data-sidebar] a, .hv-sm-sidebar a, .hv-agent-sidebar a, .hv-fm-sidebar a").forEach((link) => {
+          link.addEventListener("click", () => {
+            document.querySelectorAll("[data-sidebar], .hv-sm-sidebar, .hv-agent-sidebar, .hv-fm-sidebar").forEach((s) => s.classList.remove("is-open"));
+          });
+        });
+      }
+      addMobileSidebarToggles();
+      // Re-run when Story Mode / Agent / Family Map initialise (they inject their own sidebars)
+      const mobileObs = new MutationObserver(() => addMobileSidebarToggles());
+      mobileObs.observe(document.body, { childList: true, subtree: true });
 
       if (loginForm) {
         loginForm.addEventListener("submit", (e) => {
@@ -6442,6 +6754,52 @@ html.dark #login-screen > section:last-child > div > .grid button {
       if (window.location.hash === "#agent") ensureAgentChat();
     </script>
     <!-- === HV-AGENT:SCRIPT-END === -->
+        <!-- === HV-FAMILY-MAP:SCRIPT-START === -->
+    <script type="module">
+      import { initFamilyMap } from "/src/family-map.ts";
+      let fmInitialised = false;
+      function ensureFamilyMap() {
+        const screen = document.getElementById("family-map-screen");
+        if (!screen || fmInitialised) return;
+        initFamilyMap(screen);
+        fmInitialised = true;
+      }
+      document.addEventListener("click", (e) => {
+        const link = e.target.closest('[data-dashboard-view="family-map"]');
+        if (!link) return;
+        e.preventDefault();
+        const landingPage = document.querySelector(".landing-page");
+        const loginScreen = document.getElementById("login-screen");
+        const vaultScreen = document.getElementById("vault-screen");
+        const storyModeScreen = document.getElementById("story-mode-screen");
+        const agentScreen = document.getElementById("agent-screen");
+        const fmScreen = document.getElementById("family-map-screen");
+        if (!fmScreen) return;
+        if (landingPage) landingPage.classList.add("is-hidden");
+        if (loginScreen) loginScreen.style.display = "none";
+        if (vaultScreen) vaultScreen.style.display = "none";
+        if (storyModeScreen) storyModeScreen.style.display = "none";
+        if (agentScreen) agentScreen.style.display = "none";
+        fmScreen.style.display = "flex";
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        history.pushState({ view: "family-map" }, "", "#family-map");
+        requestAnimationFrame(() => ensureFamilyMap());
+      });
+      // Fix the display mode for family-map
+      const origHandler = window.addEventListener;
+      if (window.location.hash === "#family-map") {
+        document.addEventListener("DOMContentLoaded", () => {
+          const landingPage = document.querySelector(".landing-page");
+          const fmScreen = document.getElementById("family-map-screen");
+          if (landingPage && fmScreen) {
+            landingPage.classList.add("is-hidden");
+            fmScreen.style.display = "flex";
+            requestAnimationFrame(() => ensureFamilyMap());
+          }
+        });
+      }
+    </script>
+    <!-- === HV-FAMILY-MAP:SCRIPT-END === -->
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

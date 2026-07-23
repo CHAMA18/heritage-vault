@@ -1,6 +1,6 @@
 # HeritageAtlas
 
-> A visualization-first chat agent for family archives — the response IS the product: a chart, a map, a diagram. Never a paragraph.
+> HeritageAtlas is a visualization-first chat agent for family archives. Ask "Where did my family live?" and get an interactive map — never a paragraph. Powered by Trigger.dev's `chat.agent()` orchestrating 10 ClickHouse-querying tools, with Claude Sonnet 4.5 deciding which chart answers your question.
 
 **Try it:** [https://preview-3770180e-d32b-4a00-a0fb-1f99bf6dec67.space-z.ai/](https://preview-3770180e-d32b-4a00-a0fb-1f99bf6dec67.space-z.ai/) → log in → click **Agent** in the sidebar
 
