@@ -2583,6 +2583,801 @@
 }
 
       /* === HV-AGENT:CSS-END === */
+    
+
+
+      /* === HV-STORY-MODE:CSS-START === */
+/* ===================================================================
+   HeritageAtlas — Story Mode (world-class cinematic narrative)
+   A guided reading experience that turns evidence into a story.
+
+   Design language:
+   - Editorial display serif (Fraunces) for chapter titles + drop caps
+   - Spectral serif for body, Satoshi for UI
+   - Warm archival cream + deep forest + terracotta accents
+   - Parallax figure layers, ambient grain, vignette
+   - Chapter stepper with scroll-spy
+   - Evidence rail that updates per chapter
+   - AI query bar that hands off to the HeritageAtlas Agent
+   =================================================================== */
+
+#story-mode-screen {
+  background: var(--hv-cream, #fbf5ec) !important;
+  color: var(--hv-ink, #1d2018) !important;
+  font-family: "Satoshi", system-ui, sans-serif !important;
+  position: relative;
+  overflow-x: clip;
+  /* Full-bleed: span the entire viewport width */
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: block;
+}
+
+/* ── Cinematic backdrop: aurora + grain + vignette ──────────────────── */
+#story-mode-screen .hv-sm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+#story-mode-screen .hv-sm-aurora {
+  position: fixed;
+  inset: -20%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.7;
+  background:
+    radial-gradient(40rem 30rem at 10% 10%, rgba(192, 98, 58, 0.14), transparent 65%),
+    radial-gradient(36rem 26rem at 92% 80%, rgba(111, 130, 102, 0.16), transparent 60%),
+    radial-gradient(48rem 32rem at 50% 100%, rgba(212, 164, 76, 0.12), transparent 70%);
+  filter: blur(28px);
+  animation: hvSmAuroraDrift 32s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes hvSmAuroraDrift {
+  0%   { transform: translate3d(-1.5%, -1%, 0) scale(1); }
+  50%  { transform: translate3d(2%, 1.5%, 0) scale(1.05); }
+  100% { transform: translate3d(-1%, 1%, 0) scale(1.03); }
+}
+#story-mode-screen .hv-sm-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.04;
+  mix-blend-mode: multiply;
+  background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png");
+}
+
+/* ── Layout shell: sidebar + main + evidence rail ───────────────────── */
+#story-mode-screen > .flex {
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Hero ───────────────────────────────────────────────────────────── */
+#story-mode-screen .hv-sm-hero {
+  position: relative;
+  padding: 80px 56px 48px;
+  border-bottom: 1px solid rgba(28, 32, 24, 0.08);
+  overflow: hidden;
+}
+#story-mode-screen .hv-sm-hero__inner {
+  /* Full-bleed: no max-width, edge-to-edge with generous padding */
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 48px;
+  align-items: center;
+}
+#story-mode-screen .hv-sm-hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--hv-terracotta, #c0623a);
+  margin-bottom: 20px;
+}
+#story-mode-screen .hv-sm-hero__eyebrow::before {
+  content: "";
+  width: 32px; height: 1px;
+  background: var(--hv-terracotta, #c0623a);
+}
+#story-mode-screen .hv-sm-hero__title {
+  font-family: "Fraunces", serif !important;
+  font-weight: 400;
+  font-size: clamp(2.6rem, 5.5vw, 4.6rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  color: var(--hv-ink, #1d2018);
+  margin: 0 0 22px;
+}
+#story-mode-screen .hv-sm-hero__title em {
+  font-style: italic;
+  font-weight: 300;
+  color: var(--hv-forest, #2c3a2e);
+}
+#story-mode-screen .hv-sm-hero__lede {
+  font-size: 1.1rem;
+  line-height: 1.65;
+  color: var(--hv-ink-soft, #3a3f33);
+  max-width: 38rem;
+  margin: 0;
+}
+#story-mode-screen .hv-sm-hero__stats {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 26px 30px;
+  border-radius: 22px;
+  background: linear-gradient(140deg, rgba(181, 196, 168, 0.32), rgba(212, 164, 76, 0.18));
+  border: 1px solid rgba(45, 58, 46, 0.14);
+  backdrop-filter: blur(12px);
+  min-width: 280px;
+  position: relative;
+  overflow: hidden;
+}
+#story-mode-screen .hv-sm-hero__stats::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 80% 20%, rgba(251, 245, 236, 0.5), transparent 60%);
+  pointer-events: none;
+}
+#story-mode-screen .hv-sm-hero__stats-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--hv-forest, #2c3a2e);
+}
+#story-mode-screen .hv-sm-hero__stats-head .material-symbols-outlined {
+  font-size: 18px;
+  color: var(--hv-terracotta, #c0623a);
+}
+#story-mode-screen .hv-sm-hero__stats-title {
+  font-family: "Fraunces", serif !important;
+  font-weight: 500;
+  font-size: 1.25rem;
+  color: var(--hv-ink, #1d2018);
+  letter-spacing: -0.01em;
+}
+#story-mode-screen .hv-sm-hero__stats-meta {
+  font-size: 0.85rem;
+  color: var(--hv-ink-soft, #3a3f33);
+  font-family: "Spectral", serif;
+  font-style: italic;
+}
+
+/* ── Chapter stepper ────────────────────────────────────────────────── */
+#story-mode-screen .hv-sm-stepper {
+  /* Full-bleed */
+  padding: 40px 56px;
+}
+#story-mode-screen .hv-sm-stepper__track {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  padding: 28px;
+  border-radius: 24px;
+  background: rgba(251, 245, 236, 0.6);
+  border: 1px solid rgba(28, 32, 24, 0.08);
+  backdrop-filter: blur(14px);
+}
+#story-mode-screen .hv-sm-stepper__track::before {
+  content: "";
+  position: absolute;
+  top: 56px;
+  left: 56px;
+  right: 56px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(28, 32, 24, 0.16) 8%, rgba(28, 32, 24, 0.16) 92%, transparent);
+  z-index: 0;
+}
+#story-mode-screen .hv-sm-step {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.3s var(--hv-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+#story-mode-screen .hv-sm-step:hover {
+  transform: translateY(-3px);
+}
+#story-mode-screen .hv-sm-step__num {
+  font-family: "Fraunces", serif !important;
+  font-style: italic;
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--hv-terracotta, #c0623a);
+  letter-spacing: 0.05em;
+}
+#story-mode-screen .hv-sm-step__dot {
+  position: relative;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--hv-cream, #fbf5ec);
+  border: 1.5px solid rgba(28, 32, 24, 0.18);
+  display: grid; place-items: center;
+  transition: all 0.4s var(--hv-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+#story-mode-screen .hv-sm-step__dot .material-symbols-outlined {
+  font-size: 20px;
+  color: var(--hv-ink-mute, #6b7060);
+  transition: color 0.4s ease;
+}
+#story-mode-screen .hv-sm-step.is-active .hv-sm-step__dot {
+  background: linear-gradient(135deg, var(--hv-forest, #2c3a2e), var(--hv-forest-deep, #1c2820));
+  border-color: var(--hv-forest, #2c3a2e);
+  box-shadow: 0 0 0 5px rgba(45, 58, 46, 0.12), 0 8px 20px rgba(28, 40, 32, 0.2);
+}
+#story-mode-screen .hv-sm-step.is-active .hv-sm-step__dot .material-symbols-outlined {
+  color: var(--hv-amber, #d4a44c);
+}
+#story-mode-screen .hv-sm-step.is-read .hv-sm-step__dot {
+  background: rgba(111, 130, 102, 0.18);
+  border-color: rgba(111, 130, 102, 0.4);
+}
+#story-mode-screen .hv-sm-step.is-read .hv-sm-step__dot .material-symbols-outlined {
+  color: var(--hv-moss, #6f8266);
+}
+#story-mode-screen .hv-sm-step__label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--hv-ink-mute, #6b7060);
+  transition: color 0.3s ease;
+}
+#story-mode-screen .hv-sm-step.is-active .hv-sm-step__label {
+  color: var(--hv-ink, #1d2018);
+}
+#story-mode-screen .hv-sm-step__sub {
+  font-size: 0.78rem;
+  color: var(--hv-ink-mute, #6b7060);
+  font-family: "Spectral", serif;
+  font-style: italic;
+  line-height: 1.3;
+  max-width: 12rem;
+}
+
+/* ── Main content + evidence rail ───────────────────────────────────── */
+#story-mode-screen .hv-sm-body {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 56px;
+  /* Full-bleed: no max-width */
+  padding: 32px 56px 120px;
+}
+@media (max-width: 1100px) {
+  #story-mode-screen .hv-sm-body { grid-template-columns: 1fr; }
+}
+
+/* ── Chapter header bar ─────────────────────────────────────────────── */
+#story-mode-screen .hv-sm-chapter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 22px;
+  border-radius: 16px;
+  background: rgba(251, 245, 236, 0.7);
+  border: 1px solid rgba(28, 32, 24, 0.08);
+  margin-bottom: 32px;
+}
+#story-mode-screen .hv-sm-chapter-bar__label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--hv-terracotta, #c0623a);
+}
+#story-mode-screen .hv-sm-chapter-bar__nav {
+  display: flex;
+  gap: 8px;
+}
+#story-mode-screen .hv-sm-chapter-bar__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(28, 32, 24, 0.14);
+  background: var(--hv-cream, #fbf5ec);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--hv-ink, #1d2018);
+  cursor: pointer;
+  transition: all 0.25s var(--hv-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+#story-mode-screen .hv-sm-chapter-bar__btn:hover:not(:disabled) {
+  background: var(--hv-forest, #2c3a2e);
+  color: var(--hv-cream, #fbf5ec);
+  border-color: var(--hv-forest, #2c3a2e);
+}
+#story-mode-screen .hv-sm-chapter-bar__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+#story-mode-screen .hv-sm-chapter-bar__btn .material-symbols-outlined {
+  font-size: 16px;
+}
+
+/* ── Narrative article ──────────────────────────────────────────────── */
+#story-mode-screen .hv-sm-narrative {
+  position: relative;
+  padding: 56px 64px 64px;
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 247, 0.95) 0%, rgba(251, 245, 236, 0.92) 100%);
+  border: 1px solid rgba(28, 32, 24, 0.08);
+  box-shadow: 0 8px 32px rgba(28, 32, 24, 0.06), 0 24px 60px rgba(28, 32, 24, 0.08);
+  overflow: hidden;
+}
+#story-mode-screen .hv-sm-narrative::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--hv-terracotta, #c0623a), var(--hv-amber, #d4a44c), var(--hv-moss, #6f8266));
+}
+#story-mode-screen .hv-sm-narrative__eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--hv-terracotta, #c0623a);
+  margin-bottom: 16px;
+}
+#story-mode-screen .hv-sm-narrative__title {
+  font-family: "Fraunces", serif !important;
+  font-weight: 400;
+  font-size: clamp(2rem, 3.6vw, 3rem);
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  color: var(--hv-ink, #1d2018);
+  margin: 0 0 16px;
+}
+#story-mode-screen .hv-sm-narrative__title em {
+  font-style: italic;
+  font-weight: 300;
+  color: var(--hv-forest, #2c3a2e);
+}
+#story-mode-screen .hv-sm-narrative__excerpt {
+  font-family: "Spectral", serif !important;
+  font-style: italic;
+  font-size: 1.15rem;
+  line-height: 1.55;
+  color: var(--hv-ink-soft, #3a3f33);
+  margin: 0 0 32px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid rgba(28, 32, 24, 0.08);
+}
+#story-mode-screen .hv-sm-narrative__body {
+  font-family: "Spectral", serif !important;
+  font-size: 1.1rem;
+  line-height: 1.85;
+  color: var(--hv-ink, #1d2018);
+}
+#story-mode-screen .hv-sm-narrative__body p {
+  margin: 0 0 1.5em;
+}
+#story-mode-screen .hv-sm-narrative__body p:first-of-type::first-letter {
+  font-family: "Fraunces", serif !important;
+  font-weight: 400;
+  font-size: 5.2rem;
+  line-height: 0.85;
+  float: left;
+  margin: 8px 14px -8px 0;
+  color: var(--hv-terracotta, #c0623a);
+  font-style: italic;
+}
+#story-mode-screen .hv-sm-narrative__body em {
+  font-style: italic;
+  color: var(--hv-forest, #2c3a2e);
+}
+
+/* Pull quote */
+#story-mode-screen .hv-sm-pullquote {
+  margin: 40px -16px;
+  padding: 32px 40px;
+  border-left: 3px solid var(--hv-terracotta, #c0623a);
+  background: linear-gradient(90deg, rgba(192, 98, 58, 0.06), transparent 70%);
+  border-radius: 0 16px 16px 0;
+  font-family: "Fraunces", serif !important;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 1.45rem;
+  line-height: 1.4;
+  color: var(--hv-forest, #2c3a2e);
+  letter-spacing: -0.01em;
+}
+#story-mode-screen .hv-sm-pullquote::before {
+  content: "\201C";
+  font-size: 3rem;
+  line-height: 0.6;
+  color: var(--hv-terracotta, #c0623a);
+  opacity: 0.4;
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* Figure with parallax */
+#story-mode-screen .hv-sm-figure {
+  position: relative;
+  margin: 40px -32px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 12px 36px rgba(28, 32, 24, 0.12);
+  background: #1c2820;
+}
+#story-mode-screen .hv-sm-figure__img {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 320px;
+  object-fit: cover;
+  filter: sepia(0.18) saturate(0.95) contrast(1.04);
+  will-change: transform;
+}
+#story-mode-screen .hv-sm-figure__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 50%, rgba(28, 40, 32, 0.7) 100%);
+  pointer-events: none;
+}
+#story-mode-screen .hv-sm-figure__caption {
+  position: absolute;
+  bottom: 20px;
+  left: 24px;
+  right: 24px;
+  color: rgba(251, 245, 236, 0.92);
+  font-family: "Spectral", serif;
+  font-style: italic;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+#story-mode-screen .hv-sm-figure__caption b {
+  display: block;
+  font-family: "Fraunces", serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 1rem;
+  margin-bottom: 4px;
+  color: var(--hv-cream, #fbf5ec);
+}
+
+/* Narrative footer */
+#story-mode-screen .hv-sm-narrative__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 48px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(28, 32, 24, 0.08);
+}
+#story-mode-screen .hv-sm-narrative__source {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--hv-ink-soft, #3a3f33);
+}
+#story-mode-screen .hv-sm-narrative__source .material-symbols-outlined {
+  color: var(--hv-moss, #6f8266);
+  font-size: 18px;
+}
+#story-mode-screen .hv-sm-narrative__save {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  background: var(--hv-forest, #2c3a2e);
+  color: var(--hv-cream, #fbf5ec);
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s var(--hv-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+#story-mode-screen .hv-sm-narrative__save:hover {
+  background: var(--hv-forest-deep, #1c2820);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(28, 40, 32, 0.25);
+}
+
+/* ── Evidence rail ──────────────────────────────────────────────────── */
+#story-mode-screen .hv-sm-rail {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  padding-right: 4px;
+}
+#story-mode-screen .hv-sm-rail::-webkit-scrollbar { width: 6px; }
+#story-mode-screen .hv-sm-rail::-webkit-scrollbar-track { background: transparent; }
+#story-mode-screen .hv-sm-rail::-webkit-scrollbar-thumb { background: rgba(28, 32, 24, 0.14); border-radius: 3px; }
+
+#story-mode-screen .hv-sm-rail__head {
+  padding: 18px 22px;
+  border-radius: 18px;
+  background: linear-gradient(140deg, var(--hv-forest, #2c3a2e), var(--hv-forest-deep, #1c2820));
+  color: var(--hv-cream, #fbf5ec);
+}
+#story-mode-screen .hv-sm-rail__head-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+#story-mode-screen .hv-sm-rail__head-top .material-symbols-outlined {
+  color: var(--hv-amber, #d4a44c);
+  font-size: 20px;
+}
+#story-mode-screen .hv-sm-rail__head-title {
+  font-family: "Fraunces", serif !important;
+  font-weight: 500;
+  font-size: 1.1rem;
+  letter-spacing: -0.01em;
+}
+#story-mode-screen .hv-sm-rail__head-desc {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: rgba(251, 245, 236, 0.75);
+  margin: 0;
+}
+
+#story-mode-screen .hv-sm-evidence {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+#story-mode-screen .hv-sm-evidence-card {
+  position: relative;
+  padding: 18px 20px;
+  border-radius: 16px;
+  background: rgba(251, 245, 236, 0.8);
+  border: 1px solid rgba(28, 32, 24, 0.1);
+  cursor: pointer;
+  transition: all 0.3s var(--hv-ease, cubic-bezier(0.22, 1, 0.36, 1));
+  overflow: hidden;
+  animation: hvSmEvidenceIn 0.5s var(--hv-ease, cubic-bezier(0.22, 1, 0.36, 1)) both;
+}
+@keyframes hvSmEvidenceIn {
+  from { opacity: 0; transform: translateX(12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+#story-mode-screen .hv-sm-evidence-card::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--hv-terracotta, #c0623a);
+  transform: scaleY(0);
+  transform-origin: 0 0;
+  transition: transform 0.4s var(--hv-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+#story-mode-screen .hv-sm-evidence-card:hover {
+  background: rgba(255, 253, 247, 0.95);
+  border-color: rgba(28, 32, 24, 0.18);
+  transform: translateX(-2px);
+  box-shadow: -4px 8px 20px rgba(28, 32, 24, 0.06);
+}
+#story-mode-screen .hv-sm-evidence-card:hover::before {
+  transform: scaleY(1);
+}
+#story-mode-screen .hv-sm-evidence-card__top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+#story-mode-screen .hv-sm-evidence-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px; height: 32px;
+  border-radius: 10px;
+  background: rgba(192, 98, 58, 0.14);
+  color: var(--hv-terracotta, #c0623a);
+}
+#story-mode-screen .hv-sm-evidence-card__icon .material-symbols-outlined {
+  font-size: 18px;
+}
+#story-mode-screen .hv-sm-evidence-card__year {
+  font-family: "Fraunces", serif !important;
+  font-style: italic;
+  font-size: 0.78rem;
+  color: var(--hv-ink-mute, #6b7060);
+  margin-left: auto;
+}
+#story-mode-screen .hv-sm-evidence-card__title {
+  font-family: "Fraunces", serif !important;
+  font-weight: 500;
+  font-size: 0.98rem;
+  line-height: 1.25;
+  color: var(--hv-ink, #1d2018);
+  margin: 0 0 4px;
+}
+#story-mode-screen .hv-sm-evidence-card__meta {
+  font-size: 0.78rem;
+  color: var(--hv-ink-mute, #6b7060);
+  font-family: "Spectral", serif;
+  font-style: italic;
+}
+
+/* ── AI query bar (sticky bottom) ───────────────────────────────────── */
+#story-mode-screen .hv-sm-query {
+  position: sticky;
+  bottom: 24px;
+  margin: 0 56px 32px;
+  /* Full-bleed: no max-width, no auto-centering */
+  padding: 14px 16px;
+  border-radius: 22px;
+  background: rgba(251, 245, 236, 0.92);
+  border: 1px solid rgba(28, 32, 24, 0.12);
+  backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: 0 12px 40px rgba(28, 32, 24, 0.12), 0 24px 60px rgba(28, 32, 24, 0.08);
+  z-index: 10;
+}
+#story-mode-screen .hv-sm-query__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+#story-mode-screen .hv-sm-query__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--hv-forest, #2c3a2e), var(--hv-forest-deep, #1c2820));
+  color: var(--hv-amber, #d4a44c);
+  flex-shrink: 0;
+}
+#story-mode-screen .hv-sm-query__icon .material-symbols-outlined {
+  font-size: 22px;
+}
+#story-mode-screen .hv-sm-query__input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 0.98rem;
+  color: var(--hv-ink, #1d2018);
+  padding: 10px 4px;
+}
+#story-mode-screen .hv-sm-query__input::placeholder {
+  color: var(--hv-ink-mute, #6b7060);
+  font-style: italic;
+}
+#story-mode-screen .hv-sm-query__send {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 22px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, var(--hv-terracotta, #c0623a), #a44e2c);
+  color: var(--hv-cream, #fbf5ec);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s var(--hv-ease, cubic-bezier(0.22, 1, 0.36, 1));
+  flex-shrink: 0;
+}
+#story-mode-screen .hv-sm-query__send:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(192, 98, 58, 0.35);
+}
+#story-mode-screen .hv-sm-query__send .material-symbols-outlined {
+  font-size: 18px;
+}
+#story-mode-screen .hv-sm-query__hints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 0 4px;
+}
+#story-mode-screen .hv-sm-query__hint {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(28, 32, 24, 0.05);
+  border: 1px solid rgba(28, 32, 24, 0.08);
+  font-size: 0.78rem;
+  color: var(--hv-ink-soft, #3a3f33);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+#story-mode-screen .hv-sm-query__hint:hover {
+  background: var(--hv-forest, #2c3a2e);
+  color: var(--hv-cream, #fbf5ec);
+  border-color: var(--hv-forest, #2c3a2e);
+}
+
+/* ── Chapter transition animation ───────────────────────────────────── */
+#story-mode-screen .hv-sm-narrative.is-transitioning {
+  animation: hvSmChapterOut 0.3s ease forwards;
+}
+#story-mode-screen .hv-sm-narrative.is-entering {
+  animation: hvSmChapterIn 0.6s var(--hv-ease, cubic-bezier(0.22, 1, 0.36, 1)) forwards;
+}
+@keyframes hvSmChapterOut {
+  to { opacity: 0; transform: translateY(-8px); }
+}
+@keyframes hvSmChapterIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Reveal-on-scroll for narrative ─────────────────────────────────── */
+#story-mode-screen [data-sm-reveal] {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.9s var(--hv-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+              transform 0.9s var(--hv-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+#story-mode-screen [data-sm-reveal].is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  #story-mode-screen .hv-sm-hero { padding: 56px 24px 32px; }
+  #story-mode-screen .hv-sm-hero__inner { grid-template-columns: 1fr; gap: 28px; }
+  #story-mode-screen .hv-sm-stepper { padding: 24px; }
+  #story-mode-screen .hv-sm-stepper__track { grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 18px 12px; }
+  #story-mode-screen .hv-sm-stepper__track::before { display: none; }
+  #story-mode-screen .hv-sm-step__sub { display: none; }
+  #story-mode-screen .hv-sm-body { padding: 24px 24px 100px; gap: 32px; }
+  #story-mode-screen .hv-sm-narrative { padding: 32px 24px 40px; }
+  #story-mode-screen .hv-sm-pullquote,
+  #story-mode-screen .hv-sm-figure { margin-left: -24px; margin-right: -24px; }
+  #story-mode-screen .hv-sm-query { margin: 0 16px 16px; }
+  #story-mode-screen .hv-sm-rail { position: static; max-height: none; }
+}
+
+/* ── Reduced motion ─────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  #story-mode-screen .hv-sm-aurora,
+  #story-mode-screen .hv-sm-narrative.is-transitioning,
+  #story-mode-screen .hv-sm-narrative.is-entering,
+  #story-mode-screen .hv-sm-evidence-card,
+  #story-mode-screen [data-sm-reveal] {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}
+
+      /* === HV-STORY-MODE:CSS-END === */
     </style>
       <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -3095,8 +3890,7 @@
     </main>
 
     <main id="story-mode-screen" class="font-body-md text-on-surface">
-      <header class="sticky top-0 z-20 border-b border-outline-variant/30 bg-surface/85 px-5 py-4 backdrop-blur-md md:px-10"><div class="mx-auto flex max-w-[1280px] items-center justify-between"><div class="flex items-center gap-8"><a href="#vault" data-dashboard-view="vault" aria-label="HeritageAtlas home"><img class="brand-logo brand-logo--compact" src="/heritageatlas-logo.svg" alt="HeritageAtlas" /></a><nav class="hidden gap-6 text-sm text-on-surface-variant md:flex"><a href="#vault" data-dashboard-view="vault">Vault</a><a href="#family-map" data-dashboard-view="family-map">Map</a><span class="border-b-2 border-primary pb-1 font-semibold text-primary">Stories</span></nav></div><div class="flex items-center gap-3"><div class="hidden rounded-full border border-outline-variant/20 bg-surface-container px-4 py-2 text-sm text-on-surface-variant md:block"><span class="material-symbols-outlined mr-2 align-middle text-sm">search</span>Search memories...</div><span class="material-symbols-outlined text-on-surface-variant">notifications</span><div class="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-bold text-on-primary">AK</div></div></div></header>
-      <div class="flex min-h-[calc(100vh-73px)]"><aside class="hidden w-80 shrink-0 border-r border-outline-variant/20 bg-surface-container-low p-6 lg:block"><div class="mb-8 flex items-center justify-between"><h2 class="font-display-lg text-2xl font-semibold text-primary">Inquiry History</h2><span class="material-symbols-outlined text-primary">add_comment</span></div><div class="space-y-3"><div class="rounded-xl bg-primary p-4 text-on-primary"><div class="flex gap-3"><span class="material-symbols-outlined">auto_stories</span><div><p class="font-semibold">Grandpa’s life before 1995</p><p class="mt-1 text-[10px] uppercase tracking-widest opacity-70">Active now</p></div></div></div><div class="rounded-xl p-4 text-on-surface-variant transition hover:bg-surface-variant/50"><div class="flex gap-3"><span class="material-symbols-outlined">history</span><div><p>The move from Europe in 1952</p><p class="mt-1 text-[10px] uppercase tracking-widest opacity-70">3 days ago</p></div></div></div><div class="rounded-xl p-4 text-on-surface-variant transition hover:bg-surface-variant/50"><div class="flex gap-3"><span class="material-symbols-outlined">history</span><div><p>Wedding ceremony traditions</p><p class="mt-1 text-[10px] uppercase tracking-widest opacity-70">1 week ago</p></div></div></div></div></aside><section class="flex min-w-0 flex-1 flex-col bg-surface-bright"><div class="flex-1 overflow-y-auto px-5 py-10 md:px-10"><div class="mx-auto max-w-3xl"><div class="mb-10 flex items-start gap-4"><div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-on-primary">AK</div><div><h1 class="font-display-lg text-2xl font-semibold text-primary">“Tell me everything about Grandpa before 1995”</h1><p class="mt-2 text-xs italic text-on-surface-variant">Query sent from the Family Archive Room</p></div></div><article class="story-paper rounded-xl p-7 md:p-14"><header class="mb-10 text-center"><span class="text-[10px] font-semibold uppercase tracking-[.3em] text-secondary">Legacy Narrative</span><h2 class="mt-3 font-display-lg text-4xl font-semibold text-primary">The Early Years of Arthur Miller</h2><div class="mx-auto mt-6 h-px w-16 bg-outline-variant"></div></header><div class="space-y-6 text-lg leading-8 text-on-surface"><p><span class="float-left mr-2 font-display-lg text-6xl leading-[.8] text-secondary">B</span>efore the digital age simplified our memories into bytes, Arthur lived a life defined by the physical world of post-war resilience. Born in 1938, his early years were spent in the rolling hills of West Virginia, where the smell of coal dust and morning mist defined his childhood.</p><p>The transition into the 1960s marked his “Golden Decade.” It was in 1964 that he met Martha at a local fair—a meeting he often described as “serendipitous timing and poor directions.” They were married within a year, beginning a journey that spanned three continents.</p><figure class="my-10"><img class="h-64 w-full rounded-lg object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAK2bp6lP_cUQBsrvIJdSvISJBFcVDztebOFgluQVf5YyfWqVj3kgFpD3UTJH2xQcNfuo124tFnJ_jRQomrTKTyfh38UC9fedf0_0V-IUIZ9knY1T8ZCgA8IYYdz1Oca20rx5uZUUjyYstE8iv50ugt2E_dKIDcd8PiwcKfZGul4EV_AolOkvj08EMrZj3H2wNq1dAaZ6j2oXPxYCHb-G5wAClSEhQhJH8sBRt-na8MG1EzX8IuL-tVdY3goATRmTGYQwQ1dBbQypCM" alt="Arthur and Martha at a county fair"/><figcaption class="mt-3 text-center text-xs italic text-on-surface-variant">Arthur and Martha at the Harrison County Fair, August 1964.</figcaption></figure><p>Throughout the 70s and 80s, Arthur was the silent historian of the family. He documented every holiday, every lost tooth, and every graduation with his trusty Leica. The stories in this era are now being digitized for the Vault.</p></div><footer class="mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-outline-variant/30 pt-6"><span class="flex items-center gap-2 text-xs font-semibold text-on-surface-variant"><span class="material-symbols-outlined text-primary">verified</span>Compiled from 14 artifacts and 3 audio logs.</span><button class="rounded-full bg-primary px-5 py-3 text-xs font-bold tracking-wide text-on-primary">Save story</button></footer></article></div></div><div class="border-t border-outline-variant/20 bg-surface-bright px-5 py-5"><div class="mx-auto flex max-w-3xl items-center gap-3 rounded-2xl border border-outline-variant/40 bg-surface-container-lowest p-2 shadow-lg"><span class="material-symbols-outlined p-2 text-on-surface-variant">attach_file</span><input class="flex-1 border-none bg-transparent py-3 focus:ring-0" placeholder="Ask about another family memory..."/><button class="rounded-xl bg-primary p-3 text-on-primary"><span class="material-symbols-outlined">send</span></button></div></div></section></div>
+      <!-- Story Mode content rendered by /src/story-mode.ts -->
     </main>
 
     <script>
@@ -3772,6 +4566,55 @@
       }
     </script>
     <!-- === HV-AGENT:SCRIPT-END === -->
+    <!-- === HV-STORY-MODE:SCRIPT-START === -->
+    <script type="module">
+      import { initStoryMode } from "/src/story-mode.ts";
+
+      let storyModeInitialised = false;
+
+      function ensureStoryMode() {
+        const screen = document.getElementById("story-mode-screen");
+        if (!screen || storyModeInitialised) return;
+        initStoryMode(screen);
+        storyModeInitialised = true;
+      }
+
+      // Intercept clicks on the Story Mode nav link
+      document.addEventListener("click", (e) => {
+        const link = e.target.closest('[data-dashboard-view="story-mode"]');
+        if (!link) return;
+        e.preventDefault();
+        const landingPage = document.querySelector(".landing-page");
+        const loginScreen = document.getElementById("login-screen");
+        const vaultScreen = document.getElementById("vault-screen");
+        const familyMapScreen = document.getElementById("family-map-screen");
+        const storyModeScreen = document.getElementById("story-mode-screen");
+        if (!storyModeScreen) return;
+        if (landingPage) landingPage.classList.add("is-hidden");
+        if (loginScreen) loginScreen.style.display = "none";
+        if (vaultScreen) vaultScreen.style.display = "none";
+        if (familyMapScreen) familyMapScreen.style.display = "none";
+        storyModeScreen.style.display = "block";
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        history.pushState({ view: "story-mode" }, "", "#story-mode");
+        // Defer init until after the screen is visible so layout/scroll work
+        requestAnimationFrame(() => ensureStoryMode());
+      });
+
+      // Auto-open if arriving on #story-mode
+      if (window.location.hash === "#story-mode") {
+        document.addEventListener("DOMContentLoaded", () => {
+          const landingPage = document.querySelector(".landing-page");
+          const storyModeScreen = document.getElementById("story-mode-screen");
+          if (landingPage && storyModeScreen) {
+            landingPage.classList.add("is-hidden");
+            storyModeScreen.style.display = "block";
+            requestAnimationFrame(() => ensureStoryMode());
+          }
+        });
+      }
+    </script>
+    <!-- === HV-STORY-MODE:SCRIPT-END === -->
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
