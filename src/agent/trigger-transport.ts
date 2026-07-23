@@ -174,34 +174,88 @@ export async function runTriggerTurn(
   // The chat.agent() worker runs on Trigger.dev cloud. When deployed, the
   // TriggerChatTransport connects to it, Claude Sonnet 4.5 picks one of
   // the 10 ClickHouse-querying tools, and the resulting VizSpec streams
-  // back. When not deployed (or if the transport fails to load), return
-  // null so the dispatcher falls through to the ClickHouse middleware.
+  // back as a `tool-output-available` chunk.
   void dataset;
   void vaultId;
+
   const transport = await loadTransport();
   if (!transport) return null;
 
   onPhase("interpreting");
+  const chatId = `chat-${Date.now()}`;
+
   try {
-    // The TriggerChatTransport is designed for useChat (React). In vanilla
-    // JS, we use the lower-level sendMessage API. This returns a stream
-    // of UIMessageChunk parts. We extract the tool-call output (VizSpec)
-    // and the one-line text caption.
-    //
-    // NOTE: This path is only reached once `npx trigger.dev@latest deploy`
-    // has succeeded. Until then, loadTransport() returns null (the dynamic
-    // import of @trigger.dev/sdk/chat is browser-safe but the transport
-    // can't connect to an undeployed worker).
-    //
-    // For now, return null so the deterministic ClickHouse middleware
-    // carries the load. To enable the full LLM-orchestrated path after
-    // deploy, replace the line below with the actual transport.sendMessages
-    // call and parse the streamed VizSpec from the tool-call output.
-    void prompt;
-    void onPhase;
-    return null;
+    // 1. Start the session (mints a PAT + boots the agent)
+    await transport.start(chatId).catch(() => null);
+
+    onPhase("querying");
+
+    // 2. Send the user's prompt. sendMessages returns a ReadableStream
+    //    of UIMessageChunk parts. We read it to completion, collecting:
+    //      - tool-output-available chunks (the VizSpec from the tool)
+    //      - text-delta chunks (Claude's one-line caption)
+    const stream = await transport.sendMessages({
+      chatId,
+      messages: [
+        {
+          id: `msg-${Date.now()}`,
+          role: "user",
+          parts: [{ type: "text", text: prompt }],
+        },
+      ] as any,
+      clientData: { vaultId: vaultId || "demo-vault" },
+    } as any);
+
+    let spec: VizSpec | null = null;
+    let captionText = "";
+
+    const reader = (stream as ReadableStream<any>).getReader();
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (!value) continue;
+
+      // Extract the VizSpec from tool-output-available chunks.
+      // Each of the 10 tools returns a VizSpec as its output.
+      if (value.type === "tool-output-available" && value.output) {
+        const output = value.output as any;
+        // The tool's execute() returns a VizSpec directly. If it's
+        // wrapped (e.g. { output: VizSpec }), unwrap it.
+        const candidate = output.spec ?? output.output ?? output;
+        if (candidate && candidate.kind && candidate.title) {
+          spec = candidate as VizSpec;
+          onPhase("rendering");
+        }
+      }
+
+      // Collect Claude's one-line caption from text-delta chunks
+      if (value.type === "text-delta" && value.delta) {
+        captionText += value.delta;
+      }
+
+      // Stop early on error
+      if (value.type === "error") {
+        throw new Error(value.errorText || "Agent stream error");
+      }
+    }
+
+    if (!spec) {
+      // No tool was called — Claude might have responded with prose only.
+      // Fall back to the deterministic middleware.
+      console.warn("[agent] No VizSpec in Trigger.dev stream, falling back");
+      return null;
+    }
+
+    // Tag the spec with the live source
+    spec.source = "Trigger.dev chat.agent() · ClickHouse Cloud (live)";
+    spec.prompt = prompt;
+
+    return {
+      spec,
+      caption: captionText.trim() || spec.verdict || "",
+    };
   } catch (err) {
-    console.warn("[agent] Trigger.dev turn failed, falling back:", err);
+    console.warn("[agent] Trigger.dev turn failed, falling back to ClickHouse middleware:", err);
     return null;
   }
 }
