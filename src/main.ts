@@ -246,7 +246,7 @@ function setView(view: View): void {
   elements.login.style.display = view === "login" ? "flex" : "none";
   elements.vault.style.display = view === "vault" ? "flex" : "none";
   elements.familyMap.style.display = view === "family-map" ? "flex" : "none";
-  elements.storyMode.style.display = view === "story-mode" ? "block" : "none";
+  elements.storyMode.style.display = view === "story-mode" ? "flex" : "none";
   const atlas = document.getElementById("atlas-screen");
   if (atlas) atlas.style.display = view === "atlas" ? "flex" : "none";
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -759,7 +759,7 @@ function boot(): void {
   elements.login.style.display = currentView === "login" ? "flex" : "none";
   elements.vault.style.display = currentView === "vault" ? "flex" : "none";
   elements.familyMap.style.display = currentView === "family-map" ? "flex" : "none";
-  elements.storyMode.style.display = currentView === "story-mode" ? "block" : "none";
+  elements.storyMode.style.display = currentView === "story-mode" ? "flex" : "none";
   atlasScreen.style.display = currentView === "atlas" ? "flex" : "none";
   onAuthStateChanged(firebaseAuth, async (user) => {
     if (demoMode) return;

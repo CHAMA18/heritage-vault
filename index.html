@@ -4935,7 +4935,10 @@
         <div class="border-t border-outline-variant/20 pt-5"><div class="flex items-center gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container text-secondary"><span class="material-symbols-outlined">person</span></div><div><p class="font-label-md text-label-md font-semibold text-primary">Amara Kabwe</p><p class="font-caption text-caption text-on-surface-variant">Vault keeper</p></div></div></div>
       </aside>
       <!-- === HV-VAULT-DASH:CONTENT-START === -->
-      <!-- Vault dashboard rendered by /src/vault-dashboard.ts -->
+      <!-- The dashboard must render inside this content column. Keeping it
+           separate from the sidebar prevents each dashboard section from
+           becoming an individual flex column at desktop widths. -->
+      <section class="vault-dashboard-content" data-vault-dashboard-content></section>
       <!-- === HV-VAULT-DASH:CONTENT-END === -->
     </main>
 
@@ -5013,7 +5016,7 @@
           loginScreen.style.display = "none";
           vaultScreenInline.style.display = view === "vault" ? "flex" : "none";
           familyMapScreen.style.display = view === "family-map" ? "flex" : "none";
-          storyModeScreen.style.display = view === "story-mode" ? "block" : "none";
+          storyModeScreen.style.display = view === "story-mode" ? "flex" : "none";
           window.scrollTo({ top: 0, behavior: "smooth" });
           history.pushState({ view }, "", `#${view}`);
         });
@@ -5031,7 +5034,7 @@
           loginScreen.style.display = "none";
           vaultScreenInline.style.display = "none";
           familyMapScreen.style.display = "none";
-          storyModeScreen.style.display = "block";
+          storyModeScreen.style.display = "flex";
         } else if (window.location.hash === "#vault") {
           landingPage.classList.add("is-hidden");
           loginScreen.style.display = "none";
@@ -5642,10 +5645,11 @@
       function ensureVaultDashboard() {
         const screen = document.getElementById("vault-screen");
         if (!screen || vaultInitialised) return;
-        // Find the marked content container (the <section> we'll populate).
-        // The initVaultDashboard function populates the <main> directly
-        // (preserving the sidebar <aside>).
-        initVaultDashboard(screen);
+        const content = screen.querySelector("[data-vault-dashboard-content]");
+        if (!content) return;
+        // Render inside the dedicated content column so the persistent
+        // application sidebar remains a sibling of one flexible main area.
+        initVaultDashboard(content);
         vaultInitialised = true;
       }
 
@@ -5721,7 +5725,7 @@
         if (loginScreen) loginScreen.style.display = "none";
         if (vaultScreen) vaultScreen.style.display = "none";
         if (familyMapScreen) familyMapScreen.style.display = "none";
-        storyModeScreen.style.display = "block";
+        storyModeScreen.style.display = "flex";
         window.scrollTo({ top: 0, behavior: "smooth" });
         history.pushState({ view: "story-mode" }, "", "#story-mode");
         // Defer init until after the screen is visible so layout/scroll work
@@ -5735,7 +5739,7 @@
           const storyModeScreen = document.getElementById("story-mode-screen");
           if (landingPage && storyModeScreen) {
             landingPage.classList.add("is-hidden");
-            storyModeScreen.style.display = "block";
+            storyModeScreen.style.display = "flex";
             requestAnimationFrame(() => ensureStoryMode());
           }
         });
