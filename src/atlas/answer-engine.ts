@@ -21,7 +21,7 @@ export function buildAtlasAnswer(dataset: AtlasDataset, prompt: string): AtlasAn
   const locations = [...locationCounts.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
   const focus = terms.length ? `matching “${terms.join(" ")}”` : "across your archive";
   const verdict = memories.length
-    ? `${memories.length} memory${memories.length === 1 ? "" : "ies".replace("memoryies", "memories")} ${focus}, connected to ${dataset.members.length} family member${dataset.members.length === 1 ? "" : "s"}.`
+    ? `${memories.length} ${memories.length === 1 ? "memory" : "memories"} ${focus}, connected to ${dataset.members.length} family member${dataset.members.length === 1 ? "" : "s"}.`
     : "Your visual answer will appear here as soon as your vault contains memories or family members.";
 
   return {
