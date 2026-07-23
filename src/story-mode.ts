@@ -84,108 +84,185 @@ export function initStoryMode(root: HTMLElement): void {
   let activeIdx = 0;
   const readSet = new Set<string>();
 
-  // Inject backdrop layers
+  // Inject backdrop layers + sidebar + main content
   root.innerHTML = `
     <div class="hv-sm-backdrop" aria-hidden="true">
       <div class="hv-sm-aurora"></div>
     </div>
     <div class="hv-sm-grain" aria-hidden="true"></div>
 
-    <section class="hv-sm-hero" data-sm-reveal>
-      <div class="hv-sm-hero__inner">
-        <div>
-          <p class="hv-sm-hero__eyebrow">Guided family narrative</p>
-          <h1 class="hv-sm-hero__title">Follow the <em>threads</em> that made this family.</h1>
-          <p class="hv-sm-hero__lede">
-            Story Mode turns evidence into a guided reading path. Begin with a chapter,
-            inspect the source moments beside it, then ask the archive what should come next.
-          </p>
+    <aside class="hv-sm-sidebar" data-sidebar aria-label="Story Mode navigation">
+      <div class="hv-sm-sidebar__brand">
+        <a href="#vault" data-dashboard-view="vault" aria-label="HeritageAtlas home">
+          <img data-brand-logo class="brand-logo" src="/heritageatlas-logo.svg" alt="HeritageAtlas" />
+        </a>
+        <div class="hv-sm-sidebar__brand-text">
+          <span class="hv-sm-sidebar__brand-name">HeritageAtlas</span>
+          <span class="hv-sm-sidebar__brand-tag">Explore the stories that connect us</span>
         </div>
-        <aside class="hv-sm-hero__stats">
-          <div class="hv-sm-hero__stats-head">
-            <span class="material-symbols-outlined">auto_awesome</span>
-            Visual reading guide
+      </div>
+
+      <nav class="hv-sm-sidebar__nav" aria-label="Primary">
+        <a class="hv-sm-sidebar__nav-link" href="#vault" data-dashboard-view="vault">
+          <span class="material-symbols-outlined">inventory_2</span>
+          <span>The Vault</span>
+        </a>
+        <a class="hv-sm-sidebar__nav-link" href="#family-map" data-dashboard-view="family-map">
+          <span class="material-symbols-outlined">account_tree</span>
+          <span>Family Map</span>
+        </a>
+        <a class="hv-sm-sidebar__nav-link is-active" href="#story-mode" data-dashboard-view="story-mode" aria-current="page">
+          <span class="material-symbols-outlined">auto_stories</span>
+          <span>Story Mode</span>
+        </a>
+        <a class="hv-sm-sidebar__nav-link" href="#atlas" data-dashboard-view="atlas">
+          <span class="material-symbols-outlined">auto_awesome</span>
+          <span>HeritageAtlas</span>
+        </a>
+        <a class="hv-sm-sidebar__nav-link" href="#agent" data-dashboard-view="agent">
+          <span class="material-symbols-outlined">smart_toy</span>
+          <span>Agent</span>
+        </a>
+      </nav>
+
+      <div class="hv-sm-sidebar__divider"></div>
+
+      <div class="hv-sm-sidebar__chapters">
+        <p class="hv-sm-sidebar__chapters-label">Chapters</p>
+        <div class="hv-sm-sidebar__chapter-list" data-sm-track>
+          ${chapters
+            .map(
+              (c, i) => `
+              <button class="hv-sm-sidebar__chapter${i === 0 ? " is-active" : ""}" data-sm-step="${i}" type="button">
+                <span class="hv-sm-sidebar__chapter-num">${c.num}</span>
+                <span class="hv-sm-sidebar__chapter-body">
+                  <span class="hv-sm-sidebar__chapter-label">${c.label}</span>
+                  <span class="hv-sm-sidebar__chapter-title">${esc(c.title)}</span>
+                </span>
+                <span class="hv-sm-sidebar__chapter-icon material-symbols-outlined">${c.icon}</span>
+              </button>
+            `
+            )
+            .join("")}
+        </div>
+      </div>
+
+      <div class="hv-sm-sidebar__footer">
+        <button class="hv-sm-sidebar__theme" type="button" data-theme-toggle>
+          <span class="material-symbols-outlined" data-theme-icon>dark_mode</span>
+          <span data-theme-label>Dark mode</span>
+        </button>
+        <button class="hv-sm-sidebar__logout" type="button" data-logout>
+          <span class="material-symbols-outlined">logout</span>
+          <span>Log out</span>
+        </button>
+        <div class="hv-sm-sidebar__user">
+          <div class="hv-sm-sidebar__avatar">AK</div>
+          <div>
+            <p class="hv-sm-sidebar__user-name">Amara Kabwe</p>
+            <p class="hv-sm-sidebar__user-role">Vault keeper</p>
           </div>
-          <p class="hv-sm-hero__stats-title">${chapters.length} chapters · ${demoAtlasDataset.memories.length} source memories</p>
-          <p class="hv-sm-hero__stats-meta">${yearRange} · ${new Date().getFullYear() - parseInt(yearRange.split("–")[0])} years of one family</p>
+        </div>
+      </div>
+    </aside>
+
+    <main class="hv-sm-main">
+      <section class="hv-sm-hero" data-sm-reveal>
+        <div class="hv-sm-hero__inner">
+          <div>
+            <p class="hv-sm-hero__eyebrow">Guided family narrative</p>
+            <h1 class="hv-sm-hero__title">Follow the <em>threads</em> that made this family.</h1>
+            <p class="hv-sm-hero__lede">
+              Story Mode turns evidence into a guided reading path. Begin with a chapter,
+              inspect the source moments beside it, then ask the archive what should come next.
+            </p>
+          </div>
+          <aside class="hv-sm-hero__stats">
+            <div class="hv-sm-hero__stats-head">
+              <span class="material-symbols-outlined">auto_awesome</span>
+              Visual reading guide
+            </div>
+            <p class="hv-sm-hero__stats-title">${chapters.length} chapters · ${demoAtlasDataset.memories.length} source memories</p>
+            <p class="hv-sm-hero__stats-meta">${yearRange} · ${new Date().getFullYear() - parseInt(yearRange.split("–")[0])} years of one family</p>
+          </aside>
+        </div>
+      </section>
+
+      <nav class="hv-sm-stepper" data-sm-reveal aria-label="Story chapters">
+        <div class="hv-sm-stepper__track">
+          ${chapters
+            .map(
+              (c, i) => `
+              <button class="hv-sm-step${i === 0 ? " is-active" : ""}" data-sm-step="${i}" type="button">
+                <span class="hv-sm-step__num">${c.num}</span>
+                <span class="hv-sm-step__dot"><span class="material-symbols-outlined">${c.icon}</span></span>
+                <span class="hv-sm-step__label">${c.label}</span>
+                <span class="hv-sm-step__sub">${c.title}</span>
+              </button>
+            `
+            )
+            .join("")}
+        </div>
+      </nav>
+
+      <div class="hv-sm-body">
+        <div class="hv-sm-content">
+          <div class="hv-sm-chapter-bar" data-sm-reveal>
+            <span class="hv-sm-chapter-bar__label" data-sm-chapter-label>Chapter 01 · Begin</span>
+            <div class="hv-sm-chapter-bar__nav">
+              <button class="hv-sm-chapter-bar__btn" data-sm-prev type="button" disabled>
+                <span class="material-symbols-outlined">arrow_back</span> Prev
+              </button>
+              <button class="hv-sm-chapter-bar__btn" data-sm-next type="button">
+                Next <span class="material-symbols-outlined">arrow_forward</span>
+              </button>
+            </div>
+          </div>
+
+          <article class="hv-sm-narrative is-entering" data-sm-narrative>
+            <!-- chapter content injected here -->
+          </article>
+        </div>
+
+        <aside class="hv-sm-rail" data-sm-rail>
+          <div class="hv-sm-rail__head">
+            <div class="hv-sm-rail__head-top">
+              <span class="material-symbols-outlined">tune</span>
+              <span class="hv-sm-rail__head-title">Evidence trail</span>
+            </div>
+            <p class="hv-sm-rail__head-desc">
+              Each chapter is anchored in original archive material. Select a card to see why it matters.
+            </p>
+          </div>
+          <div class="hv-sm-evidence" data-sm-evidence>
+            <!-- evidence cards injected here -->
+          </div>
         </aside>
       </div>
-    </section>
 
-    <nav class="hv-sm-stepper" data-sm-reveal aria-label="Story chapters">
-      <div class="hv-sm-stepper__track" data-sm-track>
-        ${chapters
-          .map(
-            (c, i) => `
-            <button class="hv-sm-step${i === 0 ? " is-active" : ""}" data-sm-step="${i}" type="button">
-              <span class="hv-sm-step__num">${c.num}</span>
-              <span class="hv-sm-step__dot"><span class="material-symbols-outlined">${c.icon}</span></span>
-              <span class="hv-sm-step__label">${c.label}</span>
-              <span class="hv-sm-step__sub">${c.title}</span>
-            </button>
-          `
-          )
-          .join("")}
-      </div>
-    </nav>
-
-    <div class="hv-sm-body">
-      <div class="hv-sm-content">
-        <div class="hv-sm-chapter-bar" data-sm-reveal>
-          <span class="hv-sm-chapter-bar__label" data-sm-chapter-label>Chapter 01 · Begin</span>
-          <div class="hv-sm-chapter-bar__nav">
-            <button class="hv-sm-chapter-bar__btn" data-sm-prev type="button" disabled>
-              <span class="material-symbols-outlined">arrow_back</span> Prev
-            </button>
-            <button class="hv-sm-chapter-bar__btn" data-sm-next type="button">
-              Next <span class="material-symbols-outlined">arrow_forward</span>
-            </button>
-          </div>
+      <div class="hv-sm-query" data-sm-reveal>
+        <form class="hv-sm-query__row" data-sm-query-form>
+          <span class="hv-sm-query__icon"><span class="material-symbols-outlined">auto_awesome</span></span>
+          <input
+            type="text"
+            class="hv-sm-query__input"
+            data-sm-query-input
+            placeholder="Ask about another family memory..."
+            aria-label="Ask the HeritageAtlas agent about this story"
+            autocomplete="off"
+          />
+          <button type="submit" class="hv-sm-query__send">
+            <span class="material-symbols-outlined">explore</span>
+            Explore
+          </button>
+        </form>
+        <div class="hv-sm-query__hints">
+          <button class="hv-sm-query__hint" type="button" data-sm-hint="What changed when the family moved?">What changed when the family moved?</button>
+          <button class="hv-sm-query__hint" type="button" data-sm-hint="Show the stories behind the Sunday table.">Show the stories behind the Sunday table.</button>
+          <button class="hv-sm-query__hint" type="button" data-sm-hint="Who are the next keepers of the archive?">Who are the next keepers of the archive?</button>
         </div>
-
-        <article class="hv-sm-narrative is-entering" data-sm-narrative>
-          <!-- chapter content injected here -->
-        </article>
       </div>
-
-      <aside class="hv-sm-rail" data-sm-rail>
-        <div class="hv-sm-rail__head">
-          <div class="hv-sm-rail__head-top">
-            <span class="material-symbols-outlined">tune</span>
-            <span class="hv-sm-rail__head-title">Evidence trail</span>
-          </div>
-          <p class="hv-sm-rail__head-desc">
-            Each chapter is anchored in original archive material. Select a card to see why it matters.
-          </p>
-        </div>
-        <div class="hv-sm-evidence" data-sm-evidence>
-          <!-- evidence cards injected here -->
-        </div>
-      </aside>
-    </div>
-
-    <div class="hv-sm-query" data-sm-reveal>
-      <form class="hv-sm-query__row" data-sm-query-form>
-        <span class="hv-sm-query__icon"><span class="material-symbols-outlined">auto_awesome</span></span>
-        <input
-          type="text"
-          class="hv-sm-query__input"
-          data-sm-query-input
-          placeholder="Ask about another family memory..."
-          aria-label="Ask the HeritageAtlas agent about this story"
-          autocomplete="off"
-        />
-        <button type="submit" class="hv-sm-query__send">
-          <span class="material-symbols-outlined">explore</span>
-          Explore
-        </button>
-      </form>
-      <div class="hv-sm-query__hints">
-        <button class="hv-sm-query__hint" type="button" data-sm-hint="What changed when the family moved?">What changed when the family moved?</button>
-        <button class="hv-sm-query__hint" type="button" data-sm-hint="Show the stories behind the Sunday table.">Show the stories behind the Sunday table.</button>
-        <button class="hv-sm-query__hint" type="button" data-sm-hint="Who are the next keepers of the archive?">Who are the next keepers of the archive?</button>
-      </div>
-    </div>
+    </main>
   `;
 
   const narrative = root.querySelector<HTMLElement>("[data-sm-narrative]")!;
@@ -193,11 +270,10 @@ export function initStoryMode(root: HTMLElement): void {
   const chapterLabel = root.querySelector<HTMLElement>("[data-sm-chapter-label]")!;
   const prevBtn = root.querySelector<HTMLButtonElement>("[data-sm-prev]")!;
   const nextBtn = root.querySelector<HTMLButtonElement>("[data-sm-next]")!;
-  const track = root.querySelector<HTMLElement>("[data-sm-track]")!;
 
   // Bail if any required element is missing (defensive — the innerHTML above
   // always includes them, but TS can't know that).
-  if (!narrative || !evidence || !chapterLabel || !prevBtn || !nextBtn || !track) return;
+  if (!narrative || !evidence || !chapterLabel || !prevBtn || !nextBtn) return;
 
   function memoryById(id: string) {
     return demoAtlasDataset.memories.find((m) => m.id === id);
@@ -212,10 +288,11 @@ export function initStoryMode(root: HTMLElement): void {
     // Update chapter bar
     chapterLabel.textContent = `Chapter ${c.num} · ${c.label}`;
 
-    // Update stepper
-    track.querySelectorAll<HTMLElement>("[data-sm-step]").forEach((step, i) => {
-      step.classList.toggle("is-active", i === idx);
-      step.classList.toggle("is-read", i < idx || (readSet.has(chapters[i].id) && i !== idx));
+    // Update all chapter step buttons (sidebar list + horizontal stepper)
+    root.querySelectorAll<HTMLElement>("[data-sm-step]").forEach((step) => {
+      const stepIdx = parseInt(step.dataset.smStep ?? "0", 10);
+      step.classList.toggle("is-active", stepIdx === idx);
+      step.classList.toggle("is-read", stepIdx < idx || (readSet.has(chapters[stepIdx]?.id ?? "") && stepIdx !== idx));
     });
 
     // Update prev/next
@@ -416,8 +493,8 @@ export function initStoryMode(root: HTMLElement): void {
     }, 300);
   }
 
-  // Wire stepper clicks
-  track.querySelectorAll<HTMLButtonElement>("[data-sm-step]").forEach((step) => {
+  // Wire chapter step clicks (sidebar list + horizontal stepper)
+  root.querySelectorAll<HTMLButtonElement>("[data-sm-step]").forEach((step) => {
     step.addEventListener("click", () => {
       const idx = parseInt(step.dataset.smStep ?? "0", 10);
       if (idx !== activeIdx) renderChapter(idx, true);
