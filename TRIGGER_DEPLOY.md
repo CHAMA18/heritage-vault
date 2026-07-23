@@ -133,3 +133,30 @@ Once it deploys, verify:
 curl https://preview-3770180e-d32b-4a00-a0fb-1f99bf6dec67.space-z.ai/api/agent-health
 # Should show: "trigger": { "configured": true, "workerDeployed": true }
 ```
+
+## ✅ DEPLOY SUCCESSFUL — 2026-07-23
+
+```
+Trigger.dev (4.5.7)
+✓ Retrieved your account details for chungu@thestackone.com
+✓ Successfully built code
+✓ Successfully deployed version 20260723.10
+✓ Version 20260723.10 deployed with 5 detected tasks
+```
+
+Deployment URL: https://cloud.trigger.dev/projects/v3/proj_fuxqqqgzdulxvbuthevo/deployments/53ihhxto
+
+### Post-deploy checklist
+- [x] Set `TRIGGER_WORKER_DEPLOYED=true` in `.env`
+- [x] Restart Vite
+- [x] Verify `/api/agent-health` returns `workerDeployed: true`
+- [x] Both ClickHouse + Trigger.dev are live simultaneously
+
+### What's deployed (5 tasks)
+1. `heritage-atlas-agent` — the `chat.agent()` with 10 ClickHouse-querying tools
+2. `heritage-atlas-ingest-demo-archive` — loads demo data into ClickHouse
+3. `heritage-atlas-ingest-family-edge` — ingests family relationships
+4. `heritage-atlas-ingest-archive-fact` — ingests individual facts
+5. (support task)
+
+The fix was switching to a network where Docker Hub was reachable (mobile hotspot). The `auth.docker.io: no such host` error was purely DNS blocking on the original network.
