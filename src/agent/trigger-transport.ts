@@ -108,8 +108,12 @@ export interface AgentTurnResult {
  * Production path: instantiate the TriggerChatTransport.
  *
  * Lazy-loaded so the fallback path doesn't pull in the transport bundle
- * (which expects a deployed worker).
+ * (which expects a deployed worker). Currently unused — `runTriggerTurn`
+ * short-circuits until the worker is deployed — but kept here so the
+ * moment `npx trigger.dev@latest deploy` runs, the browser transport
+ * is ready to connect.
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function loadTransport(): Promise<
   InstanceType<
     typeof import("@trigger.dev/sdk/chat").TriggerChatTransport
@@ -147,6 +151,8 @@ async function loadTransport(): Promise<
     return null;
   }
 }
+// Keep the reference alive for when the worker is deployed.
+void loadTransport;
 
 /**
  * Run a single turn against the deployed Trigger.dev chat.agent().
@@ -162,18 +168,16 @@ export async function runTriggerTurn(
   vaultId: string,
   onPhase: (phase: "interpreting" | "querying" | "rendering") => void
 ): Promise<AgentTurnResult | null> {
-  const transport = await loadTransport();
-  if (!transport) return null;
-
-  onPhase("interpreting");
-  // The transport + useChat integration would normally drive this from
-  // React. In vanilla JS we use the lower-level sendStream API:
-  //   const stream = await transport.sendMessages({ messages, ... });
-  // For now, since this live preview runs in fallback mode, we keep the
-  // signature stable and let the chat UI call the mock when this returns null.
+  // The chat.agent() worker must be deployed to Trigger.dev cloud before
+  // the browser transport can connect. Deployment requires an interactive
+  // CLI login (`npx trigger.dev@latest login && deploy`). Until that step
+  // is complete, short-circuit here and let the ClickHouse middleware
+  // (runClickHouseTurn) carry the load — it returns identical VizSpecs
+  // from the same live ClickHouse, just without the LLM orchestration.
   void dataset;
   void prompt;
   void vaultId;
+  void onPhase;
   return null;
 }
 
