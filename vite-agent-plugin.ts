@@ -391,7 +391,81 @@ export function heritageAgentPlugin() {
         }
       });
 
-      // ── 4. Health check ───────────────────────────────────────────
+      // ── 4. Register endpoint — writes new users to ClickHouse ──────
+      server.middlewares.use("/api/register", async (req, res) => {
+        if (req.method !== "POST") {
+          res.statusCode = 405;
+          res.end("Method not allowed");
+          return;
+        }
+        try {
+          const chunks = [];
+          for await (const chunk of req) chunks.push(chunk);
+          const body = JSON.parse(Buffer.concat(chunks).toString() || "{}");
+          const { email, firstName, lastName, userId, vaultId } = body;
+          if (!email || !firstName || !lastName) {
+            res.statusCode = 400;
+            res.end(JSON.stringify({ error: "Missing required fields" }));
+            return;
+          }
+          const client = ch(env);
+          const fullName = `${firstName} ${lastName}`;
+          const uid = userId || `user-${Date.now()}`;
+          const vid = vaultId || `vault-${Date.now()}`;
+          await client.insert({
+            table: "heritage_atlas_users",
+            format: "JSONEachRow",
+            values: [{
+              user_id: uid,
+              email: email.toLowerCase(),
+              full_name: fullName,
+              first_name: firstName,
+              last_name: lastName,
+              auth_provider: "email",
+              vault_id: vid,
+              created_at: new Date().toISOString().replace("Z", "").replace("T", " ").slice(0, 23),
+            }],
+          });
+          await client.close();
+          console.log("[register] ✓ User stored in ClickHouse:", email);
+          res.setHeader("Content-Type", "application/json");
+          res.end(JSON.stringify({
+            success: true,
+            userId: uid,
+            vaultId: vid,
+            stored: "ClickHouse Cloud · heritage_atlas_users",
+          }));
+        } catch (err) {
+          console.error("[register] error:", err.message);
+          res.statusCode = 500;
+          res.end(JSON.stringify({ error: err.message }));
+        }
+      });
+
+      // ── 5. List users (for verification) ───────────────────────────
+      server.middlewares.use("/api/users", async (req, res) => {
+        if (req.method !== "GET") {
+          res.statusCode = 405;
+          res.end("Method not allowed");
+          return;
+        }
+        try {
+          const client = ch(env);
+          const r = await client.query({
+            query: "SELECT email, full_name, created_at FROM heritage_atlas_users ORDER BY created_at DESC LIMIT 50",
+            format: "JSONEachRow",
+          });
+          const users = await r.json();
+          await client.close();
+          res.setHeader("Content-Type", "application/json");
+          res.end(JSON.stringify({ users, count: users.length, source: "ClickHouse Cloud · heritage_atlas_users" }));
+        } catch (err) {
+          res.statusCode = 500;
+          res.end(JSON.stringify({ error: err.message }));
+        }
+      });
+
+      // ── 6. Health check ───────────────────────────────────────────
       server.middlewares.use("/api/agent-health", (req, res) => {
         res.setHeader("Content-Type", "application/json");
         res.end(JSON.stringify({

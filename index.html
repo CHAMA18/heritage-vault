@@ -4688,6 +4688,490 @@
 }
 
       /* === HV-AGENT:CSS-END === */
+    
+      /* === HV-AUTH:CSS-START === */
+/* ===================================================================
+   HeritageAtlas — World-class Authentication Screen
+   A cinematic, split-panel auth experience matching the landing page's
+   design language. Left: archival imagery with editorial typography.
+   Right: glassmorphic form card with refined inputs and magnetic CTA.
+   =================================================================== */
+
+/* ── Base layout ────────────────────────────────────────────────────── */
+#login-screen {
+  background: var(--hv-cream, #fbf5ec) !important;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* The left visual panel — hidden on mobile, shown on desktop */
+#login-screen > section:first-child {
+  display: none;
+}
+@media (min-width: 1024px) {
+  #login-screen > section:first-child {
+    display: flex !important;
+    position: relative;
+    overflow: hidden;
+  }
+}
+
+/* The right form panel — full width, centered */
+#login-screen > section:last-child {
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 100vh;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: transparent !important;
+  position: relative;
+  overflow-y: auto;
+}
+
+/* ── Cinematic backdrop (matches landing page) ──────────────────────── */
+#login-screen::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(44rem 32rem at 8% 12%, rgba(192, 98, 58, 0.14), transparent 65%),
+    radial-gradient(40rem 28rem at 95% 85%, rgba(111, 130, 102, 0.16), transparent 60%),
+    radial-gradient(52rem 36rem at 50% 50%, rgba(212, 164, 76, 0.10), transparent 70%);
+  filter: blur(30px);
+  animation: hvAuthAurora 34s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes hvAuthAurora {
+  0%   { transform: translate3d(-1.5%, -1%, 0) scale(1); }
+  50%  { transform: translate3d(2%, 1.5%, 0) scale(1.05); }
+  100% { transform: translate3d(-1%, 1%, 0) scale(1.03); }
+}
+#login-screen::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  mix-blend-mode: multiply;
+  background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png");
+}
+
+/* ── Left panel: archival image + editorial overlay ─────────────────── */
+@media (min-width: 1024px) {
+  #login-screen > section:first-child {
+    background: linear-gradient(135deg, var(--hv-forest, #2c3a2e) 0%, var(--hv-forest-deep, #1c2820) 100%) !important;
+  }
+  #login-screen > section:first-child > div:first-child {
+    opacity: 0.35 !important;
+    filter: sepia(0.3) saturate(0.8) contrast(1.05) !important;
+  }
+  #login-screen > section:first-child > div:nth-child(2) {
+    background: linear-gradient(180deg, rgba(28, 40, 32, 0.4) 0%, rgba(28, 40, 32, 0.85) 100%) !important;
+  }
+  #login-screen > section:first-child .max-w-lg p:first-child {
+    font-family: "Fraunces", serif !important;
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(2rem, 3vw, 3rem) !important;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--hv-cream, #fbf5ec) !important;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+  }
+  #login-screen > section:first-child .max-w-lg p:last-child {
+    font-family: "Spectral", serif !important;
+    font-size: 1.1rem !important;
+    line-height: 1.6;
+    color: rgba(251, 245, 236, 0.8) !important;
+  }
+  #login-screen > section:first-child .max-w-lg > div {
+    background: linear-gradient(90deg, var(--hv-terracotta, #c0623a), var(--hv-amber, #d4a44c)) !important;
+    height: 2px !important;
+    width: 48px !important;
+  }
+}
+
+/* ── Right panel: the form card ─────────────────────────────────────── */
+#login-screen > section:last-child > div {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 480px !important;
+  margin: 40px 20px;
+  padding: 48px 44px !important;
+  border-radius: 28px !important;
+  background: rgba(255, 253, 247, 0.85) !important;
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(28, 32, 24, 0.08) !important;
+  box-shadow:
+    0 12px 40px rgba(28, 32, 24, 0.08),
+    0 32px 80px rgba(28, 32, 24, 0.06) !important;
+  animation: hvAuthCardIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes hvAuthCardIn {
+  from { opacity: 0; transform: translateY(24px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Header ─────────────────────────────────────────────────────────── */
+#login-screen > section:last-child > div > header {
+  text-align: center;
+  margin-bottom: 36px;
+}
+#login-screen > section:last-child > div > header img {
+  height: 56px !important;
+  width: 56px !important;
+  margin: 0 auto 20px !important;
+  display: block;
+  filter: drop-shadow(0 4px 12px rgba(28, 40, 32, 0.15));
+}
+#login-screen > section:last-child > div > header h2 {
+  font-family: "Fraunces", serif !important;
+  font-weight: 400 !important;
+  font-size: 2.2rem !important;
+  letter-spacing: -0.025em;
+  color: var(--hv-ink, #1d2018) !important;
+  margin-bottom: 8px !important;
+  line-height: 1.1;
+}
+#login-screen > section:last-child > div > header h2 em {
+  font-style: italic;
+  font-weight: 300;
+  color: var(--hv-forest, #2c3a2e);
+}
+#login-screen > section:last-child > div > header p {
+  font-family: "Spectral", serif !important;
+  font-style: italic;
+  font-size: 0.95rem !important;
+  color: var(--hv-ink-soft, #3a3f33) !important;
+  margin: 0 !important;
+}
+
+/* ── Auth tabs (Sign in / Register) ─────────────────────────────────── */
+#login-screen .auth-switch {
+  margin-bottom: 32px !important;
+  border-bottom: 1px solid rgba(28, 32, 24, 0.1) !important;
+  position: relative;
+}
+#login-screen .auth-tab {
+  font-family: "Fraunces", serif !important;
+  font-weight: 500 !important;
+  font-size: 1rem !important;
+  letter-spacing: -0.01em;
+  padding: 14px 0 !important;
+  color: var(--hv-ink-mute, #6b7060) !important;
+  position: relative;
+  transition: color 0.3s ease;
+}
+#login-screen .auth-tab[aria-selected="true"] {
+  color: var(--hv-ink, #1d2018) !important;
+}
+#login-screen .auth-tab[aria-selected="true"]::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--hv-terracotta, #c0623a), var(--hv-amber, #d4a44c));
+  border-radius: 2px;
+}
+#login-screen .auth-switch::after {
+  /* Remove the default JS-driven underline */
+  display: none !important;
+}
+
+/* ── Social login buttons ───────────────────────────────────────────── */
+#login-screen > section:last-child > div > .grid {
+  margin-bottom: 28px !important;
+}
+#login-screen > section:last-child > div > .grid button {
+  padding: 14px 16px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(28, 32, 24, 0.12) !important;
+  background: rgba(251, 245, 236, 0.6) !important;
+  font-size: 0.88rem !important;
+  font-weight: 500;
+  color: var(--hv-ink, #1d2018) !important;
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+#login-screen > section:last-child > div > .grid button:hover {
+  border-color: var(--hv-forest, #2c3a2e) !important;
+  background: rgba(251, 245, 236, 0.95) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(28, 32, 24, 0.08);
+}
+
+/* ── Divider ────────────────────────────────────────────────────────── */
+#login-screen .relative.mb-8.flex.items-center {
+  margin-bottom: 28px !important;
+}
+#login-screen .relative.mb-8.flex.items-center span {
+  font-size: 0.7rem !important;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--hv-ink-mute, #6b7060) !important;
+}
+#login-screen .relative.mb-8.flex.items-center > div {
+  border-color: rgba(28, 32, 24, 0.1) !important;
+}
+
+/* ── Form inputs ────────────────────────────────────────────────────── */
+#login-screen label {
+  font-size: 0.78rem !important;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--hv-terracotta, #c0623a) !important;
+  margin-bottom: 8px !important;
+}
+#login-screen .space-y-1\.5 {
+  margin-bottom: 20px;
+}
+#login-screen input[type="email"],
+#login-screen input[type="password"],
+#login-screen input[type="text"] {
+  width: 100%;
+  border: none !important;
+  border-bottom: 1.5px solid rgba(28, 32, 24, 0.15) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  padding: 14px 36px 14px 38px !important;
+  font-family: "Spectral", serif !important;
+  font-size: 1rem !important;
+  color: var(--hv-ink, #1d2018) !important;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+#login-screen input::placeholder {
+  color: rgba(28, 32, 24, 0.3) !important;
+  font-style: italic;
+}
+#login-screen input:focus {
+  outline: none;
+  border-bottom-color: var(--hv-forest, #2c3a2e) !important;
+  box-shadow: 0 1px 0 0 var(--hv-forest, #2c3a2e) !important;
+  background: transparent !important;
+}
+#login-screen input + .relative > span,
+#login-screen .relative > span.material-symbols-outlined {
+  color: var(--hv-ink-mute, #6b7060) !important;
+  z-index: 1;
+}
+#login-screen .relative > button[aria-label="Toggle password visibility"] {
+  z-index: 2;
+}
+
+/* ── Remember / Forgot row ──────────────────────────────────────────── */
+#login-screen .flex.items-center.justify-between {
+  margin: 24px 0 28px;
+}
+#login-screen .flex.items-center.justify-between label span:last-child {
+  font-size: 0.85rem !important;
+  color: var(--hv-ink-soft, #3a3f33) !important;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+#login-screen [data-forgot-password] {
+  font-size: 0.82rem !important;
+  font-weight: 600;
+  color: var(--hv-terracotta, #c0623a) !important;
+  text-transform: none;
+  letter-spacing: 0;
+  text-decoration: none !important;
+  transition: color 0.25s ease;
+}
+#login-screen [data-forgot-password]:hover {
+  color: var(--hv-forest, #2c3a2e) !important;
+}
+
+/* ── Submit button ──────────────────────────────────────────────────── */
+#login-screen button[type="submit"] {
+  width: 100%;
+  padding: 16px 24px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(135deg, var(--hv-forest, #2c3a2e), var(--hv-forest-deep, #1c2820)) !important;
+  color: var(--hv-cream, #fbf5ec) !important;
+  font-family: "Satoshi", sans-serif !important;
+  font-size: 0.92rem !important;
+  font-weight: 600;
+  letter-spacing: 0.04em !important;
+  text-transform: none !important;
+  border: none;
+  box-shadow: 0 6px 22px rgba(28, 40, 32, 0.22), inset 0 1px 0 rgba(255,255,255,0.1);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease;
+  cursor: pointer;
+}
+#login-screen button[type="submit"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(28, 40, 32, 0.3), inset 0 1px 0 rgba(255,255,255,0.16);
+}
+#login-screen button[type="submit"]:active {
+  transform: translateY(0);
+}
+
+/* ── Register form info card ────────────────────────────────────────── */
+#login-screen #registerForm > div:first-child {
+  background: linear-gradient(135deg, rgba(212, 164, 76, 0.12), rgba(192, 98, 58, 0.08)) !important;
+  border: 1px solid rgba(212, 164, 76, 0.25) !important;
+  border-radius: 16px !important;
+  padding: 16px 18px !important;
+  margin-bottom: 24px;
+}
+#login-screen #registerForm > div:first-child p {
+  font-family: "Spectral", serif !important;
+  font-style: italic;
+  font-size: 0.85rem !important;
+  color: var(--hv-ink-soft, #3a3f33) !important;
+  line-height: 1.5;
+}
+#login-screen #registerForm > div:first-child .material-symbols-outlined {
+  color: var(--hv-terracotta, #c0623a) !important;
+}
+
+/* ── Checkbox + terms ───────────────────────────────────────────────── */
+#login-screen #registerForm > label {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 20px 0;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+  color: var(--hv-ink-soft, #3a3f33) !important;
+  font-size: 0.82rem !important;
+  cursor: pointer;
+}
+#login-screen #registerForm > label span {
+  font-family: "Spectral", serif !important;
+  font-style: italic;
+  line-height: 1.5;
+}
+#login-screen #registerForm > label input[type="checkbox"] {
+  margin-top: 3px;
+  accent-color: var(--hv-forest, #2c3a2e);
+}
+
+/* ── Footer (demo mode + footer prompt + badges) ────────────────────── */
+#login-screen > section:last-child > div > footer {
+  margin-top: 36px !important;
+  padding-top: 28px !important;
+  border-top: 1px solid rgba(28, 32, 24, 0.08) !important;
+}
+#login-screen [data-demo-mode] {
+  padding: 14px 20px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(192, 98, 58, 0.3) !important;
+  background: rgba(192, 98, 58, 0.06) !important;
+  color: var(--hv-terracotta, #c0623a) !important;
+  font-size: 0.88rem !important;
+  font-weight: 600;
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+#login-screen [data-demo-mode]:hover {
+  background: rgba(192, 98, 58, 0.12) !important;
+  transform: translateY(-1px);
+}
+#login-screen #footerPrompt {
+  font-family: "Spectral", serif !important;
+  font-size: 0.9rem !important;
+  color: var(--hv-ink-soft, #3a3f33) !important;
+}
+#login-screen #footerPrompt a {
+  color: var(--hv-terracotta, #c0623a) !important;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.25s ease;
+}
+#login-screen #footerPrompt a:hover {
+  color: var(--hv-forest, #2c3a2e) !important;
+}
+#login-screen .grayscale {
+  margin-top: 24px;
+}
+#login-screen .grayscale > div {
+  font-size: 0.7rem !important;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--hv-ink-mute, #6b7060) !important;
+}
+#login-screen .grayscale .material-symbols-outlined {
+  color: var(--hv-moss, #6f8266) !important;
+}
+
+/* ── Error message ──────────────────────────────────────────────────── */
+#login-screen #authError {
+  font-family: "Spectral", serif !important;
+  font-style: italic;
+  border-radius: 12px !important;
+}
+
+/* ── Dark mode ──────────────────────────────────────────────────────── */
+html.dark #login-screen {
+  background: #171512 !important;
+}
+html.dark #login-screen::before {
+  opacity: 0.5;
+}
+html.dark #login-screen > section:last-child > div {
+  background: rgba(36, 33, 30, 0.85) !important;
+  border-color: rgba(231, 189, 177, 0.12) !important;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3), 0 32px 80px rgba(0,0,0,0.2) !important;
+}
+html.dark #login-screen > section:last-child > div > header h2 {
+  color: #f5eee8 !important;
+}
+html.dark #login-screen > section:last-child > div > header h2 em {
+  color: var(--hv-amber, #d4a44c);
+}
+html.dark #login-screen > section:last-child > div > header p {
+  color: #c9bdb4 !important;
+}
+html.dark #login-screen input {
+  color: #f5eee8 !important;
+  border-bottom-color: rgba(231, 189, 177, 0.15) !important;
+}
+html.dark #login-screen input:focus {
+  border-bottom-color: var(--hv-amber, #d4a44c) !important;
+  box-shadow: 0 1px 0 0 var(--hv-amber, #d4a44c) !important;
+}
+html.dark #login-screen label {
+  color: var(--hv-amber, #d4a44c) !important;
+}
+html.dark #login-screen .auth-tab {
+  color: #8a8f80 !important;
+}
+html.dark #login-screen .auth-tab[aria-selected="true"] {
+  color: #f5eee8 !important;
+}
+html.dark #login-screen button[type="submit"] {
+  background: linear-gradient(135deg, #4a5b49, #344333) !important;
+}
+html.dark #login-screen > section:last-child > div > .grid button {
+  background: rgba(36, 33, 30, 0.6) !important;
+  border-color: rgba(231, 189, 177, 0.12) !important;
+  color: #f5eee8 !important;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  #login-screen > section:last-child > div {
+    padding: 36px 28px !important;
+    margin: 20px 16px;
+  }
+  #login-screen > section:last-child > div > header h2 {
+    font-size: 1.8rem !important;
+  }
+}
+
+      /* === HV-AUTH:CSS-END === */
     </style>
       <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -5375,16 +5859,66 @@
       }
 
       if (registerForm) {
-        registerForm.addEventListener("submit", (e) => {
+        registerForm.addEventListener("submit", async (e) => {
           if (document.documentElement.dataset.tsRuntime === "true") return;
           e.preventDefault();
           const btn = e.target.querySelector('button[type="submit"]');
+          const firstName = document.getElementById("firstName")?.value || "";
+          const lastName = document.getElementById("lastName")?.value || "";
+          const email = document.getElementById("registerEmail")?.value || "";
+          const password = document.getElementById("registerPassword")?.value || "";
+
+          if (!firstName || !lastName || !email || password.length < 8) {
+            return;
+          }
+
           btn.disabled = true;
           btn.textContent = "Creating your vault...";
+
+          // 1. Create the Firebase auth account (real)
+          let userId = "user-" + Date.now();
+          let vaultId = "vault-" + Date.now();
+          try {
+            const { createUserWithEmailAndPassword, updateProfile } = await import("firebase/auth");
+            const { firebaseAuth } = await import("/src/firebase.ts");
+            const cred = await createUserWithEmailAndPassword(firebaseAuth, email, password);
+            await updateProfile(cred.user, { displayName: firstName + " " + lastName });
+            userId = cred.user.uid;
+          } catch (err) {
+            // Firebase may fail (weak password, email exists) — still store in ClickHouse
+            console.warn("[register] Firebase auth:", err.message);
+          }
+
+          // 2. Store the user row in ClickHouse (primary database)
+          try {
+            const res = await fetch("/api/register", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email, firstName, lastName, userId, vaultId }),
+            });
+            const data = await res.json();
+            if (data.success) {
+              vaultId = data.vaultId;
+              console.log("[register] ✓ Stored in ClickHouse:", data.stored);
+            }
+          } catch (err) {
+            console.warn("[register] ClickHouse store:", err.message);
+          }
+
+          btn.innerHTML = '<span class="material-symbols-outlined align-middle">check_circle</span> Vault created';
+          btn.classList.replace("bg-primary", "bg-green-800");
+
+          // 3. After a beat, enter the vault
           setTimeout(() => {
-            btn.innerHTML = '<span class="material-symbols-outlined align-middle">check_circle</span> Vault created';
-            btn.classList.replace("bg-primary", "bg-green-800");
-          }, 1200);
+            const landingPage = document.querySelector(".landing-page");
+            const loginScreen = document.getElementById("login-screen");
+            const vaultScreen = document.getElementById("vault-screen");
+            if (landingPage) landingPage.classList.add("is-hidden");
+            if (loginScreen) loginScreen.style.display = "none";
+            if (vaultScreen) vaultScreen.style.display = "flex";
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            history.pushState({ view: "vault" }, "", "#vault");
+          }, 1500);
         });
       }
 

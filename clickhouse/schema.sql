@@ -131,3 +131,18 @@ AS SELECT
 FROM heritage_atlas_facts
 WHERE event_year IS NOT NULL
 GROUP BY vault_id, decade, entity_type;
+
+-- ── Users (registered accounts) ──────────────────────────────────────
+CREATE TABLE IF NOT EXISTS heritage_atlas_users
+(
+  user_id String,
+  email String,
+  full_name String,
+  first_name String,
+  last_name String,
+  auth_provider LowCardinality(String) DEFAULT 'email',
+  vault_id String,
+  created_at DateTime64(3, 'UTC') DEFAULT now64(3)
+)
+ENGINE = ReplacingMergeTree(created_at)
+ORDER BY (email, user_id);
