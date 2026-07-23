@@ -1,82 +1,135 @@
-# Trigger.dev Deploy — Troubleshooting
+# Trigger.dev Deploy — DNS / Docker Hub Resolution Fix
 
 ## The error
 
 ```
-Error: Error building image. Full build logs have been saved to ...
-failed to resolve source metadata for docker.io/docker/dockerfile:1:
-failed to authorize: DeadlineExceeded: context deadline exceeded
+failed to fetch anonymous token: Get "https://auth.docker.io/token?...":
+dial tcp: lookup auth.docker.io: no such host
 ```
 
 ## What it means
 
-Trigger.dev's build infrastructure couldn't pull the base Docker image (`docker.io/docker/dockerfile:1`) from Docker Hub. The request timed out after the deadline. This is a **transient network/registry issue on Trigger.dev's build side** — not a problem with your code.
+Your Mac **cannot resolve `auth.docker.io`** — DNS lookup fails. This is a local network issue, not Trigger.dev. Docker Hub's auth server is unreachable from your machine.
 
-## What to do
-
-### Option 1: Retry (most likely to work)
-
-The build cache may have partially warmed up. Just re-run:
+## Fix 1: Check your DNS (most common cause)
 
 ```bash
+# Test if your Mac can reach Docker Hub's auth server
+nslookup auth.docker.io
+# Should return an IP like 44.205.64.79. If it says "server can't find", DNS is broken.
+
+# Test with Google's DNS directly
+nslookup auth.docker.io 8.8.8.8
+# If this works but the first doesn't, your DNS server is the problem.
+
+# Test the registry itself
+curl -v https://auth.docker.io/token?scope=repository:docker/dockerfile:pull 2>&1 | head -20
+```
+
+### If DNS is broken, fix it:
+
+**Option A — Use Google/Cloudflare DNS:**
+1. System Settings → Network → Wi-Fi (or Ethernet) → Details → DNS
+2. Add `8.8.8.8` and `1.1.1.1`
+3. Remove any broken DNS servers
+4. Apply
+
+**Option B — Flush DNS cache:**
+```bash
+sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder
+```
+
+**Option C — Edit /etc/hosts (nuclear option):**
+```bash
+# Get the current IP for auth.docker.io
+dig auth.docker.io +short @8.8.8.8
+# Then add to /etc/hosts:
+# 44.205.64.79 auth.docker.io
+# 54.85.56.253 registry-1.docker.io
+# (IPs change — use what dig returns)
+```
+
+## Fix 2: Switch networks
+
+Docker Hub rate-limits and sometimes blocks IPs. Try:
+- **Mobile hotspot** — connect your Mac to your phone's hotspot, retry
+- **Different WiFi** — a coffee shop, library, different office network
+- **VPN** — route through a different region
+
+```bash
+# After switching networks, test:
+curl -sI https://auth.docker.io/token | head -3
+# Should return HTTP/2 200 or 401 (both mean DNS works)
+
+# Then retry the deploy
 npx trigger.dev@latest deploy
 ```
 
-Transient Docker Hub timeouts usually clear on the second or third attempt.
+## Fix 3: Use a different runtime (avoids the dockerfile:1 image)
 
-### Option 2: Retry with a clean build
-
-If the retry hits the same cached failure:
+The failing image is `docker.io/docker/dockerfile:1` — Trigger.dev uses it for the build. Switching runtimes may use a different base image:
 
 ```bash
-npx trigger.dev@latest deploy --skip-update-check
-```
-
-### Option 3: Check Trigger.dev status
-
-- Go to https://status.trigger.dev/ — check for ongoing incidents
-- Go to https://cloud.trigger.dev/ → your project → Deployments — see if the build logs have more detail
-
-### Option 4: Try a different runtime
-
-If the node-22 image keeps failing, try node-20:
-
-```bash
-# Edit trigger.config.ts, change:
-#   runtime: "node-22"
-# to:
-#   runtime: "node-20"
+# Edit trigger.config.ts
+# Change: runtime: "node-22"
+# To:     runtime: "node-20"
 # Then:
 npx trigger.dev@latest deploy
 ```
 
-### Option 5: Deploy from a different network
+If node-20 still pulls `dockerfile:1`, this won't help — but worth trying.
 
-Docker Hub rate-limits by IP. If you're on a shared/corporate network, try:
-- A different network (mobile hotspot, different WiFi)
-- A VPN to a different region
+## Fix 4: Retry at a different time
 
-## What succeeded
+Docker Hub has intermittent outages. Check:
+- https://status.docker.com/ — see if there's an active incident
+- Wait 15-30 minutes and retry
 
-The deploy got past:
-- ✅ Authentication (retrieved account details for `chungu@thestackone.com`)
-- ✅ Code build (successfully built code)
-- ❌ Image build (Docker Hub timeout)
+## Fix 5: Use Docker Desktop as a proxy
 
-So your code is fine, your auth is fine — it's purely the Docker pull step.
+If you have Docker Desktop running, it may have its own DNS that works:
+
+```bash
+# Start Docker Desktop
+open -a Docker
+# Wait for it to fully start, then:
+npx trigger.dev@latest deploy
+```
+
+Docker Desktop's daemon handles image pulls differently and may bypass the broken DNS.
+
+## Quick diagnostic — run this first
+
+```bash
+# 1. Can you reach Docker Hub at all?
+curl -sI https://hub.docker.com 2>&1 | head -3
+
+# 2. Can you resolve the auth server?
+nslookup auth.docker.io
+
+# 3. Can you resolve the registry?
+nslookup registry-1.docker.io
+
+# 4. Are you on a network that blocks Docker Hub?
+#    (corporate networks, some ISPs, some countries)
+```
+
+## Most likely fix
+
+Based on `no such host` — your DNS is the problem. The fastest fix:
+
+1. **Switch to mobile hotspot** (30 seconds)
+2. `npx trigger.dev@latest deploy`
+
+If that works, your normal network is blocking Docker Hub. You can either:
+- Deploy from the hotspot each time
+- Fix your network's DNS (Fix 1 above)
+- Use a VPN
 
 ## After successful deploy
 
-Once the worker deploys, verify:
-
+Once it deploys, verify:
 ```bash
-# Check the health endpoint
 curl https://preview-3770180e-d32b-4a00-a0fb-1f99bf6dec67.space-z.ai/api/agent-health
 # Should show: "trigger": { "configured": true, "workerDeployed": true }
-
-# Or check the Trigger.dev dashboard
-# https://cloud.trigger.dev/ → your project → Tasks
-# You should see "heritage-atlas-agent" registered
 ```
-
-Then update the browser agent to actually use the deployed worker by removing the short-circuit in `src/agent/trigger-transport.ts` — change `runTriggerTurn` to call `loadTransport()` instead of immediately returning `null`.
