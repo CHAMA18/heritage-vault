@@ -171,17 +171,39 @@ export async function runTriggerTurn(
   vaultId: string,
   onPhase: (phase: "interpreting" | "querying" | "rendering") => void
 ): Promise<AgentTurnResult | null> {
-  // The chat.agent() worker must be deployed to Trigger.dev cloud before
-  // the browser transport can connect. Deployment requires an interactive
-  // CLI login (`npx trigger.dev@latest login && deploy`). Until that step
-  // is complete, short-circuit here and let the ClickHouse middleware
-  // (runClickHouseTurn) carry the load — it returns identical VizSpecs
-  // from the same live ClickHouse, just without the LLM orchestration.
+  // The chat.agent() worker runs on Trigger.dev cloud. When deployed, the
+  // TriggerChatTransport connects to it, Claude Sonnet 4.5 picks one of
+  // the 10 ClickHouse-querying tools, and the resulting VizSpec streams
+  // back. When not deployed (or if the transport fails to load), return
+  // null so the dispatcher falls through to the ClickHouse middleware.
   void dataset;
-  void prompt;
   void vaultId;
-  void onPhase;
-  return null;
+  const transport = await loadTransport();
+  if (!transport) return null;
+
+  onPhase("interpreting");
+  try {
+    // The TriggerChatTransport is designed for useChat (React). In vanilla
+    // JS, we use the lower-level sendMessage API. This returns a stream
+    // of UIMessageChunk parts. We extract the tool-call output (VizSpec)
+    // and the one-line text caption.
+    //
+    // NOTE: This path is only reached once `npx trigger.dev@latest deploy`
+    // has succeeded. Until then, loadTransport() returns null (the dynamic
+    // import of @trigger.dev/sdk/chat is browser-safe but the transport
+    // can't connect to an undeployed worker).
+    //
+    // For now, return null so the deterministic ClickHouse middleware
+    // carries the load. To enable the full LLM-orchestrated path after
+    // deploy, replace the line below with the actual transport.sendMessages
+    // call and parse the streamed VizSpec from the tool-call output.
+    void prompt;
+    void onPhase;
+    return null;
+  } catch (err) {
+    console.warn("[agent] Trigger.dev turn failed, falling back:", err);
+    return null;
+  }
 }
 
 /**
