@@ -82,7 +82,7 @@ const queryTimelineTool = tool({
       .optional()
       .describe("Optional decade filter (e.g. 1940 for the 1940s)"),
   }),
-  execute: async ({ vaultId, decade }) => {
+  execute: async ({ vaultId, decade }: { vaultId: string; decade?: number }) => {
     const client = clickhouse();
     const rows = await client.query({
       query: `
@@ -155,7 +155,7 @@ const queryMapTool = tool({
   inputSchema: z.object({
     vaultId: z.string(),
   }),
-  execute: async ({ vaultId }) => {
+  execute: async ({ vaultId }: { vaultId: string }) => {
     const client = clickhouse();
     const rows = await client.query({
       query: `
@@ -228,7 +228,7 @@ const queryPeopleTool = tool({
   inputSchema: z.object({
     vaultId: z.string(),
   }),
-  execute: async ({ vaultId }) => {
+  execute: async ({ vaultId }: { vaultId: string }) => {
     const client = clickhouse();
 
     // Members + memory count (memory count = how many fact.related_entity_ids
@@ -346,7 +346,7 @@ const queryEvidenceTool = tool({
       .describe("Optional location to filter by"),
     limit: z.number().int().min(1).max(50).default(12),
   }),
-  execute: async ({ vaultId, person, place, limit }) => {
+  execute: async ({ vaultId, person, place, limit }: { vaultId: string; person?: string; place?: string; limit: number }) => {
     const client = clickhouse();
     const rows = await client.query({
       query: `
@@ -415,7 +415,7 @@ const queryDecadesTool = tool({
   inputSchema: z.object({
     vaultId: z.string(),
   }),
-  execute: async ({ vaultId }) => {
+  execute: async ({ vaultId }: { vaultId: string }) => {
     const client = clickhouse();
     const rows = await client.query({
       query: `
@@ -478,7 +478,7 @@ const queryTypesTool = tool({
   inputSchema: z.object({
     vaultId: z.string(),
   }),
-  execute: async ({ vaultId }) => {
+  execute: async ({ vaultId }: { vaultId: string }) => {
     const client = clickhouse();
     const rows = await client.query({
       query: `
@@ -537,7 +537,7 @@ const queryOverviewTool = tool({
   inputSchema: z.object({
     vaultId: z.string(),
   }),
-  execute: async ({ vaultId }) => {
+  execute: async ({ vaultId }: { vaultId: string }) => {
     const client = clickhouse();
     const rows = await client.query({
       query: `
@@ -604,7 +604,7 @@ const queryCompareTool = tool({
     leftDecade: z.number().optional().describe("Optional first decade (default: earliest)"),
     rightDecade: z.number().optional().describe("Optional second decade (default: latest)"),
   }),
-  execute: async ({ vaultId, leftDecade, rightDecade }) => {
+  execute: async ({ vaultId, leftDecade, rightDecade }: { vaultId: string; leftDecade?: number; rightDecade?: number }) => {
     const client = clickhouse();
     const rows = await client.query({
       query: `
@@ -667,7 +667,7 @@ const queryOldestTool = tool({
   inputSchema: z.object({
     vaultId: z.string(),
   }),
-  execute: async ({ vaultId }) => {
+  execute: async ({ vaultId }: { vaultId: string }) => {
     const client = clickhouse();
     const rows = await client.query({
       query: `
@@ -727,7 +727,7 @@ const queryNewestTool = tool({
   inputSchema: z.object({
     vaultId: z.string(),
   }),
-  execute: async ({ vaultId }) => {
+  execute: async ({ vaultId }: { vaultId: string }) => {
     const client = clickhouse();
     const rows = await client.query({
       query: `

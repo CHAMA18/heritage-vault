@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Stories - HeritageVault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link crossorigin href="https://fonts.gstatic.com" rel="preconnect" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <style>
+    /* ═══════════════════════════════════════════════════════════
+       RESET & BASE
+       ═══════════════════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+    body {
+      min-height: 100vh;
+      background: #fcf8f4;
+      color: #2a2a28;
+      font-family: 'Source Sans 3', system-ui, sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ─── Ambient Background Depth ─── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: -40%;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.35;
+      background:
+        radial-gradient(circle at 20% 15%, rgba(215, 195, 175, 0.25) 0%, transparent 35%),
+        radial-gradient(circle at 80% 85%, rgba(155, 175, 145, 0.18) 0%, transparent 30%),
+        radial-gradient(circle at 50% 50%, rgba(252, 248, 244, 0.5) 0%, transparent 40%);
+      animation: ambientShift 25s ease-in-out infinite alternate;
+    }
+    @keyframes ambientShift {
+      0%   { transform: translate3d(-1%, -0.5%, 0) scale(1); }
+      50%  { transform: translate3d(1.5%, 1%, 0) scale(1.03); }
+      100% { transform: translate3d(-0.5%, 1.5%, 0) scale(1.01); }
+    }
+
+    /* ─── Paper Grain Texture ─── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.025;
+      background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png");
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       TOP HEADER BAR
+       ═══════════════════════════════════════════════════════════ */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 68px;
+      background: rgba(252, 248, 244, 0.88);
+      backdrop-filter: blur(16px) saturate(1.3);
+      -webkit-backdrop-filter: blur(16px) saturate(1.3);
+      border-bottom: 1px solid rgba(180, 165, 150, 0.18);
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: inherit;
+      flex-shrink: 0;
+      font-family: inherit;
+      padding: 0;
+    }
+    .header-brand-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 0.55rem;
+      background: #2a3a28;
+      color: #f5ede4;
+      font-size: 1.25rem;
+    }
+    .header-brand-text {
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+    }
+    .header-brand-name {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #2a3a28;
+      line-height: 1.2;
+    }
+    .header-brand-slogan {
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      color: rgba(120, 100, 85, 0.6);
+      text-transform: uppercase;
+    }
+    @media (max-width: 480px) {
+      .header-brand-slogan { display: none; }
+    }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      list-style: none;
+    }
+    .header-nav a,
+    .header-nav button {
+      position: relative;
+      font-family: 'Source Sans 3', system-ui, sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: rgba(80, 75, 70, 0.7);
+      text-decoration: none;
+      letter-spacing: 0.03em;
+      padding: 0.25rem 0;
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: color 0.25s ease;
+    }
+    .header-nav button:hover,
+    .header-nav a:hover { color: #2a3a28; }
+    .header-nav button::after,
+    .header-nav a::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 100%;
+      bottom: -2px;
+      height: 2px;
+      background: #2a3a28;
+      transition: right 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .header-nav button:hover::after,
+    .header-nav a:hover::after { right: 0; }
+    .header-nav button.is-active,
+    .header-nav a.is-active { color: #2a3a28; font-weight: 600; }
+    .header-nav button.is-active::after,
+    .header-nav a.is-active::after {
+      right: 0;
+      background: #8a745a;
+      height: 2.5px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .header-avatar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 999px;
+      background: #2a3a28;
+      color: #f5ede4;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       MAIN CONTENT SHELL
+       ═══════════════════════════════════════════════════════════ */
+    .app-main {
+      position: relative;
+      z-index: 2;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 3.5rem 2rem 5rem;
+    }
+    @media (max-width: 600px) {
+      .app-header { padding: 0 1.25rem; }
+      .app-main { padding: 2rem 1.25rem 3rem; }
+      .header-nav { gap: 1.25rem; }
+    }
+
+    /* Page sections: only the active one is shown */
+    .page-section { display: none; }
+    .page-section.is-active {
+      display: block;
+      animation: pageEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @keyframes pageEnter {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── Page Header (shared) ─── */
+    .page-header { margin-bottom: 2.5rem; }
+    .page-date {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      color: rgba(120, 100, 85, 0.6);
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    .page-greeting {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+      font-weight: 600;
+      color: #2a3a28;
+      line-height: 1.2;
+    }
+    .page-divider {
+      height: 1px;
+      background: linear-gradient(90deg, rgba(180, 165, 150, 0.3), rgba(180, 165, 150, 0.08), transparent);
+      border: none;
+      margin: 2rem 0 2.5rem;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       VAULT PAGE
+       ═══════════════════════════════════════════════════════════ */
+    .vault-eyebrow {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      color: rgba(120, 100, 85, 0.55);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .vault-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(2.6rem, 5vw, 4rem);
+      font-weight: 700;
+      color: #2a3a28;
+      line-height: 1.05;
+      letter-spacing: -0.01em;
+      margin-bottom: 1rem;
+    }
+    .vault-description {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: rgba(80, 75, 70, 0.75);
+      max-width: 580px;
+    }
+
+    .vault-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      margin: 2.5rem 0 0;
+    }
+    .stat-card {
+      padding: 1.25rem 1.5rem;
+      border: 1px solid rgba(180, 165, 150, 0.16);
+      border-radius: 0.875rem;
+      background: rgba(255, 253, 251, 0.6);
+      box-shadow: 0 2px 12px rgba(60, 50, 40, 0.03);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+    }
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 28px rgba(60, 50, 40, 0.06);
+    }
+    .stat-card .material-symbols-outlined {
+      font-size: 1.4rem;
+      color: rgba(120, 100, 85, 0.5);
+      margin-bottom: 1rem;
+    }
+    .stat-card strong {
+      display: block;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #2a3a28;
+      font-variant-numeric: tabular-nums;
+    }
+    .stat-card span {
+      display: block;
+      font-size: 0.78rem;
+      color: rgba(80, 75, 70, 0.55);
+      margin-top: 0.2rem;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       STORIES PAGE
+       ═══════════════════════════════════════════════════════════ */
+    .stories-intro { margin-bottom: 3rem; }
+    .stories-intro .vault-eyebrow { margin-bottom: 0.4rem; }
+    .stories-subtitle {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: rgba(80, 75, 70, 0.7);
+      max-width: 520px;
+    }
+
+    /* ─── Featured Story ─── */
+    .story-featured {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      margin-bottom: 3rem;
+      border-radius: 1.25rem;
+      overflow: hidden;
+      background: #2a3a28;
+      min-height: 340px;
+      box-shadow: 0 12px 40px rgba(42, 58, 40, 0.12);
+    }
+    @media (max-width: 640px) {
+      .story-featured { grid-template-columns: 1fr; }
+    }
+    .story-featured-image { overflow: hidden; }
+    .story-featured-image div {
+      width: 100%;
+      height: 100%;
+      min-height: 280px;
+      background-size: cover;
+      background-position: center;
+      transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .story-featured:hover .story-featured-image div { transform: scale(1.03); }
+    .story-featured-body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 2.5rem;
+      color: #f5ede4;
+    }
+    @media (max-width: 640px) {
+      .story-featured-body { padding: 1.75rem; }
+    }
+    .story-featured-body .story-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .story-featured-body .story-tag {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.65rem;
+      border-radius: 999px;
+      background: rgba(255, 253, 251, 0.12);
+      color: rgba(245, 237, 228, 0.8);
+    }
+    .story-featured-body .story-year {
+      font-size: 0.72rem;
+      color: rgba(245, 237, 228, 0.5);
+      font-weight: 500;
+    }
+    .story-featured-body h3 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(1.5rem, 2.5vw, 2rem);
+      font-weight: 600;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+    }
+    .story-featured-body p {
+      font-size: 0.92rem;
+      line-height: 1.7;
+      color: rgba(245, 237, 228, 0.75);
+      margin-bottom: 1.25rem;
+    }
+    .story-read-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: 'Source Sans 3', system-ui, sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      transition: color 0.2s ease;
+    }
+    .story-read-btn .material-symbols-outlined {
+      font-size: 1rem;
+      transition: transform 0.2s ease;
+    }
+    .story-read-btn:hover .material-symbols-outlined { transform: translateX(3px); }
+    .story-featured-body .story-read-btn { color: rgba(215, 195, 175, 0.9); }
+    .story-featured-body .story-read-btn:hover { color: #f5ede4; }
+
+    /* ─── Story Grid ─── */
+    .story-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+    .story-card {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(180, 165, 150, 0.14);
+      border-radius: 1rem;
+      background: rgba(255, 253, 251, 0.65);
+      box-shadow: 0 2px 12px rgba(60, 50, 40, 0.03);
+      overflow: hidden;
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
+    }
+    .story-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 16px 38px rgba(60, 50, 40, 0.07);
+    }
+    .story-card-image {
+      height: 180px;
+      background-size: cover;
+      background-position: center;
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .story-card:hover .story-card-image { transform: scale(1.04); }
+    .story-card-body {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      padding: 1.25rem 1.5rem 1.5rem;
+    }
+    .story-card-body .story-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.65rem;
+    }
+    .story-card-body .story-tag {
+      font-size: 0.55rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      background: rgba(180, 165, 150, 0.12);
+      color: rgba(80, 75, 70, 0.6);
+    }
+    .story-card-body .story-year {
+      font-size: 0.68rem;
+      color: rgba(80, 75, 70, 0.4);
+    }
+    .story-card-body h4 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #2a3a28;
+      line-height: 1.25;
+      margin-bottom: 0.5rem;
+    }
+    .story-card-body p {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: rgba(80, 75, 70, 0.65);
+      flex: 1;
+      margin-bottom: 1rem;
+    }
+    .story-card-body .story-read-btn {
+      color: rgba(120, 100, 85, 0.7);
+      align-self: flex-start;
+    }
+    .story-card-body .story-read-btn:hover { color: #2a3a28; }
+
+    /* ─── Story Detail Modal ─── */
+    .story-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background: rgba(30, 28, 25, 0.55);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .story-backdrop.is-open { display: flex; }
+    .story-modal {
+      width: 100%;
+      max-width: 640px;
+      max-height: 85vh;
+      overflow-y: auto;
+      border: 1px solid rgba(180, 165, 150, 0.2);
+      border-radius: 1.25rem;
+      background: #fcf8f4;
+      box-shadow: 0 24px 80px rgba(30, 28, 25, 0.2);
+      animation: modalEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @keyframes modalEnter {
+      from { opacity: 0; transform: translateY(20px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .story-modal-image {
+      height: 220px;
+      background-size: cover;
+      background-position: center;
+    }
+    .story-modal-body { padding: 2rem 2rem 2.5rem; }
+    .story-modal-body .story-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .story-modal-body .story-tag {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.65rem;
+      border-radius: 999px;
+      background: rgba(42, 58, 40, 0.08);
+      color: rgba(42, 58, 40, 0.6);
+    }
+    .story-modal-body .story-year {
+      font-size: 0.72rem;
+      color: rgba(80, 75, 70, 0.45);
+    }
+    .story-modal-body h2 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: #2a3a28;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+    .story-modal-body p {
+      font-size: 0.95rem;
+      line-height: 1.8;
+      color: rgba(80, 75, 70, 0.75);
+      margin-bottom: 1rem;
+    }
+    .story-modal-body p:last-of-type { margin-bottom: 0; }
+    .story-close-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.25rem;
+      height: 2.25rem;
+      margin-left: auto;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(180, 165, 150, 0.2);
+      border-radius: 999px;
+      background: rgba(255, 253, 251, 0.5);
+      color: rgba(80, 75, 70, 0.5);
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .story-close-btn:hover {
+      background: rgba(255, 253, 251, 0.9);
+      color: #2a3a28;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       MAP PAGE
+       ═══════════════════════════════════════════════════════════ */
+    .map-canvas {
+      position: relative;
+      min-height: 420px;
+      border: 1px solid rgba(180, 165, 150, 0.14);
+      border-radius: 1rem;
+      background:
+        radial-gradient(circle at 25% 25%, rgba(215, 195, 175, 0.35), transparent 22%),
+        radial-gradient(circle at 75% 70%, rgba(155, 175, 145, 0.3), transparent 22%),
+        #f0ece6;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(60, 50, 40, 0.03);
+    }
+    .map-canvas::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(42, 58, 40, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(42, 58, 40, 0.06) 1px, transparent 1px);
+      background-size: 3rem 3rem;
+    }
+    .map-placeholder {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 420px;
+      padding: 2rem;
+      text-align: center;
+    }
+    .map-placeholder .material-symbols-outlined {
+      font-size: 2.5rem;
+      color: rgba(120, 100, 85, 0.3);
+      margin-bottom: 1rem;
+    }
+    .map-placeholder h3 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: rgba(42, 58, 40, 0.6);
+      margin-bottom: 0.4rem;
+    }
+    .map-placeholder p {
+      font-size: 0.85rem;
+      color: rgba(80, 75, 70, 0.45);
+      max-width: 320px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       UTILITIES & ANIMATIONS
+       ═══════════════════════════════════════════════════════════ */
+    .serif { font-family: 'Playfair Display', Georgia, serif; }
+    .sans  { font-family: 'Source Sans 3', system-ui, sans-serif; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-in { animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+    .delay-5 { animation-delay: 0.5s; }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       HEADER
+       ═══════════════════════════════════════════════════════════ -->
+  <header class="app-header" role="banner">
+    <button class="header-brand" data-nav="vault" type="button" aria-label="HeritageVault home">
+      <span class="header-brand-icon material-symbols-outlined">home</span>
+      <span class="header-brand-text">
+        <span class="header-brand-name">HeritageVault</span>
+        <span class="header-brand-slogan">Preserving the Legacy</span>
+      </span>
+    </button>
+
+    <nav aria-label="Main navigation" style="margin-left:auto">
+      <ul class="header-nav">
+        <li><button type="button" data-nav="vault">Vault</button></li>
+        <li><button type="button" data-nav="map">Map</button></li>
+        <li><button type="button" data-nav="stories" class="is-active">Stories</button></li>
+      </ul>
+    </nav>
+
+    <div class="header-actions">
+      <div class="header-avatar" data-user-initials aria-label="User avatar">VK</div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       MAIN
+       ═══════════════════════════════════════════════════════════ -->
+  <main class="app-main" role="main">
+
+    <!-- ─── Shared Date & Greeting ─── -->
+    <div class="page-header animate-in">
+      <p class="page-date" id="currentDate">TUESDAY, JULY 21, 2026</p>
+      <h1 class="page-greeting" data-user-greeting>Good morning, Vault keeper.</h1>
+    </div>
+
+    <hr class="page-divider animate-in delay-1" aria-hidden="true" />
+
+    <!-- ═══════════════════════════════════════════════════════════
+         PAGE: VAULT
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="page-section" data-page="vault" id="page-vault">
+      <div class="animate-in delay-2">
+        <p class="vault-eyebrow">Your private archive</p>
+        <h2 class="vault-title">The Vault</h2>
+        <p class="vault-description">
+          A living collection of the people, places, and moments that make your family yours.
+        </p>
+      </div>
+
+      <div class="vault-stats animate-in delay-3">
+        <div class="stat-card">
+          <span class="material-symbols-outlined">photo_library</span>
+          <strong data-stat="memories">&mdash;</strong>
+          <span>Memories preserved</span>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-outlined">groups</span>
+          <strong data-stat="familyMembers">&mdash;</strong>
+          <span>Family members</span>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-outlined">calendar_month</span>
+          <strong data-stat="timeline">&mdash;</strong>
+          <span>Your family timeline</span>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-outlined">auto_stories</span>
+          <strong data-stat="stories">&mdash;</strong>
+          <span>Stories ready to read</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         PAGE: STORIES  (default active)
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="page-section is-active" data-page="stories" id="page-stories">
+
+      <div class="stories-intro animate-in delay-2">
+        <p class="vault-eyebrow">Family narratives</p>
+        <h2 class="vault-title" style="font-size: clamp(2.2rem, 4vw, 3rem);">Your Stories</h2>
+        <p class="stories-subtitle">
+          The moments that shaped your family, woven into living narratives. Each story is a thread in the tapestry of your legacy.
+        </p>
+      </div>
+
+      <!-- Featured Story -->
+      <article class="story-featured animate-in delay-3">
+        <div class="story-featured-image">
+          <div style="background-image:url('https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=800&q=80')"></div>
+        </div>
+        <div class="story-featured-body">
+          <div class="story-meta">
+            <span class="story-tag">Featured narrative</span>
+            <span class="story-year">1958</span>
+          </div>
+          <h3>The Sunday Table</h3>
+          <p>
+            Every Sunday, the table stretched to hold twelve. The smell of roasted groundnuts and sweet potatoes filled the air as three generations gathered in Lusaka &mdash; a ritual of laughter, storytelling, and belonging that echoed through the decades.
+          </p>
+          <button class="story-read-btn" type="button" data-story="sunday-table">
+            Read the full story
+            <span class="material-symbols-outlined">arrow_forward</span>
+          </button>
+        </div>
+      </article>
+
+      <!-- Story Grid -->
+      <div class="story-grid animate-in delay-4">
+
+        <article class="story-card">
+          <div class="story-card-image" style="background-image:url('https://images.unsplash.com/photo-1461360228754-6e81c478b882?w=600&q=80')"></div>
+          <div class="story-card-body">
+            <div class="story-meta">
+              <span class="story-tag">Portrait</span>
+              <span class="story-year">1942</span>
+            </div>
+            <h4>Great Aunt Martha</h4>
+            <p>A portrait found behind a handwritten letter in the attic. She had eyes that held the weight of a generation.</p>
+            <button class="story-read-btn" type="button" data-story="aunt-martha">
+              Read story <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+          </div>
+        </article>
+
+        <article class="story-card">
+          <div class="story-card-image" style="background-image:url('https://images.unsplash.com/photo-1523050854058-8df90110c7f1?w=600&q=80')"></div>
+          <div class="story-card-body">
+            <div class="story-meta">
+              <span class="story-tag">Journey</span>
+              <span class="story-year">1962</span>
+            </div>
+            <h4>The Great Migration</h4>
+            <p>A family's journey across the continent, told through faded train tickets, creased maps, and a single silver locket.</p>
+            <button class="story-read-btn" type="button" data-story="great-migration">
+              Read story <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+          </div>
+        </article>
+
+        <article class="story-card">
+          <div class="story-card-image" style="background-image:url('https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=600&q=80')"></div>
+          <div class="story-card-body">
+            <div class="story-meta">
+              <span class="story-tag">Tradition</span>
+              <span class="story-year">1975</span>
+            </div>
+            <h4>The Harvest Festival</h4>
+            <p>Every year, the village gathered under the acacia trees. Music, dance, and the passing of stories from elder to child.</p>
+            <button class="story-read-btn" type="button" data-story="harvest-festival">
+              Read story <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+          </div>
+        </article>
+
+        <article class="story-card">
+          <div class="story-card-image" style="background-image:url('https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?w=600&q=80')"></div>
+          <div class="story-card-body">
+            <div class="story-meta">
+              <span class="story-tag">Letter</span>
+              <span class="story-year">1939</span>
+            </div>
+            <h4>Letters from Abroad</h4>
+            <p>A bundle of airmail letters, each one a fragile bridge between a father building a new life and the family he left behind.</p>
+            <button class="story-read-btn" type="button" data-story="letters-abroad">
+              Read story <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+          </div>
+        </article>
+
+        <article class="story-card">
+          <div class="story-card-image" style="background-image:url('https://images.unsplash.com/photo-1529636798458-92182e662485?w=600&q=80')"></div>
+          <div class="story-card-body">
+            <div class="story-meta">
+              <span class="story-tag">Wedding</span>
+              <span class="story-year">1954</span>
+            </div>
+            <h4>A Promise in the Garden</h4>
+            <p>The garden was in full bloom when they said their vows beneath the jacaranda tree. Sixty years later, the tree still stands.</p>
+            <button class="story-read-btn" type="button" data-story="promise-garden">
+              Read story <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+          </div>
+        </article>
+
+        <article class="story-card">
+          <div class="story-card-image" style="background-image:url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80')"></div>
+          <div class="story-card-body">
+            <div class="story-meta">
+              <span class="story-tag">Memory</span>
+              <span class="story-year">1992</span>
+            </div>
+            <h4>Grandfather's Workshop</h4>
+            <p>The smell of sawdust and the sound of his humming. In that small workshop, he taught that patience was the truest form of love.</p>
+            <button class="story-read-btn" type="button" data-story="grandfather-workshop">
+              Read story <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         PAGE: MAP
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="page-section" data-page="map" id="page-map">
+      <div class="animate-in delay-2">
+        <p class="vault-eyebrow">Your lineage, connected</p>
+        <h2 class="vault-title" style="font-size: clamp(2rem, 4vw, 3rem);">Family Map</h2>
+        <p class="vault-description">
+          Explore the people and places that connect your family across generations and continents.
+        </p>
+      </div>
+
+      <div class="map-canvas animate-in delay-3">
+        <div class="map-placeholder">
+          <span class="material-symbols-outlined">map</span>
+          <h3>Your family atlas awaits</h3>
+          <p>Add family members and their stories to build an interactive map of your heritage.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       STORY DETAIL MODAL
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="story-backdrop" id="storyModal" role="dialog" aria-modal="true" aria-labelledby="storyModalTitle">
+    <div class="story-modal">
+      <div class="story-modal-image" id="storyModalImage"></div>
+      <div class="story-modal-body">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; margin-bottom:0;">
+          <div class="story-meta">
+            <span class="story-tag" id="storyModalTag"></span>
+            <span class="story-year" id="storyModalYear"></span>
+          </div>
+          <button class="story-close-btn" type="button" id="storyModalClose" aria-label="Close story">
+            <span class="material-symbols-outlined" style="font-size:1.1rem">close</span>
+          </button>
+        </div>
+        <h2 id="storyModalTitle"></h2>
+        <div id="storyModalBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       LOGIC SCRIPT
+       ═══════════════════════════════════════════════════════════ -->
+  <script>
+    (function() {
+      'use strict';
+
+      /* ── CONFIGURATION ───────────────────────────────────────
+         Set the logged-in user's display name here.
+         Replace the placeholder with your real variable:
+           const USER_NAME = "{{user.name}}";
+           const USER_NAME = currentUser.displayName;
+         ────────────────────────────────────────────────────── */
+      const USER_NAME = "Vault keeper";
+
+      /* ── Story Data ────────────────────────────────────────── */
+      var STORIES = {
+        "sunday-table": {
+          title: "The Sunday Table",
+          tag: "Featured narrative",
+          year: "1958",
+          image: "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=800&q=80",
+          body: "Every Sunday, the table stretched to hold twelve. Grandmother Naledi would rise before dawn, her hands moving with the practiced grace of decades, preparing the feast that would bring three generations together.<br><br>The smell of roasted groundnuts and sweet potatoes filled every corner of the house, mingling with the sound of laughter that spilled from the kitchen into the garden. Uncle Joseph would arrive first, always with a story from his travels. Then the cousins, tumbling through the door like a river of joy.<br><br>By noon, the table groaned under the weight of dishes passed down through generations &mdash; recipes written not on paper, but in memory. Grandfather Samuel would say grace, his voice steady and warm, and for a few hours, the world outside dissolved.<br><br>These were not just meals. They were rituals of belonging. In a world that constantly pulls families apart, the Sunday table was the anchor that held them together. A promise that no matter how far you wandered, there would always be a seat waiting for you."
+        },
+        "aunt-martha": {
+          title: "Great Aunt Martha",
+          tag: "Portrait",
+          year: "1942",
+          image: "https://images.unsplash.com/photo-1461360228754-6e81c478b882?w=600&q=80",
+          body: "The portrait was discovered behind a handwritten letter, tucked into the lining of an old trunk in the attic. Great Aunt Martha stared out from the faded photograph with eyes that had seen too much and yet held only warmth.<br><br>Born in 1910, she was the family's archivist before the word existed. She kept every letter, every telegram, every newspaper clipping that mentioned a family name. Her collection became the foundation of everything we know about our ancestors.<br><br>She never married, never had children of her own. But she was mother to every child in the extended family, remembered for her pocketfuls of hard candies and her habit of reading aloud from whatever book she was carrying."
+        },
+        "great-migration": {
+          title: "The Great Migration",
+          tag: "Journey",
+          year: "1962",
+          image: "https://images.unsplash.com/photo-1523050854058-8df90110c7f1?w=600&q=80",
+          body: "The journey began with a single suitcase and a train ticket. When the mines called for workers, the men left their villages, crossing borders into unfamiliar lands with little more than hope and the addresses of cousins they had never met.<br><br>The letters they sent home were careful &mdash; full of reassurance, never revealing the loneliness. But in every envelope, folded into the thin airmail paper, was a promise: the family would be together again.<br><br>Those train tracks became the veins of our family story, carrying fathers and sons across the continent, weaving a map of resilience that spanned generations."
+        },
+        "harvest-festival": {
+          title: "The Harvest Festival",
+          tag: "Tradition",
+          year: "1975",
+          image: "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=600&q=80",
+          body: "Under the great acacia tree, the village gathered as it had for generations. The drums began at dusk, their rhythm rising from the earth like a heartbeat. Elders sat in a circle, their faces lit by firelight, passing stories from lips to eager ears.<br><br>The harvest festival was more than a celebration of crops. It was a celebration of continuity &mdash; of knowledge passed down through songs, of dances that told the history of a people, of children learning the steps their great-grandparents had danced.<br><br>In the smoke and the music, the past and present merged. The ancestors were not gone; they were in the rhythm of the drums, in the taste of the roasted maize, in the laughter of the children."
+        },
+        "letters-abroad": {
+          title: "Letters from Abroad",
+          tag: "Letter",
+          year: "1939",
+          image: "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?w=600&q=80",
+          body: "The bundle of letters was tied with faded ribbon, each envelope bearing a foreign stamp and the same return address. They had traveled across oceans, carried by ships and trains and the hands of strangers, before arriving at a small village house.<br><br>The first letter was dated 1939. The war had just begun, and a young man found himself on another continent, writing to the family he might never see again. His words were careful, filled with descriptions of the strange new world around him, but between every line was the ache of distance.<br><br>His letters became the family's window to the world. They were read aloud at gatherings, passed from hand to hand, each crease and stain a testament to the journey they had made. They are still treasured today, not just as correspondence, but as a bridge between two worlds."
+        },
+        "promise-garden": {
+          title: "A Promise in the Garden",
+          tag: "Wedding",
+          year: "1954",
+          image: "https://images.unsplash.com/photo-1529636798458-92182e662485?w=600&q=80",
+          body: "The jacaranda tree was in full bloom when they said their vows beneath its canopy. The petals fell like purple rain as the small gathering of family and friends bore witness to a love that would span six decades.<br><br>The garden, once a patch of dry earth, had been transformed by the bride's hands over the course of a year. She had planted flowers that reminded her of home, creating a sanctuary of color and memory in the heart of the city.<br><br>Sixty years later, the jacaranda still stands. Its roots run deep, like the love that was planted there. Every spring, when the purple blossoms appear, the family gathers beneath its branches to remember."
+        },
+        "grandfather-workshop": {
+          title: "Grandfather's Workshop",
+          tag: "Memory",
+          year: "1992",
+          image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80",
+          body: "The workshop smelled of sawdust and linseed oil. Tools hung on the walls in ordered rows, each one worn smooth by decades of use. Grandfather worked with his hands, but he taught with his heart.<br><br>In that small space, a boy learned that patience was the truest form of love. Every piece of wood had a grain, a story, a direction it wanted to go. The craftsman's job was not to force it, but to listen, to guide, to reveal the shape that was already inside.<br><br>The workshop still stands, preserved as he left it. The tools are silent now, but the lessons echo through every piece of furniture he made &mdash; tables where families gather, chairs where grandparents sit, cabinets that hold the precious things we pass down."
+        }
+      };
+
+      /* ── Date & Greeting ──────────────────────────────────── */
+      function updateDate() {
+        var now = new Date();
+        var days   = ["SUNDAY","MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY"];
+        var months = ["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"];
+        var el = document.getElementById("currentDate");
+        if (el) el.textContent = days[now.getDay()] + ", " + months[now.getMonth()] + " " + now.getDate() + ", " + now.getFullYear();
+      }
+
+      function updateGreeting() {
+        var hour = new Date().getHours();
+        var period = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+        var name = (USER_NAME && USER_NAME.trim().length > 0) ? USER_NAME.trim() : "Vault keeper";
+        var el = document.querySelector("[data-user-greeting]");
+        if (el) el.textContent = period + ", " + name + ".";
+
+        var first = name.charAt(0).toUpperCase();
+        var space = name.indexOf(" ");
+        var initials = space > -1 ? first + name.charAt(space + 1).toUpperCase() : first;
+        var avatar = document.querySelector("[data-user-initials]");
+        if (avatar) avatar.textContent = initials;
+      }
+
+      /* ── Page Navigation ──────────────────────────────────── */
+      var navButtons = document.querySelectorAll("[data-nav]");
+      var pages = {
+        vault:   document.getElementById("page-vault"),
+        stories: document.getElementById("page-stories"),
+        map:     document.getElementById("page-map"),
+      };
+
+      function switchPage(pageId) {
+        if (!pages[pageId]) return;
+        Object.keys(pages).forEach(function(id) {
+          if (pages[id]) pages[id].classList.remove("is-active");
+        });
+        pages[pageId].classList.add("is-active");
+
+        navButtons.forEach(function(el) {
+          el.classList.toggle("is-active", el.getAttribute("data-nav") === pageId);
+        });
+
+        var titles = { vault: "The Vault", stories: "Stories", map: "Family Map" };
+        document.title = (titles[pageId] || "HeritageVault") + " - HeritageVault";
+      }
+
+      navButtons.forEach(function(el) {
+        el.addEventListener("click", function(e) {
+          e.preventDefault();
+          switchPage(el.getAttribute("data-nav"));
+        });
+      });
+
+      /* ── Story Modal ──────────────────────────────────────── */
+      var modal       = document.getElementById("storyModal");
+      var modalTitle  = document.getElementById("storyModalTitle");
+      var modalTag    = document.getElementById("storyModalTag");
+      var modalYear   = document.getElementById("storyModalYear");
+      var modalImage  = document.getElementById("storyModalImage");
+      var modalBody   = document.getElementById("storyModalBody");
+      var modalClose  = document.getElementById("storyModalClose");
+
+      function openStory(storyId) {
+        var story = STORIES[storyId];
+        if (!story) return;
+        if (modalTitle)  modalTitle.textContent  = story.title;
+        if (modalTag)    modalTag.textContent    = story.tag;
+        if (modalYear)   modalYear.textContent   = story.year;
+        if (modalImage)  modalImage.style.backgroundImage = 'url("' + story.image + '")';
+        if (modalBody)   modalBody.innerHTML     = story.body;
+        if (modal)       modal.classList.add("is-open");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeStory() {
+        if (modal) modal.classList.remove("is-open");
+        document.body.style.overflow = "";
+      }
+
+      document.querySelectorAll("[data-story]").forEach(function(btn) {
+        btn.addEventListener("click", function() {
+          openStory(btn.getAttribute("data-story"));
+        });
+      });
+
+      if (modalClose) modalClose.addEventListener("click", closeStory);
+      if (modal) modal.addEventListener("click", function(e) {
+        if (e.target === modal) closeStory();
+      });
+      document.addEventListener("keydown", function(e) {
+        if (e.key === "Escape") closeStory();
+      });
+
+      /* ── Boot ─────────────────────────────────────────────── */
+      updateDate();
+      updateGreeting();
+    })();
+  </script>
+
+</body>
+</html>
