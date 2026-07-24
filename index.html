@@ -808,8 +808,8 @@
 .landing-page .hv-nav__brand,
 .landing-page .hv-nav__link,
 .landing-page .hv-nav__cta {
-  opacity: 0;
-  transform: translateY(-12px);
+  opacity: 1;
+  transform: translateY(0);
   animation: hvNavDown 0.9s var(--hv-ease-soft) forwards;
 }
 .landing-page .hv-nav__brand   { animation-delay: 0.15s; }
@@ -818,6 +818,7 @@
 .landing-page .hv-nav__link:nth-child(3) { animation-delay: 0.44s; }
 .landing-page .hv-nav__cta     { animation-delay: 0.55s; }
 @keyframes hvNavDown {
+  from { opacity: 0; transform: translateY(-12px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
