@@ -181,14 +181,14 @@ The repository includes ingestion tasks for archive facts, family edges, and a c
 
 ## GitHub Pages deployment
 
-The repository includes [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml). Every push to `main`:
+The public site is configured to serve the compiled `gh-pages` branch at [chama18.github.io/heritage-vault](https://chama18.github.io/heritage-vault/). The repository also includes [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) for accounts where GitHub Actions is available. That workflow:
 
 1. installs the locked dependencies;
 2. type-checks and builds the Vite client;
 3. uploads the `dist/` artifact;
 4. deploys the artifact to GitHub Pages.
 
-To enable it in GitHub for the first time, open **Settings → Pages** and select **GitHub Actions** as the deployment source. The workflow uses relative asset paths, so it works under the `/heritage-vault/` repository subpath without broken logos, fonts, or route assets.
+The build uses relative asset paths, so it works under the `/heritage-vault/` repository subpath without broken logos, fonts, or route assets. When the account’s GitHub Actions billing lock is resolved, switch Pages back to **GitHub Actions** to restore automatic deployment on every push to `main`.
 
 ## Security model
 
