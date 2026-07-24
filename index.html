@@ -5415,7 +5415,7 @@ html.dark .hv-mobile-toggle:hover {
       <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,300;1,9..144,400&family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&display=swap" rel="stylesheet" />
-  <script type="module" crossorigin src="./assets/index-CIp1VH7v.js"></script>
+  <script type="module" crossorigin src="./assets/index-BprgEjuY.js"></script>
 </head>
   <body class="min-h-screen overflow-x-hidden bg-background font-body-md text-on-surface selection:bg-secondary-container">
     <div class="landing-page min-h-screen">
@@ -5880,7 +5880,20 @@ html.dark .hv-mobile-toggle:hover {
       </section>
     </main>
 
-    <main id="vault-screen" class="font-body-md text-on-surface">
+    <main id="vault-screen" class="font-body-md text-on-surface"><aside data-sidebar class="vault-nav hidden flex-col p-6 lg:flex">
+        <div class="mb-10"><img data-brand-logo class="brand-logo" src="./heritageatlas-logo.png" alt="Heritage Atlas" /></div>
+        <nav class="flex-1 space-y-2">
+          <a class="vault-nav-link active flex items-center gap-3 rounded-xl px-4 py-3 font-label-md text-label-md" href="#vault" data-dashboard-view="vault"><span class="material-symbols-outlined">inventory_2</span>The Vault</a>
+          <a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#family-map" data-dashboard-view="family-map"><span class="material-symbols-outlined">account_tree</span>Family Map</a>
+          <a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#story-mode" data-dashboard-view="story-mode"><span class="material-symbols-outlined">auto_stories</span>Story Mode</a>
+          <a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#atlas" data-dashboard-view="atlas"><span class="material-symbols-outlined">auto_awesome</span>Heritage Atlas</a>
+          <a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#agent" data-dashboard-view="agent"><span class="material-symbols-outlined">smart_toy</span>Agent</a>
+        </nav>
+        <button data-new-memory class="mb-6 flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 font-label-md text-label-md text-on-primary shadow-lg transition hover:-translate-y-0.5 hover:bg-primary-container"><span class="material-symbols-outlined">add</span>New memory</button>
+        <button class="theme-toggle mb-5" type="button" data-theme-toggle><span class="flex items-center gap-3"><span class="material-symbols-outlined" data-theme-icon>dark_mode</span><span class="font-label-md text-label-md" data-theme-label>Dark mode</span></span><span class="material-symbols-outlined text-base">contrast</span></button>
+        <button class="theme-toggle mb-5 text-secondary" type="button" data-logout><span class="flex items-center gap-3"><span class="material-symbols-outlined">logout</span><span class="font-label-md text-label-md">Log out</span></span><span class="material-symbols-outlined text-base">arrow_forward</span></button>
+        <div class="border-t border-outline-variant/20 pt-5"><div class="flex items-center gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container text-secondary"><span class="material-symbols-outlined">person</span></div><div><p class="font-label-md text-label-md font-semibold text-primary" data-auth-user-name>Vault keeper</p><p class="font-caption text-caption text-on-surface-variant">Vault keeper</p></div></div></div>
+      </aside>
       <!-- === HV-VAULT-DASH:CONTENT-START === -->
       <!-- The dashboard must render inside this content column. Keeping it
            separate from the sidebar prevents each dashboard section from
