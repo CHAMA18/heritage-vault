@@ -465,7 +465,44 @@ export function heritageAgentPlugin() {
         }
       });
 
-      // ── 6. Health check ───────────────────────────────────────────
+      // ── 6. Archive search — live ClickHouse evidence lookup ─────────
+      server.middlewares.use("/api/search", async (req, res) => {
+        if (req.method !== "GET") {
+          res.statusCode = 405;
+          res.end("Method not allowed");
+          return;
+        }
+        try {
+          const url = new URL(req.url ?? "", "http://localhost");
+          const term = (url.searchParams.get("q") ?? "").trim();
+          if (term.length < 2) {
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ results: [], source: "ClickHouse Cloud · live" }));
+            return;
+          }
+          const client = ch(env);
+          const result = await client.query({
+            query: `SELECT fact_id, title, description, event_year, location, entity_type, related_entity_ids
+                    FROM heritage_atlas_facts
+                    WHERE vault_id = {vaultId:String}
+                      AND (title ILIKE {pattern:String} OR description ILIKE {pattern:String} OR location ILIKE {pattern:String})
+                    ORDER BY event_year DESC
+                    LIMIT 18`,
+            query_params: { vaultId: "demo-vault", pattern: `%${term}%` },
+            format: "JSONEachRow",
+          });
+          const results = await result.json();
+          await client.close();
+          res.setHeader("Content-Type", "application/json");
+          res.end(JSON.stringify({ results, source: "ClickHouse Cloud · heritage_atlas_facts (live)" }));
+        } catch (err) {
+          console.error("[search] error:", err.message);
+          res.statusCode = 500;
+          res.end(JSON.stringify({ error: "Archive search is temporarily unavailable." }));
+        }
+      });
+
+      // ── 7. Health check ───────────────────────────────────────────
       server.middlewares.use("/api/agent-health", (req, res) => {
         res.setHeader("Content-Type", "application/json");
         res.end(JSON.stringify({

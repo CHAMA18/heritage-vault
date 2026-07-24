@@ -119,7 +119,7 @@ export function initVaultDashboard(root: HTMLElement): void {
         <button class="hv-vd-topbar__icon-btn" type="button" aria-label="Notifications">
           <span class="material-symbols-outlined" style="font-size:20px">notifications</span>
         </button>
-        <button class="hv-vd-topbar__icon-btn" type="button" aria-label="Search">
+        <button class="hv-vd-topbar__icon-btn" type="button" aria-label="Search" data-archive-search>
           <span class="material-symbols-outlined" style="font-size:20px">search</span>
         </button>
         <div class="hv-vd-avatar">AK</div>
@@ -315,13 +315,14 @@ export function initVaultDashboard(root: HTMLElement): void {
     });
   });
 
-  // Memory cards → open story mode (could be a detail modal in future)
+  // Memory cards → cinematic detail modal; users can hand off to Agent from there.
   root.querySelectorAll<HTMLElement>("[data-vd-memory]").forEach((el) => {
-    el.addEventListener("click", () => navigateTo("story-mode"));
+    const open = () => document.dispatchEvent(new CustomEvent("heritage:memory-detail", { detail: { id: el.dataset.memoryId } }));
+    el.addEventListener("click", open);
     el.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        navigateTo("story-mode");
+        open();
       }
     });
   });

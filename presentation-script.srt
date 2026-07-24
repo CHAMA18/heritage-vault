@@ -1,0 +1,39 @@
+1
+00:00:00,000 --> 00:00:13,000
+Heritage Atlas begins with a simple promise: never lose your family's stories.
+
+2
+00:00:13,000 --> 00:00:24,000
+The experience starts securely. A family signs in, and their archive opens as a living workspace.
+
+3
+00:00:24,000 --> 00:00:36,000
+Inside the Vault, the family gets an immediate picture of memories, people, dates, places, and stories.
+
+4
+00:00:36,000 --> 00:00:49,000
+The Family Map turns relatives into a visual constellation connected across branches and generations.
+
+5
+00:00:49,000 --> 00:01:05,000
+The Heritage Atlas Agent turns questions into answers you can see: charts, maps, timelines, and relationship diagrams.
+
+6
+00:01:05,000 --> 00:01:22,000
+ClickHouse powers fast archive queries, while Trigger.dev orchestrates the agent workflow from real evidence.
+
+7
+00:01:22,000 --> 00:01:38,000
+Ask where the family lived, who appears most often, or how the story unfolded, and the archive becomes visual.
+
+8
+00:01:38,000 --> 00:01:58,000
+Heritage Atlas is the visual answer layer: explorable, evidence-led, and built beyond the wall of text.
+
+9
+00:01:58,000 --> 00:02:13,000
+Story Mode turns the same evidence into a guided narrative, with every chapter tied back to source memories.
+
+10
+00:02:13,000 --> 00:02:18,410
+This is Heritage Atlas: family history made searchable, visual, and alive.

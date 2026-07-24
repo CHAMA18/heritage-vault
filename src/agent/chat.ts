@@ -67,6 +67,11 @@ export class AgentChat {
   init() {
     this.renderShell();
     this.renderSuggestedPrompts();
+    const pending = sessionStorage.getItem("heritage-atlas-pending-prompt");
+    if (pending) {
+      sessionStorage.removeItem("heritage-atlas-pending-prompt");
+      void this.send(pending);
+    }
   }
 
   /** Send a user prompt and stream the agent response */
@@ -82,6 +87,7 @@ export class AgentChat {
       at: new Date().toISOString(),
     };
     this.messages.push(userMsg);
+    this.rememberPrompt(prompt);
     this.renderMessages();
 
     // Push a placeholder agent message that we mutate through phases.
@@ -145,7 +151,7 @@ export class AgentChat {
       <aside class="hv-agent-sidebar" data-sidebar aria-label="Agent navigation">
         <div class="hv-agent-sidebar__brand">
           <a href="#vault" data-dashboard-view="vault" aria-label="Heritage Atlas home">
-            <img data-brand-logo class="brand-logo" src="/heritageatlas-logo.svg" alt="Heritage Atlas" />
+            <img data-brand-logo class="brand-logo" src="./heritageatlas-logo.svg" alt="Heritage Atlas" />
           </a>
         </div>
         <nav class="hv-agent-sidebar__nav" aria-label="Primary">
@@ -273,6 +279,7 @@ export class AgentChat {
   private renderSuggestedPrompts() {
     const sug = this.mount.querySelector<HTMLElement>("[data-agent-suggestions]");
     if (!sug) return;
+    const recent = JSON.parse(localStorage.getItem("heritage-atlas-recent-prompts") ?? "[]") as string[];
     sug.innerHTML = `
       <p class="hv-agent__suggestions-label">Try asking</p>
       <div class="hv-agent__chips">
@@ -282,6 +289,7 @@ export class AgentChat {
         `
         ).join("")}
       </div>
+      ${recent.length ? `<div class="hv-agent__recent"><p class="hv-agent__suggestions-label">Recently asked</p><div class="hv-agent__chips">${recent.map((p) => `<button class="hv-agent__chip" data-recent-prompt="${this.esc(p)}">${this.esc(p)}</button>`).join("")}</div></div>` : ""}
     `;
     sug.querySelectorAll<HTMLButtonElement>("[data-prompt]").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -291,6 +299,9 @@ export class AgentChat {
         this.send(prompt);
         if (input) input.value = "";
       });
+    });
+    sug.querySelectorAll<HTMLButtonElement>("[data-recent-prompt]").forEach((btn) => {
+      btn.addEventListener("click", () => this.send(btn.dataset.recentPrompt ?? ""));
     });
   }
 
@@ -312,6 +323,15 @@ export class AgentChat {
       if (m.role === "agent" && m.phase === "done" && m.spec) {
         this.bindInteractions(m.id);
       }
+    });
+    wrap.querySelectorAll<HTMLButtonElement>("[data-agent-retry]").forEach((button) => {
+      button.addEventListener("click", () => this.send(button.dataset.agentRetry ?? ""));
+    });
+    wrap.querySelectorAll<HTMLButtonElement>("[data-agent-suggest]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const input = this.mount.querySelector<HTMLInputElement>("[data-agent-input]");
+        if (input) { input.value = "Show me the timeline of memories"; input.focus(); }
+      });
     });
 
     // Scroll to bottom
@@ -351,6 +371,7 @@ export class AgentChat {
               <span class="hv-agent__phase-spinner"></span>
               <span class="hv-agent__phase-label">${PHASE_LABELS[m.phase]}</span>
             </div>
+            <div class="hv-agent__skeleton" aria-label="Preparing a visual answer"><i></i><i></i><i></i></div>
           </div>
         </div>
       `;
@@ -360,7 +381,7 @@ export class AgentChat {
         <div class="hv-agent__msg hv-agent__msg--agent">
           <div class="hv-agent__msg-avatar"><span class="material-symbols-outlined">error</span></div>
           <div class="hv-agent__msg-body">
-            <div class="hv-agent__error">${this.esc(m.text ?? "Unknown error")}</div>
+            <div class="hv-agent__error"><b>We could not complete that visual answer.</b><span>${this.esc(m.text ?? "The live archive did not respond.")}</span><div><button type="button" data-agent-retry="${this.esc(m.prompt ?? "")}">Retry</button><button type="button" data-agent-suggest>Try a different question</button></div></div>
           </div>
         </div>
       `;
@@ -475,6 +496,12 @@ export class AgentChat {
   private showSuggestions() {
     const sug = this.mount.querySelector<HTMLElement>("[data-agent-suggestions]");
     if (sug) sug.style.display = "";
+  }
+
+  private rememberPrompt(prompt: string): void {
+    const key = "heritage-atlas-recent-prompts";
+    const existing = JSON.parse(localStorage.getItem(key) ?? "[]") as string[];
+    localStorage.setItem(key, JSON.stringify([prompt, ...existing.filter((item) => item !== prompt)].slice(0, 5)));
   }
   private hideSuggestions() {
     const sug = this.mount.querySelector<HTMLElement>("[data-agent-suggestions]");

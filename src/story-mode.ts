@@ -93,7 +93,7 @@ export function initStoryMode(root: HTMLElement): void {
     <div class="hv-sm-grain" aria-hidden="true"></div>
 
     <aside data-sidebar class="vault-nav hidden flex-col p-6 lg:flex" aria-label="Heritage Atlas navigation">
-      <div class="mb-10"><img data-brand-logo class="brand-logo" src="/heritageatlas-logo.svg" alt="Heritage Atlas" /></div>
+      <div class="mb-10"><img data-brand-logo class="brand-logo" src="./heritageatlas-logo.svg" alt="Heritage Atlas" /></div>
       <nav class="flex-1 space-y-2" aria-label="Primary">
         <a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#vault" data-dashboard-view="vault"><span class="material-symbols-outlined">inventory_2</span>The Vault</a>
         <a class="vault-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant" href="#family-map" data-dashboard-view="family-map"><span class="material-symbols-outlined">account_tree</span>Family Map</a>

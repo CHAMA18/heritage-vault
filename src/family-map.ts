@@ -59,7 +59,7 @@ export function initFamilyMap(root: HTMLElement): void {
     <aside class="hv-fm-sidebar" data-sidebar aria-label="Family Map navigation">
       <div class="hv-fm-sidebar__brand">
         <a href="#vault" data-dashboard-view="vault" aria-label="HeritageAtlas home">
-          <img data-brand-logo class="brand-logo" src="/heritageatlas-logo.svg" alt="HeritageAtlas" />
+          <img data-brand-logo class="brand-logo" src="./heritageatlas-logo.svg" alt="HeritageAtlas" />
         </a>
         <div class="hv-fm-sidebar__brand-text">
           <span class="hv-fm-sidebar__brand-name">HeritageAtlas</span>
