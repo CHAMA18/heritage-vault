@@ -31,3 +31,41 @@ document.addEventListener("click", (e: Event) => { const link = (e.target as HTM
 window.addEventListener("popstate", () => { navigateToView(window.location.hash.replace("#", "") || "landing"); });
 if (window.location.hash) { const h = window.location.hash.replace("#", ""); if (["vault", "family-map", "story-mode", "agent", "atlas"].includes(h)) { setTimeout(() => navigateToView(h), 200); } }
 (window as any).navigateToView = navigateToView;
+
+// Delegated theme toggle — works on ALL sidebars (even dynamically rendered)
+document.addEventListener("click", (e: Event) => {
+  const themeBtn = (e.target as HTMLElement).closest("[data-theme-toggle]");
+  if (themeBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+    const isDark = document.documentElement.classList.contains("dark");
+    document.documentElement.classList.toggle("dark", !isDark);
+    try { localStorage.setItem("heritagevault-theme", !isDark ? "dark" : "light"); } catch {}
+    document.querySelectorAll<HTMLElement>("[data-theme-label]").forEach((label) => { label.textContent = !isDark ? "Light mode" : "Dark mode"; });
+    document.querySelectorAll<HTMLElement>("[data-theme-icon]").forEach((icon) => { icon.textContent = !isDark ? "light_mode" : "dark_mode"; });
+    return;
+  }
+  const logoutBtn = (e.target as HTMLElement).closest("[data-logout]");
+  if (logoutBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!window.confirm("Log out of HeritageVault?")) return;
+    const landing = document.querySelector<HTMLElement>(".landing-page");
+    const login = document.getElementById("login-screen");
+    ["vault-screen", "family-map-screen", "story-mode-screen", "agent-screen", "atlas-screen"].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = "none"; });
+    if (login) login.style.display = "flex";
+    if (landing) landing.classList.remove("is-hidden");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    history.pushState({ view: "landing" }, "", "#");
+  }
+});
+
+// Apply stored theme on load
+try {
+  const stored = localStorage.getItem("heritagevault-theme");
+  if (stored === "dark") {
+    document.documentElement.classList.add("dark");
+    document.querySelectorAll<HTMLElement>("[data-theme-label]").forEach((l) => l.textContent = "Light mode");
+    document.querySelectorAll<HTMLElement>("[data-theme-icon]").forEach((i) => i.textContent = "light_mode");
+  }
+} catch {}
