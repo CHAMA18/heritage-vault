@@ -2,7 +2,7 @@
 
 > A visualization-first chat agent for family archives — the response IS the product: a chart, a map, a diagram. Never a paragraph.
 
-**Try it:** [https://preview-3770180e-d32b-4a00-a0fb-1f99bf6dec67.space-z.ai/](https://preview-3770180e-d32b-4a00-a0fb-1f99bf6dec67.space-z.ai/) → log in → click **Agent** in the sidebar
+**Try it:** [https://chama18.github.io/heritage-vault/#family-map](https://chama18.github.io/heritage-vault/#family-map) → log in → click **Agent** in the sidebar
 
 ## The thesis
 
@@ -94,5 +94,5 @@ npx trigger.dev@latest deploy    # deploys chat.agent() + 10 tools
 ## Repository
 
 - **GitHub:** [CHAMA18/heritage-vault](https://github.com/CHAMA18/heritage-vault)
-- **Live preview:** [https://preview-3770180e-d32b-4a00-a0fb-1f99bf6dec67.space-z.ai/](https://preview-3770180e-d32b-4a00-a0fb-1f99bf6dec67.space-z.ai/)
+- **Live preview:** [https://chama18.github.io/heritage-vault/#family-map](https://chama18.github.io/heritage-vault/#family-map)
 - **10 commits** on `main` — clean history, no credential leaks
