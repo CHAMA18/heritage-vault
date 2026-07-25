@@ -50,6 +50,15 @@ Browser ──POST /api/agent-query──▶ Vite middleware ──▶ ClickHous
 
 ## The story (demo data: the Banda–Chama family, 1912–2026)
 
+**Demo access (pre-filled on the login screen):**
+
+| Field | Value |
+|---|---|
+| Email | `curator@heritagevault.family` |
+| Password | `HeritageVault2026!` |
+
+Or click **Demo Mode** on the login screen to explore without an account.
+
 - **Samuel Banda** (1897–1964) — railway clerk turned village teacher who saved every letter in a blue tin trunk
 - **Beatrice Phiri Banda** (1901–1982) — seamstress, her embroidered tablecloth became the centrepiece of family gatherings
 - **114 years** of memories across 7 locations in Zambia and Zimbabwe

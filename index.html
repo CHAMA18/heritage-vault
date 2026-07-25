@@ -5266,6 +5266,138 @@
 #login-screen #footerPrompt a:hover {
   color: var(--hv-forest, #2c3a2e) !important;
 }
+
+/* ── Demo access banner (pre-filled credentials hint) ───────────── */
+#login-screen .hv-demo-access {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(192, 98, 58, 0.28);
+  background: linear-gradient(135deg, rgba(192, 98, 58, 0.08) 0%, rgba(44, 58, 46, 0.05) 100%);
+  position: relative;
+  overflow: hidden;
+}
+#login-screen .hv-demo-access::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, rgba(192, 98, 58, 0.12), transparent 60%);
+  pointer-events: none;
+}
+#login-screen .hv-demo-access__icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: rgba(192, 98, 58, 0.14);
+  color: var(--hv-terracotta, #c0623a);
+}
+#login-screen .hv-demo-access__icon .material-symbols-outlined {
+  font-size: 20px;
+}
+#login-screen .hv-demo-access__body {
+  flex: 1;
+  min-width: 0;
+}
+#login-screen .hv-demo-access__title {
+  margin: 0;
+  font-family: "Fraunces", "Spectral", serif;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--hv-forest, #2c3a2e);
+  letter-spacing: 0.01em;
+}
+#login-screen .hv-demo-access__hint {
+  margin: 3px 0 0;
+  font-size: 0.74rem;
+  color: var(--hv-ink-soft, #3a3f33);
+  line-height: 1.45;
+  word-break: break-word;
+}
+#login-screen .hv-demo-access__hint code {
+  font-family: "JetBrains Mono", "SFMono-Regular", ui-monospace, monospace;
+  font-size: 0.72rem;
+  padding: 1px 6px;
+  margin: 0 1px;
+  border-radius: 5px;
+  background: rgba(28, 32, 24, 0.06);
+  color: var(--hv-forest, #2c3a2e);
+  font-weight: 600;
+}
+#login-screen .hv-demo-access__copy {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 1px solid rgba(28, 32, 24, 0.12);
+  background: transparent;
+  color: var(--hv-ink-soft, #3a3f33);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+#login-screen .hv-demo-access__copy:hover {
+  background: rgba(192, 98, 58, 0.12);
+  color: var(--hv-terracotta, #c0623a);
+  border-color: rgba(192, 98, 58, 0.3);
+}
+#login-screen .hv-demo-access__copy .material-symbols-outlined {
+  font-size: 16px;
+}
+#login-screen .hv-demo-access.is-copied {
+  border-color: rgba(44, 58, 46, 0.4);
+  background: linear-gradient(135deg, rgba(44, 58, 46, 0.1) 0%, rgba(44, 58, 46, 0.04) 100%);
+}
+#login-screen .hv-demo-access.is-copied .hv-demo-access__copy {
+  background: rgba(44, 58, 46, 0.14);
+  color: var(--hv-forest, #2c3a2e);
+  border-color: rgba(44, 58, 46, 0.3);
+}
+
+/* Dark mode tuning for the demo access banner */
+html.dark #login-screen .hv-demo-access {
+  border-color: rgba(231, 189, 177, 0.22);
+  background: linear-gradient(135deg, rgba(231, 189, 177, 0.08) 0%, rgba(196, 200, 192, 0.04) 100%);
+}
+html.dark #login-screen .hv-demo-access__icon {
+  background: rgba(231, 189, 177, 0.16);
+  color: #e7bdb1;
+}
+html.dark #login-screen .hv-demo-access__title {
+  color: #f5eee8;
+}
+html.dark #login-screen .hv-demo-access__hint {
+  color: rgba(245, 238, 232, 0.7);
+}
+html.dark #login-screen .hv-demo-access__hint code {
+  background: rgba(245, 238, 232, 0.1);
+  color: #f5eee8;
+}
+html.dark #login-screen .hv-demo-access__copy {
+  border-color: rgba(245, 238, 232, 0.18);
+  color: rgba(245, 238, 232, 0.7);
+}
+html.dark #login-screen .hv-demo-access__copy:hover {
+  background: rgba(231, 189, 177, 0.16);
+  color: #e7bdb1;
+  border-color: rgba(231, 189, 177, 0.35);
+}
+html.dark #login-screen .hv-demo-access.is-copied {
+  border-color: rgba(196, 200, 192, 0.35);
+  background: linear-gradient(135deg, rgba(196, 200, 192, 0.12) 0%, rgba(196, 200, 192, 0.04) 100%);
+}
+html.dark #login-screen .hv-demo-access.is-copied .hv-demo-access__copy {
+  background: rgba(196, 200, 192, 0.16);
+  color: #f5eee8;
+  border-color: rgba(196, 200, 192, 0.3);
+}
+
 #login-screen .grayscale {
   margin-top: 24px;
 }
@@ -5714,6 +5846,21 @@ html.dark .hv-unified-sidebar__drag-handle{background:linear-gradient(135deg,#4a
               </div>
             </div>
 
+          <div id="demoAccessBanner" class="hv-demo-access" role="note" aria-label="Demo access credentials">
+            <div class="hv-demo-access__icon">
+              <span class="material-symbols-outlined">key</span>
+            </div>
+            <div class="hv-demo-access__body">
+              <p class="hv-demo-access__title">Demo access — sign in instantly</p>
+              <p class="hv-demo-access__hint">
+                Email <code>curator@heritagevault.family</code> · Password <code>HeritageVault2026!</code>
+              </p>
+            </div>
+            <button type="button" class="hv-demo-access__copy" data-copy-demo aria-label="Copy demo credentials">
+              <span class="material-symbols-outlined">content_copy</span>
+            </button>
+          </div>
+
           <div class="mb-4 grid grid-cols-2 gap-4">
             <button
               class="group flex items-center justify-center gap-2 rounded-full border border-outline-variant px-4 py-3 transition-colors duration-200 hover:bg-surface-container-low"
@@ -5774,6 +5921,8 @@ html.dark .hv-unified-sidebar__drag-handle{background:linear-gradient(135deg,#4a
                   placeholder="name@archive.com"
                   required
                   type="email"
+                  value="curator@heritagevault.family"
+                  autocomplete="username"
                 />
               </div>
             </div>
@@ -5790,6 +5939,8 @@ html.dark .hv-unified-sidebar__drag-handle{background:linear-gradient(135deg,#4a
                   placeholder="••••••••"
                   required
                   type="password"
+                  value="HeritageVault2026!"
+                  autocomplete="current-password"
                 />
                 <button
                   aria-label="Toggle password visibility"
@@ -5836,20 +5987,20 @@ html.dark .hv-unified-sidebar__drag-handle{background:linear-gradient(135deg,#4a
             <div class="grid gap-4 sm:grid-cols-2">
               <div class="space-y-1.5">
                 <label class="block font-label-md text-label-md text-secondary" for="firstName">First name</label>
-                <input class="input-focus-border w-full border-b border-outline-variant bg-transparent py-3 font-body-md text-on-surface placeholder:text-on-tertiary-container/50" id="firstName" placeholder="Amara" required type="text" />
+                <input class="input-focus-border w-full border-b border-outline-variant bg-transparent py-3 font-body-md text-on-surface placeholder:text-on-tertiary-container/50" id="firstName" placeholder="Amara" required type="text" value="Amara" autocomplete="given-name" />
               </div>
               <div class="space-y-1.5">
                 <label class="block font-label-md text-label-md text-secondary" for="lastName">Last name</label>
-                <input class="input-focus-border w-full border-b border-outline-variant bg-transparent py-3 font-body-md text-on-surface placeholder:text-on-tertiary-container/50" id="lastName" placeholder="Kabwe" required type="text" />
+                <input class="input-focus-border w-full border-b border-outline-variant bg-transparent py-3 font-body-md text-on-surface placeholder:text-on-tertiary-container/50" id="lastName" placeholder="Kabwe" required type="text" value="Kabwe" autocomplete="family-name" />
               </div>
             </div>
             <div class="space-y-1.5">
               <label class="block font-label-md text-label-md text-secondary" for="registerEmail">Email address</label>
-              <input class="input-focus-border w-full border-b border-outline-variant bg-transparent py-3 font-body-md text-on-surface placeholder:text-on-tertiary-container/50" id="registerEmail" placeholder="name@archive.com" required type="email" />
+              <input class="input-focus-border w-full border-b border-outline-variant bg-transparent py-3 font-body-md text-on-surface placeholder:text-on-tertiary-container/50" id="registerEmail" placeholder="name@archive.com" required type="email" value="amara.kabwe@heritagevault.family" autocomplete="email" />
             </div>
             <div class="space-y-1.5">
               <label class="block font-label-md text-label-md text-secondary" for="registerPassword">Create a password</label>
-              <input class="input-focus-border w-full border-b border-outline-variant bg-transparent py-3 font-body-md text-on-surface placeholder:text-on-tertiary-container/50" id="registerPassword" placeholder="At least 8 characters" minlength="8" required type="password" />
+              <input class="input-focus-border w-full border-b border-outline-variant bg-transparent py-3 font-body-md text-on-surface placeholder:text-on-tertiary-container/50" id="registerPassword" placeholder="At least 8 characters" minlength="8" required type="password" value="HeritageVault2026!" autocomplete="new-password" />
             </div>
             <label class="flex cursor-pointer items-start gap-3 pt-1">
               <input class="mt-1 h-4 w-4 rounded-sm border-outline-variant bg-transparent text-primary focus:ring-primary/20" required type="checkbox" />
@@ -5994,6 +6145,7 @@ html.dark .hv-unified-sidebar__drag-handle{background:linear-gradient(135deg,#4a
       }
 
       const authThumb = document.querySelector(".auth-switch-thumb");
+      const demoBanner = document.getElementById("demoAccessBanner");
       function setAuthMode(mode) {
         const isRegister = mode === "register";
         loginForm.classList.toggle("is-hidden", isRegister);
@@ -6001,6 +6153,9 @@ html.dark .hv-unified-sidebar__drag-handle{background:linear-gradient(135deg,#4a
         authHeading.textContent = isRegister ? "Begin your legacy" : "Login";
         authSubheading.textContent = isRegister ? "Create a sanctuary for the stories that matter." : "Sign in to continue preserving what matters.";
         emailDivider.classList.toggle("is-hidden", isRegister);
+        // The demo access banner only belongs on the Sign-in tab —
+        // registration has its own pre-filled sample values.
+        if (demoBanner) demoBanner.style.display = isRegister ? "none" : "";
         footerPrompt.innerHTML = isRegister
           ? 'Already have a vault? <a class="font-semibold text-primary hover:underline" href="#" data-login-link>Login</a>'
           : 'Don\'t have a vault yet? <a class="font-semibold text-primary hover:underline" href="#" data-register-link>Request access</a>';
@@ -6027,6 +6182,46 @@ html.dark .hv-unified-sidebar__drag-handle{background:linear-gradient(135deg,#4a
           const isPassword = passwordInput.type === "password";
           passwordInput.type = isPassword ? "text" : "password";
           passwordToggle.querySelector(".material-symbols-outlined").textContent = isPassword ? "visibility_off" : "visibility";
+        });
+      }
+
+      // ── Demo credentials copy-to-clipboard ───────────────────────
+      // Pre-filled values live in the email + password inputs. The
+      // banner's copy button duplicates them to the clipboard so they
+      // can be pasted into other tools or shared with reviewers.
+      const copyDemoBtn = document.querySelector("[data-copy-demo]");
+      if (copyDemoBtn) {
+        copyDemoBtn.addEventListener("click", async () => {
+          const email = document.getElementById("email")?.value || "curator@heritagevault.family";
+          const password = document.getElementById("password")?.value || "HeritageVault2026!";
+          const payload = `HeritageVault demo access\nEmail: ${email}\nPassword: ${password}`;
+          try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              await navigator.clipboard.writeText(payload);
+            } else {
+              const ta = document.createElement("textarea");
+              ta.value = payload;
+              ta.style.position = "fixed";
+              ta.style.opacity = "0";
+              document.body.appendChild(ta);
+              ta.select();
+              document.execCommand("copy");
+              document.body.removeChild(ta);
+            }
+            const banner = copyDemoBtn.closest(".hv-demo-access");
+            if (banner) {
+              banner.classList.add("is-copied");
+              const icon = copyDemoBtn.querySelector(".material-symbols-outlined");
+              const original = icon ? icon.textContent : null;
+              if (icon) icon.textContent = "check";
+              setTimeout(() => {
+                banner.classList.remove("is-copied");
+                if (icon && original) icon.textContent = original;
+              }, 1600);
+            }
+          } catch (err) {
+            console.warn("[demo-copy]", err.message);
+          }
         });
       }
 
