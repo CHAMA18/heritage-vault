@@ -1,3 +1,4 @@
+import "./navigation";
 import "./firebase";
 import { onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
 import { firebaseAuth } from "./firebase";
@@ -618,4 +619,4 @@ function boot(): void {
   });
 }
 
-boot();
+boot()
