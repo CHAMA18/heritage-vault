@@ -521,6 +521,196 @@ export function heritageAgentPlugin() {
           },
         }));
       });
+
+      // ── 8. CRUD: Memories ─────────────────────────────────────────
+      // Best-effort ClickHouse sync. localStorage remains the source of
+      // truth on static deploys; these endpoints exist so dev-mode writes
+      // also land in ClickHouse for agent chat queries.
+      server.middlewares.use("/api/memories", async (req, res) => {
+        try {
+          if (req.method === "POST") {
+            const chunks = [];
+            for await (const c of req) chunks.push(c);
+            const body = JSON.parse(Buffer.concat(chunks).toString() || "{}");
+            const client = ch(env);
+            const now = new Date().toISOString().replace("Z", "").replace("T", " ").slice(0, 23);
+            await client.insert({
+              table: "heritage_atlas_facts",
+              format: "JSONEachRow",
+              values: [{
+                vault_id: "demo-vault",
+                fact_id: body.id,
+                entity_type: "memory",
+                entity_id: body.id,
+                title: body.title,
+                description: body.description,
+                event_year: body.year ?? null,
+                occurred_at: body.dateLabel ?? null,
+                location: body.location ?? null,
+                related_entity_ids: body.familyMemberIds ?? [],
+                tags: body.tags ?? [],
+                source_url: body.assetUrl ?? "",
+                payload_json: JSON.stringify(body),
+                ingested_at: now,
+              }],
+            });
+            await client.close();
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ success: true, stored: "clickhouse" }));
+          } else if (req.method === "PUT") {
+            // ReplacingMergeTree: insert a new row with the same fact_id +
+            // newer ingested_at. SELECT … FINAL will dedupe to the newest.
+            const chunks = [];
+            for await (const c of req) chunks.push(c);
+            const body = JSON.parse(Buffer.concat(chunks).toString() || "{}");
+            const client = ch(env);
+            const now = new Date().toISOString().replace("Z", "").replace("T", " ").slice(0, 23);
+            await client.insert({
+              table: "heritage_atlas_facts",
+              format: "JSONEachRow",
+              values: [{
+                vault_id: "demo-vault",
+                fact_id: body.id,
+                entity_type: "memory",
+                entity_id: body.id,
+                title: body.title,
+                description: body.description,
+                event_year: body.year ?? null,
+                occurred_at: body.dateLabel ?? null,
+                location: body.location ?? null,
+                related_entity_ids: body.familyMemberIds ?? [],
+                tags: body.tags ?? [],
+                source_url: body.assetUrl ?? "",
+                payload_json: JSON.stringify(body),
+                ingested_at: now,
+              }],
+            });
+            await client.close();
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ success: true, stored: "clickhouse" }));
+          } else if (req.method === "DELETE") {
+            const chunks = [];
+            for await (const c of req) chunks.push(c);
+            const body = JSON.parse(Buffer.concat(chunks).toString() || "{}");
+            const client = ch(env);
+            // ClickHouse mutations are async + heavy. Use ALTER TABLE DELETE.
+            await client.command({
+              query: `ALTER TABLE heritage_atlas_facts DELETE WHERE vault_id = 'demo-vault' AND fact_id = {id:String}`,
+              query_params: { id: body.id },
+            });
+            await client.close();
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ success: true, deleted: body.id }));
+          } else {
+            res.statusCode = 405;
+            res.end("Method not allowed");
+          }
+        } catch (err) {
+          console.error("[memories CRUD]", err.message);
+          res.statusCode = 500;
+          res.end(JSON.stringify({ error: err.message }));
+        }
+      });
+
+      // ── 9. CRUD: Family members ───────────────────────────────────
+      server.middlewares.use("/api/family-members", async (req, res) => {
+        try {
+          if (req.method === "POST" || req.method === "PUT") {
+            const chunks = [];
+            for await (const c of req) chunks.push(c);
+            const body = JSON.parse(Buffer.concat(chunks).toString() || "{}");
+            const client = ch(env);
+            const now = new Date().toISOString().replace("Z", "").replace("T", " ").slice(0, 23);
+            await client.insert({
+              table: "heritage_atlas_members",
+              format: "JSONEachRow",
+              values: [{
+                vault_id: "demo-vault",
+                member_id: body.id,
+                full_name: body.fullName,
+                relationship: body.relationship ?? "",
+                parent_id: body.parentId ?? "",
+                birth_year: body.birthYear ?? null,
+                death_year: body.deathYear ?? null,
+                portrait_url: body.portraitUrl ?? "",
+                notes: body.notes ?? "",
+                ingested_at: now,
+              }],
+            });
+            await client.close();
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ success: true, stored: "clickhouse" }));
+          } else if (req.method === "DELETE") {
+            const chunks = [];
+            for await (const c of req) chunks.push(c);
+            const body = JSON.parse(Buffer.concat(chunks).toString() || "{}");
+            const client = ch(env);
+            await client.command({
+              query: `ALTER TABLE heritage_atlas_members DELETE WHERE vault_id = 'demo-vault' AND member_id = {id:String}`,
+              query_params: { id: body.id },
+            });
+            await client.close();
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ success: true, deleted: body.id }));
+          } else {
+            res.statusCode = 405;
+            res.end("Method not allowed");
+          }
+        } catch (err) {
+          console.error("[family-members CRUD]", err.message);
+          res.statusCode = 500;
+          res.end(JSON.stringify({ error: err.message }));
+        }
+      });
+
+      // ── 10. CRUD: Stories ─────────────────────────────────────────
+      server.middlewares.use("/api/stories", async (req, res) => {
+        try {
+          if (req.method === "POST" || req.method === "PUT") {
+            const chunks = [];
+            for await (const c of req) chunks.push(c);
+            const body = JSON.parse(Buffer.concat(chunks).toString() || "{}");
+            const client = ch(env);
+            const now = new Date().toISOString().replace("Z", "").replace("T", " ").slice(0, 23);
+            await client.insert({
+              table: "heritage_atlas_stories",
+              format: "JSONEachRow",
+              values: [{
+                vault_id: "demo-vault",
+                story_id: body.id,
+                title: body.title,
+                excerpt: body.excerpt ?? "",
+                body: body.body ?? "",
+                memory_ids: body.memoryIds ?? [],
+                status: body.status ?? "published",
+                ingested_at: now,
+              }],
+            });
+            await client.close();
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ success: true, stored: "clickhouse" }));
+          } else if (req.method === "DELETE") {
+            const chunks = [];
+            for await (const c of req) chunks.push(c);
+            const body = JSON.parse(Buffer.concat(chunks).toString() || "{}");
+            const client = ch(env);
+            await client.command({
+              query: `ALTER TABLE heritage_atlas_stories DELETE WHERE vault_id = 'demo-vault' AND story_id = {id:String}`,
+              query_params: { id: body.id },
+            });
+            await client.close();
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ success: true, deleted: body.id }));
+          } else {
+            res.statusCode = 405;
+            res.end("Method not allowed");
+          }
+        } catch (err) {
+          console.error("[stories CRUD]", err.message);
+          res.statusCode = 500;
+          res.end(JSON.stringify({ error: err.message }));
+        }
+      });
     },
   };
 }

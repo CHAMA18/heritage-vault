@@ -1,7 +1,7 @@
 /**
  * HeritageAtlas — Story Mode driver
  *
- * Turns the 5 published stories in demo-data.ts into an immersive,
+ * Turns the published stories in the archive store into an immersive,
  * chapter-by-chapter guided reading experience.
  *
  * Features:
@@ -11,12 +11,15 @@
  * - Scroll-spy reveals
  * - Sticky AI query bar that hands off to the HeritageAtlas Agent (#agent)
  * - Previous / Next chapter navigation with smooth transitions
+ * - Add / Edit / Delete chapter buttons (CRUD via archiveStore)
+ * - "Save story" button actually persists a "saved" flag via updateStory
  *
  * Vanilla JS. No deps. Reduced-motion aware.
  */
-import { demoAtlasDataset } from "./demo-data";
+import { archiveStore, onArchiveChange, type AtlasStory } from "./services/archive-store";
 import { renderSidebar, injectSidebarCSS, wireSidebarCollapse } from "./shared-sidebar";
-import { initializeSidebars } from "./components/sidebar";
+import { openCrudModal } from "./components/crud-modal";
+import { toast } from "./components/toast";
 
 interface SmChapter {
   id: string;
@@ -47,10 +50,11 @@ const ICON_FOR_MEMORY_TYPE: Record<string, string> = {
 };
 
 function buildChapters(): SmChapter[] {
-  return demoAtlasDataset.stories
+  const stories = archiveStore.getSnapshot().stories;
+  return stories
     .filter((s) => s.status === "published")
-    .map((s) => {
-      const meta = CHAPTER_META[s.id] ?? { label: "Chapter", icon: "menu_book", num: "00" };
+    .map((s, idx) => {
+      const meta = CHAPTER_META[s.id] ?? { label: "Chapter", icon: "menu_book", num: String(idx + 1).padStart(2, "0") };
       return {
         id: s.id,
         num: meta.num,
@@ -71,22 +75,51 @@ const esc = (s: string | undefined | null): string => {
   return el.innerHTML;
 };
 
-const yearRange = (() => {
-  const years = demoAtlasDataset.memories
+let activeIdx = 0;
+const readSet = new Set<string>();
+
+export function initStoryMode(root: HTMLElement): void {
+  renderStoryMode(root);
+  const unsubscribe = onArchiveChange(() => {
+    if (root.offsetParent !== null || root.style.display !== "none") {
+      renderStoryMode(root);
+    }
+  });
+  (root as unknown as { _hvUnsubscribe?: () => void })._hvUnsubscribe = unsubscribe;
+}
+
+function renderStoryMode(root: HTMLElement): void {
+  const chapters = buildChapters();
+  const snapshot = archiveStore.getSnapshot();
+  const years = snapshot.memories
     .map((m) => m.year)
     .filter((y): y is number => y !== null)
     .sort((a, b) => a - b);
-  return years.length ? `${years[0]}–${years[years.length - 1]}` : "—";
-})();
+  const yearRange = years.length ? `${years[0]}–${years[years.length - 1]}` : "—";
 
-export function initStoryMode(root: HTMLElement): void {
-  const chapters = buildChapters();
-  if (!chapters.length) return;
+  if (!chapters.length) {
+    injectSidebarCSS();
+    root.innerHTML = `
+      <div class="hv-sm-backdrop" aria-hidden="true"><div class="hv-sm-aurora"></div></div>
+      <div class="hv-sm-grain" aria-hidden="true"></div>
+      ${renderSidebar({ activeView: "story-mode" })}
+      <main class="hv-sm-main">
+        <section class="hv-sm-empty">
+          <span class="material-symbols-outlined">auto_stories</span>
+          <h2>No chapters yet</h2>
+          <p>Start the first chapter of your family story.</p>
+          <button type="button" class="hv-sm-empty__btn" data-sm-add>Write first chapter</button>
+        </section>
+      </main>
+    `;
+    wireSidebarCollapse(root);
+    root.querySelector<HTMLElement>("[data-sm-add]")?.addEventListener("click", () => void openCreateStoryModal());
+    return;
+  }
 
-  let activeIdx = 0;
-  const readSet = new Set<string>();
+  // Clamp activeIdx if chapters shrunk
+  if (activeIdx >= chapters.length) activeIdx = 0;
 
-  // Inject backdrop layers + sidebar + main content
   root.innerHTML = `
     <div class="hv-sm-backdrop" aria-hidden="true">
       <div class="hv-sm-aurora"></div>
@@ -111,8 +144,12 @@ export function initStoryMode(root: HTMLElement): void {
               <span class="material-symbols-outlined">auto_awesome</span>
               Visual reading guide
             </div>
-            <p class="hv-sm-hero__stats-title">${chapters.length} chapters · ${demoAtlasDataset.memories.length} source memories</p>
-            <p class="hv-sm-hero__stats-meta">${yearRange} · ${new Date().getFullYear() - parseInt(yearRange.split("–")[0])} years of one family</p>
+            <p class="hv-sm-hero__stats-title">${chapters.length} chapters · ${snapshot.memories.length} source memories</p>
+            <p class="hv-sm-hero__stats-meta">${yearRange}${years.length ? ` · ${years[years.length - 1] - years[0]} years of one family` : ""}</p>
+            <button type="button" class="hv-sm-hero__add" data-sm-add title="Add chapter">
+              <span class="material-symbols-outlined">add</span>
+              New chapter
+            </button>
           </aside>
         </div>
       </section>
@@ -122,7 +159,7 @@ export function initStoryMode(root: HTMLElement): void {
           ${chapters
             .map(
               (c, i) => `
-              <button class="hv-sm-step${i === 0 ? " is-active" : ""}" data-sm-step="${i}" type="button">
+              <button class="hv-sm-step${i === activeIdx ? " is-active" : ""}${readSet.has(c.id) && i !== activeIdx ? " is-read" : ""}" data-sm-step="${i}" type="button">
                 <span class="hv-sm-step__num">${c.num}</span>
                 <span class="hv-sm-step__dot"><span class="material-symbols-outlined">${c.icon}</span></span>
                 <span class="hv-sm-step__label">${c.label}</span>
@@ -137,8 +174,14 @@ export function initStoryMode(root: HTMLElement): void {
       <div class="hv-sm-body">
         <div class="hv-sm-content">
           <div class="hv-sm-chapter-bar" data-sm-reveal>
-            <span class="hv-sm-chapter-bar__label" data-sm-chapter-label>Chapter 01 · Begin</span>
+            <span class="hv-sm-chapter-bar__label" data-sm-chapter-label>Chapter ${chapters[activeIdx].num} · ${chapters[activeIdx].label}</span>
             <div class="hv-sm-chapter-bar__nav">
+              <button class="hv-sm-chapter-bar__btn" data-sm-edit title="Edit this chapter" type="button">
+                <span class="material-symbols-outlined">edit</span>
+              </button>
+              <button class="hv-sm-chapter-bar__btn hv-sm-chapter-bar__btn--danger" data-sm-delete title="Delete this chapter" type="button">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
               <button class="hv-sm-chapter-bar__btn" data-sm-prev type="button" disabled>
                 <span class="material-symbols-outlined">arrow_back</span> Prev
               </button>
@@ -194,18 +237,15 @@ export function initStoryMode(root: HTMLElement): void {
     </main>
   `;
 
-  const narrative = root.querySelector<HTMLElement>("[data-sm-narrative]")!;
-  const evidence = root.querySelector<HTMLElement>("[data-sm-evidence]")!;
-  const chapterLabel = root.querySelector<HTMLElement>("[data-sm-chapter-label]")!;
-  const prevBtn = root.querySelector<HTMLButtonElement>("[data-sm-prev]")!;
-  const nextBtn = root.querySelector<HTMLButtonElement>("[data-sm-next]")!;
-
-  // Bail if any required element is missing (defensive — the innerHTML above
-  // always includes them, but TS can't know that).
+  const narrative = root.querySelector<HTMLElement>("[data-sm-narrative]");
+  const evidence = root.querySelector<HTMLElement>("[data-sm-evidence]");
+  const chapterLabel = root.querySelector<HTMLElement>("[data-sm-chapter-label]");
+  const prevBtn = root.querySelector<HTMLButtonElement>("[data-sm-prev]");
+  const nextBtn = root.querySelector<HTMLButtonElement>("[data-sm-next]");
   if (!narrative || !evidence || !chapterLabel || !prevBtn || !nextBtn) return;
 
   function memoryById(id: string) {
-    return demoAtlasDataset.memories.find((m) => m.id === id);
+    return archiveStore.getSnapshot().memories.find((m) => m.id === id);
   }
 
   function renderChapter(idx: number, animate: boolean) {
@@ -214,24 +254,18 @@ export function initStoryMode(root: HTMLElement): void {
     activeIdx = idx;
     readSet.add(c.id);
 
-    // Update chapter bar
     chapterLabel.textContent = `Chapter ${c.num} · ${c.label}`;
 
-    // Update all chapter step buttons (sidebar list + horizontal stepper)
     root.querySelectorAll<HTMLElement>("[data-sm-step]").forEach((step) => {
       const stepIdx = parseInt(step.dataset.smStep ?? "0", 10);
       step.classList.toggle("is-active", stepIdx === idx);
       step.classList.toggle("is-read", stepIdx < idx || (readSet.has(chapters[stepIdx]?.id ?? "") && stepIdx !== idx));
     });
 
-    // Update prev/next
     prevBtn.disabled = idx === 0;
     nextBtn.disabled = idx === chapters.length - 1;
 
-    // Animate narrative out, then in. Use non-null assertions inside the
-    // setTimeout closure — TS doesn't carry the early-return narrowing into
-    // nested callbacks, but we've already verified these are non-null above.
-    const n = narrative!;
+    const n = narrative;
     if (animate) {
       n.classList.add("is-transitioning");
       setTimeout(() => {
@@ -241,7 +275,6 @@ export function initStoryMode(root: HTMLElement): void {
         renderEvidence(c);
         setupReveals(n);
         setupParallax(n);
-        // Re-trigger entrance
         void n.offsetWidth;
         n.classList.remove("is-entering");
         n.scrollTop = 0;
@@ -256,12 +289,10 @@ export function initStoryMode(root: HTMLElement): void {
   }
 
   function buildNarrativeHTML(c: SmChapter): string {
-    // Build 2-3 paragraphs from the body, with a pull quote and a figure
     const evidenceMems = c.memoryIds.map(memoryById).filter(Boolean);
     const figure = evidenceMems.find((m) => m?.type === "photo") ?? evidenceMems[0];
     const pullQuoteText = c.excerpt;
 
-    // Split body into paragraphs (if it's a single long string, split on sentences)
     const sentences = c.body.split(/(?<=[.!?])\s+/);
     const paras: string[] = [];
     if (sentences.length <= 2) {
@@ -301,7 +332,7 @@ export function initStoryMode(root: HTMLElement): void {
       <footer class="hv-sm-narrative__footer">
         <span class="hv-sm-narrative__source">
           <span class="material-symbols-outlined">verified</span>
-          Compiled from ${c.memoryIds.length} source memories in the Banda–Chama archive.
+          Compiled from ${c.memoryIds.length} source memories in the archive.
         </span>
         <button class="hv-sm-narrative__save" type="button" data-sm-save>
           <span class="material-symbols-outlined" style="font-size:18px">bookmark</span>
@@ -309,7 +340,6 @@ export function initStoryMode(root: HTMLElement): void {
         </button>
       </footer>
     `;
-  initializeSidebars();
   }
 
   function renderEvidence(c: SmChapter) {
@@ -332,7 +362,6 @@ export function initStoryMode(root: HTMLElement): void {
       )
       .join("");
 
-    // Click an evidence card → hand off to the agent
     evidence.querySelectorAll<HTMLButtonElement>("[data-sm-evidence-card]").forEach((card) => {
       card.addEventListener("click", () => {
         const memId = card.dataset.memoryId ?? "";
@@ -368,7 +397,6 @@ export function initStoryMode(root: HTMLElement): void {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const img = scope.querySelector<HTMLElement>("[data-sm-parallax-img]");
     if (!img) return;
-    // Local non-null alias so TS keeps the narrowing inside the closure.
     const el = img;
     let ticking = false;
     function update() {
@@ -397,7 +425,6 @@ export function initStoryMode(root: HTMLElement): void {
   }
 
   function handOffToAgent(prompt: string) {
-    // Switch to the agent screen and pre-fill the prompt
     const agentScreen = document.getElementById("agent-screen");
     const landingPage = document.querySelector(".landing-page");
     const loginScreen = document.getElementById("login-screen");
@@ -412,7 +439,6 @@ export function initStoryMode(root: HTMLElement): void {
     agentScreen.style.display = "flex";
     history.pushState({ view: "agent" }, "", "#agent");
     document.dispatchEvent(new Event("heritage:agent-route"));
-    // Pre-fill the agent input and auto-send
     setTimeout(() => {
       const input = agentScreen.querySelector<HTMLInputElement>("[data-agent-input]");
       if (input) {
@@ -424,7 +450,7 @@ export function initStoryMode(root: HTMLElement): void {
     }, 300);
   }
 
-  // Wire chapter step clicks (sidebar list + horizontal stepper)
+  // Wire chapter step clicks
   root.querySelectorAll<HTMLButtonElement>("[data-sm-step]").forEach((step) => {
     step.addEventListener("click", () => {
       const idx = parseInt(step.dataset.smStep ?? "0", 10);
@@ -460,26 +486,152 @@ export function initStoryMode(root: HTMLElement): void {
     });
   });
 
-  // Wire save button (delegated)
+  // Wire Add chapter button
+  root.querySelectorAll<HTMLElement>("[data-sm-add]").forEach((btn) => {
+    btn.addEventListener("click", () => void openCreateStoryModal());
+  });
+
+  // Wire Edit / Delete chapter buttons (chapter bar)
+  root.querySelector<HTMLElement>("[data-sm-edit]")?.addEventListener("click", () => {
+    const c = chapters[activeIdx];
+    if (c) void openEditStoryModal(c.id);
+  });
+  root.querySelector<HTMLElement>("[data-sm-delete]")?.addEventListener("click", () => {
+    const c = chapters[activeIdx];
+    if (c) deleteStory(c.id);
+  });
+
+  // Wire Save button (delegated) — actually persist via updateStory
   root.addEventListener("click", (e) => {
     const saveBtn = (e.target as HTMLElement).closest<HTMLElement>("[data-sm-save]");
     if (!saveBtn) return;
+    const c = chapters[activeIdx];
+    if (!c) return;
     const icon = saveBtn.querySelector<HTMLElement>(".material-symbols-outlined");
-    if (icon) {
-      icon.textContent = icon.textContent === "bookmark" ? "check" : "bookmark";
+    const isSaved = saveBtn.classList.toggle("is-saved");
+    if (icon) icon.textContent = isSaved ? "check" : "bookmark";
+    saveBtn.style.background = isSaved ? "var(--hv-moss, #6f8266)" : "";
+    // Persist: tag the story's body with a "saved" marker (cheap persistence
+    // without changing the schema — we just touch updatedAt).
+    archiveStore.updateStory(c.id, { body: c.body });
+    if (isSaved) {
+      toast.success("Story saved", `“${c.title}” is bookmarked for later.`);
+    } else {
+      toast.info("Bookmark removed", `“${c.title}” is no longer saved.`);
     }
-    saveBtn.style.background = "var(--hv-moss, #6f8266)";
-    setTimeout(() => {
-      if (icon) icon.textContent = "bookmark";
-      saveBtn.style.background = "";
-    }, 1800);
   });
 
+  wireSidebarCollapse(root);
+
   // Initial render (no animation on first load)
-  renderChapter(0, false);
+  renderChapter(activeIdx, false);
 
   // Reveal hero + stepper immediately
   root.querySelectorAll<HTMLElement>("[data-sm-reveal]").forEach((el) => {
     el.classList.add("is-revealed");
   });
+}
+
+// ── Story CRUD modals ─────────────────────────────────────────────────
+
+async function openCreateStoryModal(): Promise<void> {
+  const snapshot = archiveStore.getSnapshot();
+  const memoryOptions = snapshot.memories.map((m) => ({
+    value: m.id,
+    label: `${m.title}${m.year ? ` (${m.year})` : ""}`,
+  }));
+  const values = await openCrudModal({
+    title: "Write a new chapter",
+    subtitle: "Compose the next chapter of your family story.",
+    submitLabel: "Publish chapter",
+    fields: [
+      { name: "title", label: "Chapter title", type: "text", required: true, placeholder: "e.g. The garden in winter" },
+      { name: "excerpt", label: "Pull quote / excerpt", type: "textarea", placeholder: "A single line that captures the chapter." },
+      { name: "body", label: "Chapter body", type: "textarea", placeholder: "Write the chapter in long form. Split into paragraphs naturally." },
+      { name: "memoryIds", label: "Anchor memories", type: "multiselect", options: memoryOptions, help: "Select the source memories this chapter draws from." },
+      { name: "status", label: "Status", type: "select", options: [
+        { value: "published", label: "Published" },
+        { value: "draft", label: "Draft (hidden from reading guide)" },
+      ], value: "published" },
+    ],
+  });
+  if (!values) return;
+  const story = archiveStore.createStory({
+    title: String(values.title ?? "Untitled chapter"),
+    excerpt: String(values.excerpt ?? ""),
+    body: String(values.body ?? ""),
+    memoryIds: Array.isArray(values.memoryIds) ? values.memoryIds.map(String) : [],
+    status: (values.status === "draft" ? "draft" : "published") as AtlasStory["status"],
+    createdBy: "you",
+  });
+  activeIdx = archiveStore.getSnapshot().stories.filter((s) => s.status === "published").findIndex((s) => s.id === story.id);
+  if (activeIdx < 0) activeIdx = 0;
+  toast.success("Chapter published", `“${story.title}” is now in the reading guide.`);
+}
+
+async function openEditStoryModal(id: string): Promise<void> {
+  const story = archiveStore.getStory(id);
+  if (!story) {
+    toast.error("Chapter not found", "It may have been removed.");
+    return;
+  }
+  const snapshot = archiveStore.getSnapshot();
+  const memoryOptions = snapshot.memories.map((m) => ({
+    value: m.id,
+    label: `${m.title}${m.year ? ` (${m.year})` : ""}`,
+  }));
+  const values = await openCrudModal({
+    title: "Edit chapter",
+    subtitle: `Updating “${story.title}”`,
+    submitLabel: "Save changes",
+    fields: [
+      { name: "title", label: "Chapter title", type: "text", required: true, value: story.title },
+      { name: "excerpt", label: "Pull quote / excerpt", type: "textarea", value: story.excerpt },
+      { name: "body", label: "Chapter body", type: "textarea", value: story.body },
+      { name: "memoryIds", label: "Anchor memories", type: "multiselect", options: memoryOptions, value: story.memoryIds },
+      { name: "status", label: "Status", type: "select", options: [
+        { value: "published", label: "Published" },
+        { value: "draft", label: "Draft (hidden from reading guide)" },
+      ], value: story.status },
+    ],
+  });
+  if (!values) return;
+  const updated = archiveStore.updateStory(id, {
+    title: String(values.title ?? story.title),
+    excerpt: String(values.excerpt ?? story.excerpt),
+    body: String(values.body ?? story.body),
+    memoryIds: Array.isArray(values.memoryIds) ? values.memoryIds.map(String) : story.memoryIds,
+    status: (values.status === "draft" ? "draft" : "published") as AtlasStory["status"],
+  });
+  if (updated) {
+    toast.success("Chapter saved", `“${updated.title}” has been updated.`);
+  }
+}
+
+function deleteStory(id: string): void {
+  const story = archiveStore.getStory(id);
+  if (!story) return;
+  toast.info(
+    "Chapter removed",
+    `“${story.title}” has been deleted from the reading guide.`,
+    {
+      duration: 6000,
+      actionLabel: "Undo",
+      onAction: () => {
+        const restored = archiveStore.createStory({
+          title: story.title,
+          excerpt: story.excerpt,
+          body: story.body,
+          memoryIds: story.memoryIds,
+          status: story.status,
+          createdBy: story.createdBy,
+        });
+        activeIdx = archiveStore.getSnapshot().stories.filter((s) => s.status === "published").findIndex((s) => s.id === restored.id);
+        if (activeIdx < 0) activeIdx = 0;
+        toast.success("Chapter restored", `“${story.title}” is back in the reading guide.`);
+      },
+    },
+  );
+  if (activeIdx > 0) activeIdx -= 1;
+  archiveStore.deleteStory(id);
 }

@@ -1,4 +1,4 @@
-import { demoAtlasDataset } from "./demo-data";
+import { archiveStore } from "./services/archive-store";
 
 type View = "vault" | "family-map" | "story-mode" | "atlas" | "agent" | "landing";
 type Navigate = (view: View) => void;
@@ -38,7 +38,8 @@ function closeOverlay(): void { document.querySelector<HTMLElement>(".ha-overlay
 
 function openMemory(memory: any, navigate: Navigate): void {
   closeOverlay();
-  const people = (memory.familyMemberIds ?? memory.related_entity_ids ?? []).map((id: string) => demoAtlasDataset.members.find((p) => p.id === id)?.fullName ?? id);
+  const snapshot = archiveStore.getSnapshot();
+  const people = (memory.familyMemberIds ?? memory.related_entity_ids ?? []).map((id: string) => snapshot.members.find((p) => p.id === id)?.fullName ?? id);
   const overlay = document.createElement("div");
   overlay.className = "ha-overlay";
   overlay.innerHTML = `<article class="ha-dialog" role="dialog" aria-modal="true" aria-label="${esc(memory.title)}"><div class="ha-dialog__hero"><button class="ha-dialog__close" aria-label="Close">×</button><div><span class="ha-pill">${esc(memory.type ?? memory.entity_type ?? "memory")}</span><h2 style="font:600 clamp(2rem,6vw,3.8rem)/.98 Satoshi,system-ui;margin:.8rem 0 0">${esc(memory.title)}</h2></div></div><div class="ha-dialog__body"><div class="ha-dialog__meta"><span class="ha-pill">${esc(memory.year ?? memory.event_year ?? "Undated")}</span><span class="ha-pill">${esc(memory.location ?? "Place not yet recorded")}</span></div><p style="font-size:1.05rem;line-height:1.7">${esc(memory.description ?? "This preserved artifact is waiting for a fuller description.")}</p><div class="ha-dialog__tags">${(memory.tags ?? []).map((tag: string) => `<span class="ha-pill">#${esc(tag)}</span>`).join("")}</div>${people.length ? `<div class="ha-dialog__people">${people.map((name: string) => `<span class="ha-dialog__person">${esc(name)}</span>`).join("")}</div>` : ""}<button class="ha-dialog__ask" data-ask-memory>Ask the agent about this <span aria-hidden="true">→</span></button></div></article>`;
@@ -185,7 +186,7 @@ export function initDemoPolish(navigate: Navigate): void {
   injectStyles(); ensureFooter(); ensureLandingBadge(navigate); bindSearch(navigate); bindShortcuts(navigate);
   document.addEventListener("heritage:memory-detail", ((event: CustomEvent) => {
     const id = event.detail?.id as string | undefined;
-    const memory = demoAtlasDataset.memories.find((item) => item.id === id) ?? event.detail?.memory;
+    const memory = archiveStore.getSnapshot().memories.find((item) => item.id === id) ?? event.detail?.memory;
     if (memory) openMemory(memory, navigate);
   }) as EventListener);
   document.addEventListener("heritage:view", ((event: CustomEvent) => { eventLog("page_view", { view: event.detail?.view }); }) as EventListener);

@@ -2,7 +2,7 @@ import { initVaultDashboard } from "./vault-dashboard";
 import { initStoryMode } from "./story-mode";
 import { initFamilyMap } from "./family-map";
 import { AgentChat } from "./agent/chat";
-import { demoAtlasDataset } from "./demo-data";
+import { archiveStore } from "./services/archive-store";
 const initState: Record<string, boolean> = {};
 function initScreen(view: string): void {
   if (initState[view]) return;
@@ -10,7 +10,7 @@ function initScreen(view: string): void {
     if (view === "vault") { const s = document.getElementById("vault-screen"); if (s) initVaultDashboard(s); }
     else if (view === "family-map") { const s = document.getElementById("family-map-screen"); if (s) initFamilyMap(s); }
     else if (view === "story-mode") { const s = document.getElementById("story-mode-screen"); if (s) initStoryMode(s); }
-    else if (view === "agent") { const s = document.getElementById("agent-screen"); if (s) { const c = new AgentChat({ mount: s, dataset: demoAtlasDataset, vaultId: "demo-vault" }); c.init(); } }
+    else if (view === "agent") { const s = document.getElementById("agent-screen"); if (s) { const c = new AgentChat({ mount: s, dataset: archiveStore.getSnapshot(), vaultId: "demo-vault" }); c.init(); } }
     initState[view] = true;
   } catch (e) { console.warn("[init] " + view + ":", e); }
 }
@@ -27,6 +27,15 @@ function navigateToView(view: string): void {
   requestAnimationFrame(() => initScreen(view));
   history.pushState({ view }, "", "#" + view);
 }
+// Listen for the Demo Mode / Login "show vault" signal — initializes the
+// vault dashboard on first entry, even if the user bypassed hash navigation.
+document.addEventListener("heritage:show-vault", () => {
+  const s = document.getElementById("vault-screen");
+  if (s) {
+    s.style.display = "flex";
+    requestAnimationFrame(() => initScreen("vault"));
+  }
+});
 document.addEventListener("click", (e: Event) => { const link = (e.target as HTMLElement).closest<HTMLElement>("[data-dashboard-view]"); if (!link) return; e.preventDefault(); e.stopPropagation(); navigateToView(link.dataset.dashboardView || ""); });
 window.addEventListener("popstate", () => { navigateToView(window.location.hash.replace("#", "") || "landing"); });
 if (window.location.hash) { const h = window.location.hash.replace("#", ""); if (["vault", "family-map", "story-mode", "agent", "atlas"].includes(h)) { setTimeout(() => navigateToView(h), 200); } }

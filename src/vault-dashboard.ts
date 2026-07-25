@@ -2,19 +2,19 @@
  * HeritageAtlas — World-class Vault Dashboard driver
  *
  * Populates the Vault screen with a cinematic, bento-style dashboard built
- * from the demo dataset. The old 4-card + 3-memory grid is replaced with:
- *
- *   - Cinematic hero with editorial headline + CTA
- *   - Asymmetric metric bento (KPIs + sparkline + inverted accent card)
- *   - Memory gallery with hover cinema (sepia images, gradient overlays)
- *   - Story rail (clickable, hands off to Story Mode)
- *   - Activity timeline (inverted forest card with amber dots)
- *   - Aurora backdrop + grain + scroll reveals
+ * from the live archive store. The dashboard:
+ *   - Reads its snapshot from `archiveStore` (localStorage-backed CRUD store)
+ *   - Re-renders automatically whenever the store changes
+ *   - Wires the "Add memory" tile to open a real create-memory modal
+ *   - Shows hover Edit + Delete buttons on every memory card
+ *   - Renders the activity timeline from real user actions
  *
  * Vanilla JS. No deps. Reduced-motion aware.
  */
-import { demoAtlasDataset } from "./demo-data";
+import { archiveStore, onArchiveChange, type ArchiveSnapshot, type AtlasMemory } from "./services/archive-store";
 import { renderSidebar, injectSidebarCSS, wireSidebarCollapse } from "./shared-sidebar";
+import { openCrudModal } from "./components/crud-modal";
+import { toast } from "./components/toast";
 
 const esc = (s: string | number | null | undefined): string => {
   if (s === null || s === undefined) return "";
@@ -36,23 +36,43 @@ interface ActivityItem {
   what: string;
 }
 
-function buildActivity(): ActivityItem[] {
-  // Synthesise a recent-activity feed from the newest memories + stories
-  const mems = [...demoAtlasDataset.memories]
+function relativeTime(ts: number): string {
+  const diff = Date.now() - ts;
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return "Just now";
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}h ago`;
+  const day = Math.floor(hr / 24);
+  if (day < 7) return `${day}d ago`;
+  return new Date(ts).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+function buildActivity(snapshot: ArchiveSnapshot): ActivityItem[] {
+  // Use the real activity log from the store. If empty (fresh seed),
+  // synthesise a friendly welcome from the demo data.
+  const acts = snapshot.activities;
+  if (acts.length > 0) {
+    return acts.slice(0, 6).map((a) => ({
+      when: relativeTime(a.createdAt),
+      what: a.message,
+    }));
+  }
+  const mems = [...snapshot.memories]
     .filter((m) => m.year)
     .sort((a, b) => (b.year ?? 0) - (a.year ?? 0))
     .slice(0, 3);
-  const items: ActivityItem[] = mems.map((m, i) => ({
-    when: i === 0 ? "Today" : i === 1 ? "Yesterday" : "This week",
+  const items: ActivityItem[] = mems.map((m) => ({
+    when: "Earlier",
     what: `Memory preserved: "${m.title}"${m.location ? ` · ${m.location}` : ""}`,
   }));
   items.push({
-    when: "This week",
-    what: `${demoAtlasDataset.stories.length} stories compiled from the archive.`,
+    when: "Earlier",
+    what: `${snapshot.stories.length} stories compiled from the archive.`,
   });
   items.push({
     when: "Earlier",
-    what: `${demoAtlasDataset.members.length} family members connected across the constellation.`,
+    what: `${snapshot.members.length} family members connected across the constellation.`,
   });
   return items;
 }
@@ -71,19 +91,157 @@ function buildSparkline(values: number[]): string {
   `;
 }
 
-function memoryYearCounts(): number[] {
+function memoryYearCounts(snapshot: ArchiveSnapshot): number[] {
   const counts = new Map<number, number>();
-  demoAtlasDataset.memories.forEach((m) => {
+  snapshot.memories.forEach((m) => {
     if (m.year) counts.set(m.year, (counts.get(m.year) ?? 0) + 1);
   });
   return [...counts.entries()].sort((a, b) => a[0] - b[0]).map(([, c]) => c);
 }
 
+const MEMORY_TYPE_OPTIONS = [
+  { value: "photo", label: "Photograph" },
+  { value: "letter", label: "Letter" },
+  { value: "audio", label: "Audio recording" },
+  { value: "video", label: "Video" },
+  { value: "document", label: "Document" },
+];
+
+/** Open the create-memory modal. */
+async function openCreateMemoryModal(): Promise<void> {
+  const snapshot = archiveStore.getSnapshot();
+  const memberOptions = snapshot.members.map((m) => ({
+    value: m.id,
+    label: m.fullName,
+  }));
+  const values = await openCrudModal({
+    title: "Add a new memory",
+    subtitle: "Bring another piece of your family story into the light.",
+    submitLabel: "Add memory",
+    fields: [
+      { name: "title", label: "Title", type: "text", required: true, placeholder: "The blue trunk opens again" },
+      { name: "type", label: "Type", type: "select", required: true, options: MEMORY_TYPE_OPTIONS, value: "photo" },
+      { name: "year", label: "Year", type: "number", placeholder: "2026", min: 1800, max: 2100 },
+      { name: "dateLabel", label: "Date label", type: "text", placeholder: "April 2026" },
+      { name: "location", label: "Location", type: "text", placeholder: "Lusaka, Zambia" },
+      { name: "description", label: "Description", type: "textarea", placeholder: "What makes this memory worth keeping?" },
+      { name: "familyMemberIds", label: "Family members in this memory", type: "multiselect", options: memberOptions },
+      { name: "tags", label: "Tags", type: "tags", placeholder: "Press Enter to add" },
+    ],
+  });
+  if (!values) return;
+  const memory = archiveStore.createMemory({
+    title: String(values.title ?? ""),
+    description: String(values.description ?? ""),
+    type: String(values.type ?? "document") as AtlasMemory["type"],
+    assetUrl: "",
+    thumbnailUrl: null,
+    year: typeof values.year === "number" ? values.year : null,
+    dateLabel: values.dateLabel ? String(values.dateLabel) : null,
+    location: values.location ? String(values.location) : null,
+    familyMemberIds: Array.isArray(values.familyMemberIds) ? values.familyMemberIds.map(String) : [],
+    tags: Array.isArray(values.tags) ? values.tags.map(String) : [],
+    archived: false,
+    createdBy: "you",
+  });
+  toast.success("Memory added", `“${memory.title}” is now in the vault.`);
+}
+
+/** Open the edit-memory modal. */
+async function openEditMemoryModal(id: string): Promise<void> {
+  const memory = archiveStore.getMemory(id);
+  if (!memory) {
+    toast.error("Memory not found", "It may have been removed.");
+    return;
+  }
+  const snapshot = archiveStore.getSnapshot();
+  const memberOptions = snapshot.members.map((m) => ({
+    value: m.id,
+    label: m.fullName,
+  }));
+  const values = await openCrudModal({
+    title: "Edit memory",
+    subtitle: `Updating “${memory.title}”`,
+    submitLabel: "Save changes",
+    fields: [
+      { name: "title", label: "Title", type: "text", required: true, value: memory.title },
+      { name: "type", label: "Type", type: "select", required: true, options: MEMORY_TYPE_OPTIONS, value: memory.type },
+      { name: "year", label: "Year", type: "number", value: memory.year ?? undefined, min: 1800, max: 2100 },
+      { name: "dateLabel", label: "Date label", type: "text", value: memory.dateLabel ?? "" },
+      { name: "location", label: "Location", type: "text", value: memory.location ?? "" },
+      { name: "description", label: "Description", type: "textarea", value: memory.description },
+      { name: "familyMemberIds", label: "Family members", type: "multiselect", options: memberOptions, value: memory.familyMemberIds },
+      { name: "tags", label: "Tags", type: "tags", value: memory.tags },
+    ],
+  });
+  if (!values) return;
+  const updated = archiveStore.updateMemory(id, {
+    title: String(values.title ?? memory.title),
+    description: String(values.description ?? memory.description),
+    type: String(values.type ?? memory.type) as AtlasMemory["type"],
+    year: typeof values.year === "number" ? values.year : null,
+    dateLabel: values.dateLabel ? String(values.dateLabel) : null,
+    location: values.location ? String(values.location) : null,
+    familyMemberIds: Array.isArray(values.familyMemberIds) ? values.familyMemberIds.map(String) : memory.familyMemberIds,
+    tags: Array.isArray(values.tags) ? values.tags.map(String) : memory.tags,
+  });
+  if (updated) {
+    toast.success("Memory updated", `“${updated.title}” has been saved.`);
+  }
+}
+
+/** Confirm + delete a memory. */
+function deleteMemory(id: string): void {
+  const memory = archiveStore.getMemory(id);
+  if (!memory) return;
+  // Use a toast with an Undo action instead of a destructive confirm dialog.
+  toast.info(
+    "Memory removed",
+    `“${memory.title}” has been deleted from the vault.`,
+    {
+      duration: 6000,
+      actionLabel: "Undo",
+      onAction: () => {
+        // Re-create with the same data.
+        archiveStore.createMemory({
+          title: memory.title,
+          description: memory.description,
+          type: memory.type,
+          assetUrl: memory.assetUrl,
+          thumbnailUrl: memory.thumbnailUrl,
+          year: memory.year,
+          dateLabel: memory.dateLabel,
+          location: memory.location,
+          familyMemberIds: memory.familyMemberIds,
+          tags: memory.tags,
+          archived: memory.archived,
+          createdBy: memory.createdBy,
+        });
+        toast.success("Memory restored", `“${memory.title}” is back in the vault.`);
+      },
+    },
+  );
+  archiveStore.deleteMemory(id);
+}
+
 export function initVaultDashboard(root: HTMLElement): void {
-  const ds = demoAtlasDataset;
-  const memories = ds.memories;
-  const members = ds.members;
-  const stories = ds.stories;
+  // Render once + subscribe to store changes for live CRUD updates.
+  renderDashboard(root);
+  const unsubscribe = onArchiveChange(() => {
+    // Only re-render if the vault screen is currently visible.
+    if (root.offsetParent !== null || root.style.display !== "none") {
+      renderDashboard(root);
+    }
+  });
+  // Stash unsubscribe on the root so navigation.ts can clean up if needed.
+  (root as unknown as { _hvUnsubscribe?: () => void })._hvUnsubscribe = unsubscribe;
+}
+
+function renderDashboard(root: HTMLElement): void {
+  const snapshot = archiveStore.getSnapshot();
+  const memories = snapshot.memories;
+  const members = snapshot.members;
+  const stories = snapshot.stories;
 
   const years = memories
     .map((m) => m.year)
@@ -92,9 +250,9 @@ export function initVaultDashboard(root: HTMLElement): void {
   const yearSpan = years.length ? `${years[0]}–${years[years.length - 1]}` : "—";
   const recentMemories = [...memories]
     .sort((a, b) => (b.year ?? 0) - (a.year ?? 0))
-    .slice(0, 2);
-  const activity = buildActivity();
-  const spark = memoryYearCounts();
+    .slice(0, 4);
+  const activity = buildActivity(snapshot);
+  const spark = memoryYearCounts(snapshot);
 
   // Format today's date
   const today = new Date();
@@ -120,6 +278,9 @@ export function initVaultDashboard(root: HTMLElement): void {
         <h2 class="hv-vd-topbar__greeting">Good morning, <em>Amara.</em></h2>
       </div>
       <div class="hv-vd-topbar__actions">
+        <button class="hv-vd-topbar__icon-btn" type="button" aria-label="Add memory" data-vd-new-memory-btn title="Add memory">
+          <span class="material-symbols-outlined" style="font-size:20px">add</span>
+        </button>
         <button class="hv-vd-topbar__icon-btn" type="button" aria-label="Notifications">
           <span class="material-symbols-outlined" style="font-size:20px">notifications</span>
         </button>
@@ -152,7 +313,7 @@ export function initVaultDashboard(root: HTMLElement): void {
       <article class="hv-vd-metric hv-vd-metric--span4">
         <div class="hv-vd-metric__top">
           <span class="hv-vd-metric__icon"><span class="material-symbols-outlined">photo_library</span></span>
-          <span class="hv-vd-metric__trend"><span class="material-symbols-outlined" style="font-size:14px">trending_up</span> +3 this week</span>
+          <span class="hv-vd-metric__trend"><span class="material-symbols-outlined" style="font-size:14px">trending_up</span> live</span>
         </div>
         <p class="hv-vd-metric__value">${memories.length}</p>
         <p class="hv-vd-metric__label">Memories preserved</p>
@@ -173,7 +334,7 @@ export function initVaultDashboard(root: HTMLElement): void {
       <article class="hv-vd-metric hv-vd-metric--span4 hv-vd-metric--inverted">
         <div class="hv-vd-metric__top">
           <span class="hv-vd-metric__icon"><span class="material-symbols-outlined">auto_stories</span></span>
-          <span class="hv-vd-metric__trend"><span class="material-symbols-outlined" style="font-size:14px">trending_up</span> +1 new</span>
+          <span class="hv-vd-metric__trend"><span class="material-symbols-outlined" style="font-size:14px">trending_up</span> live</span>
         </div>
         <p class="hv-vd-metric__value"><em>${stories.length}</em></p>
         <p class="hv-vd-metric__label">Stories ready to read</p>
@@ -196,7 +357,7 @@ export function initVaultDashboard(root: HTMLElement): void {
           <span class="hv-vd-metric__trend"><span class="material-symbols-outlined" style="font-size:14px">trending_up</span> ${yearSpan}</span>
         </div>
         <p class="hv-vd-metric__value">${years.length} <em>years</em> of one family</p>
-        <p class="hv-vd-metric__label">From ${years[0]} to ${years[years.length - 1]} · ${years[years.length - 1] - years[0]} years of memory</p>
+        <p class="hv-vd-metric__label">${years.length ? `From ${years[0]} to ${years[years.length - 1]} · ${years[years.length - 1] - years[0]} years of memory` : "Add a memory to start the timeline"}</p>
         <p class="hv-vd-metric__sub">The archive reaches from Samuel's first postcard to Miles's hand-drawn atlas — every decade is preserved.</p>
       </article>
     </div>
@@ -225,6 +386,14 @@ export function initVaultDashboard(root: HTMLElement): void {
                 <img class="hv-vd-memory__img" src="${esc(img)}" alt="${esc(m.title)}" loading="lazy" />
                 <div class="hv-vd-memory__overlay"></div>
                 <span class="hv-vd-memory__year">${esc(m.year)}</span>
+                <div class="hv-vd-memory__crud">
+                  <button type="button" class="hv-vd-memory__crud-btn" data-vd-edit-memory="${esc(m.id)}" aria-label="Edit memory" title="Edit">
+                    <span class="material-symbols-outlined" style="font-size:16px">edit</span>
+                  </button>
+                  <button type="button" class="hv-vd-memory__crud-btn hv-vd-memory__crud-btn--danger" data-vd-delete-memory="${esc(m.id)}" aria-label="Delete memory" title="Delete">
+                    <span class="material-symbols-outlined" style="font-size:16px">delete</span>
+                  </button>
+                </div>
               </div>
               <div class="hv-vd-memory__body">
                 <span class="hv-vd-memory__tag">
@@ -322,12 +491,35 @@ export function initVaultDashboard(root: HTMLElement): void {
   // Memory cards → cinematic detail modal; users can hand off to Agent from there.
   root.querySelectorAll<HTMLElement>("[data-vd-memory]").forEach((el) => {
     const open = () => document.dispatchEvent(new CustomEvent("heritage:memory-detail", { detail: { id: el.dataset.memoryId } }));
-    el.addEventListener("click", open);
+    el.addEventListener("click", (e) => {
+      // Don't open detail when clicking the Edit/Delete buttons.
+      const target = e.target as HTMLElement;
+      if (target.closest("[data-vd-edit-memory]") || target.closest("[data-vd-delete-memory]")) return;
+      open();
+    });
     el.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
         open();
       }
+    });
+  });
+
+  // Edit memory buttons (hover-revealed)
+  root.querySelectorAll<HTMLElement>("[data-vd-edit-memory]").forEach((el) => {
+    el.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const id = el.dataset.vdEditMemory;
+      if (id) void openEditMemoryModal(id);
+    });
+  });
+
+  // Delete memory buttons (hover-revealed)
+  root.querySelectorAll<HTMLElement>("[data-vd-delete-memory]").forEach((el) => {
+    el.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const id = el.dataset.vdDeleteMemory;
+      if (id) deleteMemory(id);
     });
   });
 
@@ -342,12 +534,11 @@ export function initVaultDashboard(root: HTMLElement): void {
     });
   });
 
-  // New memory buttons
+  // New memory buttons (topbar + add tile + tile body button)
   root.querySelectorAll<HTMLElement>("[data-vd-new-memory], [data-vd-new-memory-btn]").forEach((el) => {
     el.addEventListener("click", (e) => {
       e.stopPropagation();
-      // Open the family-map view (where new memories/relatives are added)
-      navigateTo("family-map");
+      void openCreateMemoryModal();
     });
   });
 

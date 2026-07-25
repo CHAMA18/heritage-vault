@@ -4,6 +4,11 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Heritage Atlas</title>
+    <!-- Cache busting: never cache index.html, always revalidate -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="build-stamp" id="hv-build-stamp" content="2026-07-26T00:00:00.000Z" />
     <meta name="description" content="Heritage Atlas turns family archives into evidence-led maps, timelines, and stories with Trigger.dev and ClickHouse Cloud." />
     <meta property="og:title" content="Heritage Atlas — Your family, made explorable" />
     <meta property="og:description" content="Ask a family archive anything and explore the answer as a visual, interactive experience." />
@@ -2109,6 +2114,44 @@
   font-weight: 500;
   color: var(--hv-ink, #1d2018);
 }
+/* Hover-revealed Edit / Delete buttons on memory cards */
+#vault-screen .hv-vd-memory__crud {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  gap: 6px;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.24s ease, transform 0.24s ease;
+  z-index: 4;
+}
+#vault-screen .hv-vd-memory:hover .hv-vd-memory__crud,
+#vault-screen .hv-vd-memory:focus-within .hv-vd-memory__crud {
+  opacity: 1;
+  transform: translateY(0);
+}
+#vault-screen .hv-vd-memory__crud-btn {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 1px solid rgba(251, 245, 236, 0.5);
+  background: rgba(28, 40, 32, 0.7);
+  backdrop-filter: blur(8px);
+  color: #fbf5ec;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+#vault-screen .hv-vd-memory__crud-btn:hover {
+  background: rgba(192, 98, 58, 0.9);
+  border-color: rgba(251, 245, 236, 0.8);
+  transform: scale(1.05);
+}
+#vault-screen .hv-vd-memory__crud-btn--danger:hover {
+  background: rgba(138, 31, 31, 0.9);
+}
 #vault-screen .hv-vd-memory__body {
   position: relative;
   z-index: 1;
@@ -3055,6 +3098,82 @@
 }
 #story-mode-screen .hv-sm-chapter-bar__btn .material-symbols-outlined {
   font-size: 16px;
+}
+/* Icon-only Edit/Delete buttons in the chapter bar */
+#story-mode-screen .hv-sm-chapter-bar__btn--danger:hover:not(:disabled) {
+  background: rgba(138, 31, 31, 0.9);
+  color: #fbf5ec;
+  border-color: rgba(138, 31, 31, 0.9);
+}
+
+/* Hero "New chapter" button */
+#story-mode-screen .hv-sm-hero__add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(192, 98, 58, 0.4);
+  background: rgba(192, 98, 58, 0.1);
+  color: var(--hv-terracotta, #c0623a);
+  font-family: "Satoshi", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+#story-mode-screen .hv-sm-hero__add:hover {
+  background: rgba(192, 98, 58, 0.18);
+  transform: translateY(-1px);
+}
+#story-mode-screen .hv-sm-hero__add .material-symbols-outlined { font-size: 16px; }
+
+/* Empty state */
+#story-mode-screen .hv-sm-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  padding: 60px 24px;
+}
+#story-mode-screen .hv-sm-empty .material-symbols-outlined {
+  font-size: 56px;
+  color: var(--hv-terracotta, #c0623a);
+  opacity: 0.6;
+  margin-bottom: 16px;
+}
+#story-mode-screen .hv-sm-empty h2 {
+  font-family: "Fraunces", serif;
+  font-size: 1.8rem;
+  color: var(--hv-forest, #2c3a2e);
+  margin: 0 0 8px;
+}
+html.dark #story-mode-screen .hv-sm-empty h2 { color: #f5eee8; }
+#story-mode-screen .hv-sm-empty p {
+  font-family: "Spectral", serif;
+  font-style: italic;
+  color: var(--hv-ink-mute, #6b7060);
+  margin: 0 0 24px;
+}
+html.dark #story-mode-screen .hv-sm-empty p { color: rgba(245, 238, 232, 0.6); }
+#story-mode-screen .hv-sm-empty__btn {
+  padding: 12px 28px;
+  border-radius: 999px;
+  border: none;
+  background: var(--hv-forest, #2c3a2e);
+  color: var(--hv-cream, #fbf5ec);
+  font-family: "Satoshi", sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+#story-mode-screen .hv-sm-empty__btn:hover {
+  background: var(--hv-terracotta, #c0623a);
+  transform: translateY(-1px);
 }
 
 /* ── Narrative article ──────────────────────────────────────────────── */
@@ -4807,6 +4926,36 @@
 #family-map-screen .hv-fm-inspector__memory b { display: block; font-size: 0.84rem; color: var(--hv-cream, #fbf5ec); font-weight: 500; }
 #family-map-screen .hv-fm-inspector__memory small { font-size: 0.72rem; color: rgba(251, 245, 236, 0.55); font-family: "Spectral", serif; font-style: italic; }
 
+/* Inspector CRUD buttons (Edit / Remove) */
+#family-map-screen .hv-fm-inspector__crud { display: flex; gap: 8px; margin-top: 22px; padding-top: 18px; border-top: 1px solid rgba(251, 245, 236, 0.12); }
+#family-map-screen .hv-fm-inspector__btn { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(251, 245, 236, 0.2); background: rgba(251, 245, 236, 0.06); color: var(--hv-cream, #fbf5ec); font-family: "Satoshi", sans-serif; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+#family-map-screen .hv-fm-inspector__btn .material-symbols-outlined { font-size: 16px; }
+#family-map-screen .hv-fm-inspector__btn:hover { background: rgba(192, 98, 58, 0.3); border-color: rgba(192, 98, 58, 0.5); transform: translateY(-1px); }
+#family-map-screen .hv-fm-inspector__btn--danger:hover { background: rgba(138, 31, 31, 0.4); border-color: rgba(138, 31, 31, 0.6); }
+
+/* Pending invitations drawer */
+#family-map-screen .hv-fm-invites { margin: 0 32px 0; max-width: calc(100% - 64px); }
+#family-map-screen .hv-fm-invites__toggle { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; border: 1px solid rgba(192, 98, 58, 0.3); background: rgba(192, 98, 58, 0.08); color: var(--hv-terracotta, #c0623a); font-family: "Satoshi", sans-serif; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+#family-map-screen .hv-fm-invites__toggle:hover { background: rgba(192, 98, 58, 0.14); }
+#family-map-screen .hv-fm-invites__chevron { font-size: 18px !important; transition: transform 0.2s ease; }
+#family-map-screen .hv-fm-invites__list { margin-top: 10px; padding: 6px; border-radius: 14px; background: rgba(28, 32, 24, 0.04); border: 1px solid rgba(28, 32, 24, 0.08); }
+html.dark #family-map-screen .hv-fm-invites__list { background: rgba(245, 238, 232, 0.04); border-color: rgba(245, 238, 232, 0.1); }
+#family-map-screen .hv-fm-invites__list.is-hidden { display: none; }
+#family-map-screen .hv-fm-invite-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 12px; border-radius: 10px; transition: background 0.2s ease; }
+#family-map-screen .hv-fm-invite-item:hover { background: rgba(28, 32, 24, 0.04); }
+html.dark #family-map-screen .hv-fm-invite-item:hover { background: rgba(245, 238, 232, 0.04); }
+#family-map-screen .hv-fm-invite-item__body { flex: 1; min-width: 0; }
+#family-map-screen .hv-fm-invite-item__email { font-family: "Fraunces", serif; font-weight: 500; font-size: 0.88rem; margin: 0; color: var(--hv-ink, #1d2018); }
+html.dark #family-map-screen .hv-fm-invite-item__email { color: #f5eee8; }
+#family-map-screen .hv-fm-invite-item__status { font-size: 0.74rem; margin: 2px 0 0; color: var(--hv-ink-mute, #6b7060); text-transform: capitalize; }
+html.dark #family-map-screen .hv-fm-invite-item__status { color: rgba(245, 238, 232, 0.6); }
+#family-map-screen .hv-fm-invite-item__msg { font-family: "Spectral", serif; font-style: italic; font-size: 0.8rem; margin: 4px 0 0; color: var(--hv-ink-mute, #6b7060); }
+html.dark #family-map-screen .hv-fm-invite-item__msg { color: rgba(245, 238, 232, 0.55); }
+#family-map-screen .hv-fm-invite-item__cancel { flex-shrink: 0; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 8px; border: 1px solid rgba(138, 31, 31, 0.2); background: transparent; color: #8a1f1f; cursor: pointer; transition: all 0.2s ease; }
+html.dark #family-map-screen .hv-fm-invite-item__cancel { color: #e7bdb1; border-color: rgba(231, 189, 177, 0.2); }
+#family-map-screen .hv-fm-invite-item__cancel:hover { background: rgba(138, 31, 31, 0.1); }
+#family-map-screen .hv-fm-invite-item__cancel .material-symbols-outlined { font-size: 14px; }
+
 /* ── Responsive ─────────────────────────────────────────────────────── */
 @media (max-width: 1024px) {
   #family-map-screen { display: block; }
@@ -6140,9 +6289,22 @@ html.dark .hv-unified-sidebar__drag-handle{background:linear-gradient(135deg,#4a
         landingPage.classList.add("is-hidden");
         loginScreen.style.display = "none";
         vaultScreen.style.display = "flex";
+        familyMapScreen.style.display = "none";
+        storyModeScreen.style.display = "none";
         window.scrollTo({ top: 0, behavior: "smooth" });
         history.pushState({ view: "vault" }, "", "#vault");
+        // Initialize the vault dashboard now that it's visible.
+        document.dispatchEvent(new CustomEvent("heritage:show-vault"));
       }
+
+      // ── Demo Mode button — bypass auth, jump straight into the vault ──
+      // Both `[data-demo-mode]` buttons (landing page hero + login footer)
+      // are wired here. They trigger showVault() without any auth check.
+      document.querySelectorAll("[data-demo-mode]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          showVault();
+        });
+      });
 
       const authThumb = document.querySelector(".auth-switch-thumb");
       const demoBanner = document.getElementById("demoAccessBanner");
@@ -6842,7 +7004,7 @@ html.dark .hv-unified-sidebar__drag-handle{background:linear-gradient(135deg,#4a
         <!-- === HV-AGENT:SCRIPT-START === -->
     <script type="module">
       import { AgentChat } from "/src/agent/chat.ts";
-      import { demoAtlasDataset } from "/src/demo-data.ts";
+      import { archiveStore } from "/src/services/archive-store.ts";
 
       let agentChatInstance = null;
 
@@ -6852,7 +7014,7 @@ html.dark .hv-unified-sidebar__drag-handle{background:linear-gradient(135deg,#4a
         if (!agentChatInstance) {
           agentChatInstance = new AgentChat({
             mount: screen,
-            dataset: demoAtlasDataset,
+            dataset: archiveStore.getSnapshot(),
             vaultId: "demo-vault",
           });
           agentChatInstance.init();
