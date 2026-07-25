@@ -635,7 +635,10 @@ export function openCrudModal(
     cancelBtn.textContent = opts.cancelLabel ?? "Cancel";
     const submitBtn = document.createElement("button");
     submitBtn.type = "submit";
-    submitBtn.form = form.id;
+    // HTMLButtonElement.form is a read-only IDL property — use the
+    // `form` content attribute instead to associate this external
+    // submit button with its form.
+    submitBtn.setAttribute("form", form.id);
     submitBtn.className = "hv-modal__btn hv-modal__btn--submit";
     submitBtn.textContent = opts.submitLabel ?? "Save";
     footer.appendChild(cancelBtn);
