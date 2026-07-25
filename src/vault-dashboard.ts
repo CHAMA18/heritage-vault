@@ -14,6 +14,7 @@
  * Vanilla JS. No deps. Reduced-motion aware.
  */
 import { demoAtlasDataset } from "./demo-data";
+import { renderSidebar, injectSidebarCSS, wireSidebarCollapse } from "./shared-sidebar";
 
 const esc = (s: string | number | null | undefined): string => {
   if (s === null || s === undefined) return "";
@@ -104,7 +105,9 @@ export function initVaultDashboard(root: HTMLElement): void {
     year: "numeric",
   });
 
+  injectSidebarCSS();
   root.innerHTML = `
+    ${renderSidebar({ activeView: "vault" })}
     <div class="hv-vd-backdrop" aria-hidden="true">
       <div class="hv-vd-aurora"></div>
     </div>
@@ -346,6 +349,8 @@ export function initVaultDashboard(root: HTMLElement): void {
       navigateTo("family-map");
     });
   });
+
+  wireSidebarCollapse(root);
 
   // Reveal hero immediately
   requestAnimationFrame(() => {
