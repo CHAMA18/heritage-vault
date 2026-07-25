@@ -257,22 +257,16 @@
       #vault-screen { display: none; min-height: 100vh; background: #fff8f4; }
       #family-map-screen { display: none; min-height: 100vh; background: #fff8f4; }
       #story-mode-screen { display: none; min-height: 100vh; background: #fff8f4; }
-      #vault-screen .vault-nav { width: 280px; flex: 0 0 280px; background: #faf2ed; border-right: 1px solid rgba(196,200,192,.35); }
+      
       /* Shared collapsible navigation rail. */
-      [data-sidebar] { transition:width .28s ease, min-width .28s ease, flex-basis .28s ease, padding .28s ease; }
       
-      #vault-screen [data-sidebar].is-collapsed,
-      #family-map-screen [data-sidebar].is-collapsed,
-      #story-mode-screen [data-sidebar].is-collapsed,
-      #atlas-screen [data-sidebar].is-collapsed,
-      #agent-screen [data-sidebar].is-collapsed { width:84px !important; min-width:84px !important; max-width:84px !important; flex:0 0 84px !important; padding:1.15rem .8rem !important; }
-      [data-sidebar].is-collapsed .sidebar-copy,
-      [data-sidebar].is-collapsed [data-theme-label],
-      [data-sidebar].is-collapsed [data-logout-label] { display:none !important; }
-      [data-sidebar].is-collapsed .brand-logo { display:none; } 
       
-      [data-sidebar].is-collapsed .vault-nav-link { gap:0; } [data-sidebar].is-collapsed .theme-toggle>span:first-child { gap:0; } [data-sidebar].is-collapsed .theme-toggle>span:last-child { display:none; }
-      [data-sidebar].is-collapsed .mt-6.border-t { display:none; }
+      #vault-screen 
+      
+       
+      
+        
+      
       /* The shared workspace navigator follows the Agent rail's dimensions,
          hierarchy, and active state on every desktop workspace. */
       #vault-screen .vault-nav,
@@ -284,19 +278,16 @@
         background:linear-gradient(180deg,rgba(243,234,217,.92) 0%,rgba(251,245,236,.88) 100%) !important;
         border-right:1px solid rgba(28,32,24,.08) !important;
       }
-      [data-sidebar]:not(.hv-agent-sidebar) .vault-nav-link {
-        gap:12px; padding:11px 14px; border-radius:12px; font-size:.9rem; font-weight:500;
-        color:#3a3f33; transition:all .25s cubic-bezier(.22,1,.36,1);
-      }
-      [data-sidebar]:not(.hv-agent-sidebar) .vault-nav-link .material-symbols-outlined { font-size:20px; color:#6b7060; transition:color .25s ease; }
-      [data-sidebar]:not(.hv-agent-sidebar) .vault-nav-link:hover { background:rgba(28,32,24,.05); color:#1d2018; }
-      [data-sidebar]:not(.hv-agent-sidebar) .vault-nav-link.active { background:linear-gradient(135deg,#2c3a2e,#1c2820); color:#fbf5ec; box-shadow:0 4px 14px rgba(28,40,32,.22); }
-      [data-sidebar]:not(.hv-agent-sidebar) .vault-nav-link.active .material-symbols-outlined { color:#d4a44c; }
+      
+      
+      
+      
+      
       #atlas-screen .atlas-main { width:calc(100% - 280px); }
       #atlas-screen .atlas-sidebar.is-collapsed + .atlas-main { width:calc(100% - 84px); }
       /* Story Mode shares the dashboard's persistent desktop navigation rail. */
       #story-mode-screen > .flex { display:flex !important; min-height:100vh; width:100%; }
-      #story-mode-screen .vault-nav { position:sticky; top:0; display:flex !important; box-sizing:border-box; width:280px !important; min-width:280px; max-width:280px; height:100vh; flex:0 0 280px !important; overflow-y:auto; background:#faf2ed; border-right:1px solid rgba(196,200,192,.35); }
+      
       #story-mode-screen > .flex > section { min-width:0; flex:1 1 auto; }
       #vault-screen .vault-card { background: #fffdfb; border: 1px solid rgba(196,200,192,.42); box-shadow: 0 4px 20px rgba(62,74,61,.05); transition: transform .25s ease, box-shadow .25s ease; }
       #vault-screen .vault-card:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(62,74,61,.09); }
@@ -305,7 +296,7 @@
       #vault-screen .vault-nav-link.active { background: #3e4a3d; color: #fff; }
       #vault-screen .vault-main { max-width: 1280px; }
       @media (min-width:1024px) { #story-mode-screen > header { display:none; } }
-      @media (max-width: 1023px) { #vault-screen .vault-nav, #story-mode-screen .vault-nav { display: none !important; } }
+      @media (max-width: 1023px) { #vault-screen .vault-nav,  }
       .family-map-canvas { background-color: #f4ede8; background-image: linear-gradient(rgba(196,200,192,.24) 1px, transparent 1px), linear-gradient(90deg, rgba(196,200,192,.24) 1px, transparent 1px); background-size: 42px 42px; }
       [data-family-map-stage] { position:relative; min-height:520px; transform-origin:center center; transition:transform .28s cubic-bezier(.2,.8,.2,1); will-change:transform; }
       .map-node { box-shadow: 0 8px 24px rgba(62,74,61,.12); transition: transform .25s ease, box-shadow .25s ease; }
@@ -356,7 +347,7 @@
       html.dark #story-mode-screen header { background: rgba(28, 25, 22, .94) !important; border-color: rgba(231, 189, 177, .13) !important; }
       html.dark #vault-screen .vault-nav,
       html.dark #family-map-screen .vault-nav,
-      html.dark #story-mode-screen .vault-nav { background: #211d19 !important; border-color: rgba(231, 189, 177, .12) !important; }
+      html.dark 
       html.dark #vault-screen .vault-card,
       html.dark #family-map-screen .vault-card,
       html.dark #story-mode-screen .story-paper { background: #25201c !important; border-color: rgba(231, 189, 177, .16) !important; box-shadow: 0 12px 30px rgba(0, 0, 0, .22); }
