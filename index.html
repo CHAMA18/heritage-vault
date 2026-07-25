@@ -5975,21 +5975,7 @@ html.dark .hv-mobile-toggle:hover {
         });
       });
 
-      document.querySelectorAll("[data-dashboard-view]").forEach((link) => {
-        link.addEventListener("click", (event) => {
-          if (document.documentElement.dataset.tsRuntime === "true") return;
-          const view = link.dataset.dashboardView;
-          if (view !== "family-map" && view !== "vault" && view !== "story-mode") return;
-          event.preventDefault();
-          landingPage.classList.add("is-hidden");
-          loginScreen.style.display = "none";
-          vaultScreenInline.style.display = view === "vault" ? "flex" : "none";
-          familyMapScreen.style.display = view === "family-map" ? "flex" : "none";
-          storyModeScreen.style.display = view === "story-mode" ? "flex" : "none";
-          window.scrollTo({ top: 0, behavior: "smooth" });
-          history.pushState({ view }, "", `#${view}`);
-        });
-      });
+      // Unified navigation — see navigateToView function below
 
       window.addEventListener("popstate", () => {
         if (document.documentElement.dataset.tsRuntime === "true") return;
