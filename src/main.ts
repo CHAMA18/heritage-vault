@@ -6,7 +6,7 @@ import { collection, doc, getDoc, serverTimestamp, setDoc, addDoc, onSnapshot, o
 import { firestore } from "./firebase";
 import { firebaseStorage } from "./firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { initializeSidebars, type SidebarView } from "./components/sidebar";
+
 import type { FamilyMemberDocument } from "./types/firestore";
 import { loadVaultDashboard } from "./services/vault-data";
 import { bindAtlas, createAtlasScreen } from "./atlas/ui";
@@ -402,7 +402,6 @@ function bindInteractions(): void {
     if (event.target === memoryDetailModal) memoryDetailModal.classList.remove("is-open");
   });
 
-  initializeSidebars({ onNavigate: (view: SidebarView) => setView(view) });
 
   const storyInput = document.querySelector<HTMLInputElement>('#story-mode-screen input[placeholder="Ask about another family memory..."]');
   const storySend = storyInput?.closest("div")?.querySelector<HTMLButtonElement>("button");
