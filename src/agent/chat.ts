@@ -12,6 +12,7 @@
 import type { AtlasDataset } from "../atlas/types";
 import type { AgentMessage } from "./spec";
 import { runTurn, isTriggerConfigured, isClickHouseLive, isLive } from "./trigger-transport";
+import { renderSidebar, injectSidebarCSS, wireSidebarCollapse } from "../shared-sidebar";
 import { renderViz } from "./renderers";
 import { initializeSidebars } from "../components/sidebar";
 
@@ -148,59 +149,7 @@ export class AgentChat {
 
   private renderShell() {
     this.mount.innerHTML = `
-      <aside class="hv-agent-sidebar" data-sidebar aria-label="Agent navigation">
-        <div class="hv-agent-sidebar__brand">
-          <a href="#vault" data-dashboard-view="vault" aria-label="Heritage Atlas home">
-            <img data-brand-logo class="brand-logo" src="./heritageatlas-logo.svg" alt="Heritage Atlas" />
-          </a>
-        </div>
-        <nav class="hv-agent-sidebar__nav" aria-label="Primary">
-          <a class="hv-agent-sidebar__nav-link" href="#vault" data-dashboard-view="vault">
-            <span class="material-symbols-outlined">inventory_2</span><span>The Vault</span>
-          </a>
-          <a class="hv-agent-sidebar__nav-link" href="#family-map" data-dashboard-view="family-map">
-            <span class="material-symbols-outlined">account_tree</span><span>Family Map</span>
-          </a>
-          <a class="hv-agent-sidebar__nav-link" href="#story-mode" data-dashboard-view="story-mode">
-            <span class="material-symbols-outlined">auto_stories</span><span>Story Mode</span>
-          </a>
-          <a class="hv-agent-sidebar__nav-link" href="#atlas" data-dashboard-view="atlas">
-            <span class="material-symbols-outlined">explore</span><span>Heritage Atlas</span>
-          </a>
-          <a class="hv-agent-sidebar__nav-link is-active" href="#agent" data-dashboard-view="agent" aria-current="page">
-            <span class="material-symbols-outlined">smart_toy</span><span>Agent</span>
-          </a>
-        </nav>
-        <div class="hv-agent-sidebar__divider"></div>
-        <div class="hv-agent-sidebar__info">
-          <p class="hv-agent-sidebar__info-label">Data source</p>
-          <p class="hv-agent-sidebar__info-value">${isTriggerConfigured ? "Trigger.dev + ClickHouse" : isClickHouseLive ? "ClickHouse Cloud" : "Mock runtime"}</p>
-          <p class="hv-agent-sidebar__info-sub">${
-            isTriggerConfigured
-              ? "chat.agent() orchestration · 10 ClickHouse-querying tools"
-              : isClickHouseLive
-              ? "Live queries · ~500ms round-trip"
-              : "Configure .env for live data"
-          }</p>
-        </div>
-        <div class="hv-agent-sidebar__footer">
-          <button class="hv-agent-sidebar__theme" type="button" data-theme-toggle>
-            <span class="material-symbols-outlined" data-theme-icon>dark_mode</span>
-            <span data-theme-label>Dark mode</span>
-          </button>
-          <button class="hv-agent-sidebar__logout" type="button" data-logout>
-            <span class="material-symbols-outlined">logout</span>
-            <span>Log out</span>
-          </button>
-          <div class="hv-agent-sidebar__user">
-            <div class="hv-agent-sidebar__avatar" data-auth-user-initials>AK</div>
-            <div>
-              <p class="hv-agent-sidebar__user-name" data-auth-user-name>Amara Kabwe</p>
-              <p class="hv-agent-sidebar__user-role">Vault keeper</p>
-            </div>
-          </div>
-        </div>
-      </aside>
+      ${renderSidebar({ activeView: "agent" })}
 
       <div class="hv-agent">
         <header class="hv-agent__header">

@@ -3,7 +3,6 @@
  * Every screen renders this exact sidebar. Same structure, same collapse
  * button position, same branding, nav, footer.
  */
-import { initializeSidebars } from "./components/sidebar";
 
 export type ScreenView = "vault" | "family-map" | "story-mode" | "agent";
 
@@ -128,5 +127,5 @@ export function wireSidebarCollapse(root: HTMLElement): void {
     try { localStorage.setItem("hv-sidebar-collapsed", sidebar.classList.contains("is-collapsed") ? "true" : "false"); } catch {}
   });
   try { if (localStorage.getItem("hv-sidebar-collapsed") === "true") sidebar.classList.add("is-collapsed"); } catch {}
-  try { initializeSidebars(); } catch {}
+  
 }

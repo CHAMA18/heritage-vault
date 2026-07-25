@@ -43,9 +43,9 @@ export function renderKpi(spec: VizSpec): string {
         .map((card: VizKpiCard) => {
           const trendIcon =
             card.trend === "up"
-              ? '<span class="hv-agent__trend hv-agent__trend--up">trending_up</span>'
+              ? '<span class="material-symbols-outlined hv-agent__trend hv-agent__trend--up">trending_up</span>'
               : card.trend === "down"
-              ? '<span class="hv-agent__trend hv-agent__trend--down">trending_down</span>'
+              ? '<span class="material-symbols-outlined hv-agent__trend hv-agent__trend--down">trending_down</span>'
               : "";
           return `
             <div class="hv-agent__kpi-card">
