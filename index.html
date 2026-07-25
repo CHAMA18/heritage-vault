@@ -2400,8 +2400,8 @@
 
 /* ── Reveal-on-scroll ───────────────────────────────────────────────── */
 #vault-screen [data-vd-reveal] {
-  opacity: 0;
-  transform: translateY(28px);
+  opacity: 1;
+  transform: translateY(0);
   transition: opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1),
               transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
   transition-delay: var(--vd-delay, 0ms);
@@ -2411,8 +2411,8 @@
   transform: translateY(0);
 }
 #vault-screen [data-vd-stagger] > * {
-  opacity: 0;
-  transform: translateY(24px) scale(0.98);
+  opacity: 1;
+  transform: translateY(0) scale(1);
   transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
               transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
