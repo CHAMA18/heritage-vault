@@ -269,8 +269,8 @@
       [data-sidebar].is-collapsed .sidebar-copy,
       [data-sidebar].is-collapsed [data-theme-label],
       [data-sidebar].is-collapsed [data-logout-label] { display:none !important; }
-      [data-sidebar].is-collapsed .brand-logo { display:none; } [data-sidebar].is-collapsed 
-      [data-sidebar].is-collapsed 
+      [data-sidebar].is-collapsed .brand-logo { display:none; } 
+      
       [data-sidebar].is-collapsed .vault-nav-link { gap:0; } [data-sidebar].is-collapsed .theme-toggle>span:first-child { gap:0; } [data-sidebar].is-collapsed .theme-toggle>span:last-child { display:none; }
       [data-sidebar].is-collapsed .mt-6.border-t { display:none; }
       /* The shared workspace navigator follows the Agent rail's dimensions,
@@ -474,7 +474,7 @@
       .theme-toggle:hover { background:rgba(232,225,220,.65); color:#283327; }
       html.dark .theme-toggle { color:#f7efea; border-color:rgba(196,200,192,.22); }
       html.dark .theme-toggle:hover { background:rgba(71,71,68,.6); }
-      html.dark  html.dark 
+      html.dark  
       /* A single archival night palette, applied consistently to every route and overlay. */
       html.dark { color-scheme:dark; }
       html.dark #login-screen { background:#171512; }
@@ -5382,14 +5382,9 @@ html.dark #login-screen > section:last-child > div > .grid button {
 
 
 
-@media (max-width: 1024px) {
-  
-  /* When any sidebar is open, show the backdrop */
-  [data-sidebar].is-open ~ 
-}
+/* Mobile sidebar backdrop removed — handled by unified sidebar CSS */
 
-html.dark 
-html.dark 
+
 
       /* === HV-AUTH:CSS-END === */
     </style>
