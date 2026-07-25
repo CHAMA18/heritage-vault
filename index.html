@@ -258,7 +258,7 @@
       #login-screen { display: none; }
       #login-screen > section:first-child { display: none; }
       #login-screen > section:last-child { width: 100% !important; }
-      #login-screen > section:last-child { align-items: flex-start !important; min-height: 100vh; overflow-y: auto; padding-top: 3rem; padding-bottom: 3rem; }
+      #login-screen > section:last-child { align-items: flex-start !important; min-height: 100vh; overflow-y: auto; padding-top: 1.5rem; padding-bottom: 1.5rem; }
       #login-screen > section:last-child > div {
         width: 100%;
         max-width: 920px !important;
@@ -4979,8 +4979,8 @@
   z-index: 1;
   width: 100%;
   max-width: 840px !important;
-  margin: 32px 16px;
-  padding: 36px 32px !important;
+  margin: 16px 16px;
+  padding: 24px 32px !important;
   border-radius: 28px !important;
   background: rgba(255, 253, 247, 0.85) !important;
   backdrop-filter: blur(24px) saturate(180%);
@@ -4999,12 +4999,12 @@
 /* ── Header ─────────────────────────────────────────────────────────── */
 #login-screen > section:last-child > div > header {
   text-align: center;
-  margin-bottom: 36px;
+  margin-bottom: 20px;
 }
 #login-screen > section:last-child > div > header img {
-  height: 44px !important;
-  width: 44px !important;
-  margin: 0 auto 14px !important;
+  height: 40px !important;
+  width: 40px !important;
+  margin: 0 auto 8px !important;
   display: block;
   filter: drop-shadow(0 4px 12px rgba(28, 40, 32, 0.15));
 }
@@ -5035,41 +5035,81 @@
   margin-bottom: 32px !important;
   border-bottom: 1px solid rgba(28, 32, 24, 0.1) !important;
   position: relative;
+}/* ── Floating Segmented Control ─────────────────────────────────────── */
+#login-screen .auth-switch-wrapper {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: center;
+}
+#login-screen .auth-switch-track {
+  position: relative;
+  display: flex;
+  width: 100%;
+  padding: 4px;
+  border-radius: 14px;
+  background: rgba(28, 32, 24, 0.04);
+  border: 1px solid rgba(28, 32, 24, 0.06);
+}
+#login-screen .auth-switch-thumb {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  min-width: 0;
+  height: calc(100% - 8px);
+  border-radius: 11px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(28, 32, 24, 0.08), 0 1px 2px rgba(28, 32, 24, 0.04);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease;
+  z-index: 1;
+}
+#login-screen .auth-switch-thumb[data-active="register"] {
+  transform: translateX(100%);
+}
+#login-screen .auth-switch-track:hover .auth-switch-thumb {
+  box-shadow: 0 2px 8px rgba(28, 32, 24, 0.1), 0 1px 3px rgba(28, 32, 24, 0.06);
 }
 #login-screen .auth-tab {
   font-family: "Fraunces", serif !important;
   font-weight: 500 !important;
-  font-size: 1rem !important;
+  font-size: 0.92rem !important;
   letter-spacing: -0.01em;
-  padding: 14px 0 !important;
+  padding: 10px 0 !important;
   color: var(--hv-ink-mute, #6b7060) !important;
   position: relative;
+  z-index: 2;
+  flex: 1;
+  text-align: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
   transition: color 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
 }
-#login-screen .auth-tab[aria-selected="true"] {
+#login-screen .auth-tab.active {
+  color: var(--hv-ink, #1d2018) !important;
+  font-weight: 600 !important;
+}
+#login-screen .auth-tab:not(.active):hover {
   color: var(--hv-ink, #1d2018) !important;
 }
-#login-screen .auth-tab[aria-selected="true"]::after {
-  content: "";
-  position: absolute;
-  bottom: -1px;
-  left: 20%;
-  right: 20%;
-  height: 2px;
-  background: linear-gradient(90deg, var(--hv-terracotta, #c0623a), var(--hv-amber, #d4a44c));
-  border-radius: 2px;
+#login-screen .auth-tab:focus-visible {
+  outline: 2px solid var(--hv-terracotta, #c0623a);
+  outline-offset: -2px;
+  border-radius: 8px;
 }
-#login-screen .auth-switch::after {
-  /* Remove the default JS-driven underline */
-  display: none !important;
+@media (prefers-reduced-motion: reduce) {
+  #login-screen .auth-switch-thumb {
+    transition: none !important;
+  }
 }
 
 /* ── Social login buttons ───────────────────────────────────────────── */
 #login-screen > section:last-child > div > .grid {
-  margin-bottom: 28px !important;
+  margin-bottom: 14px !important;
 }
 #login-screen > section:last-child > div > .grid button {
-  padding: 14px 16px !important;
+  padding: 10px 16px !important;
   border-radius: 14px !important;
   border: 1px solid rgba(28, 32, 24, 0.12) !important;
   background: rgba(251, 245, 236, 0.6) !important;
@@ -5087,7 +5127,7 @@
 
 /* ── Divider ────────────────────────────────────────────────────────── */
 #login-screen .relative.mb-8.flex.items-center {
-  margin-bottom: 28px !important;
+  margin-bottom: 14px !important;
 }
 #login-screen .relative.mb-8.flex.items-center span {
   font-size: 0.7rem !important;
@@ -5110,7 +5150,7 @@
   margin-bottom: 8px !important;
 }
 #login-screen .space-y-1\.5 {
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 #login-screen input[type="email"],
 #login-screen input[type="password"],
@@ -5199,8 +5239,8 @@
   background: linear-gradient(135deg, rgba(212, 164, 76, 0.12), rgba(192, 98, 58, 0.08)) !important;
   border: 1px solid rgba(212, 164, 76, 0.25) !important;
   border-radius: 16px !important;
-  padding: 16px 18px !important;
-  margin-bottom: 24px;
+  padding: 12px 16px !important;
+  margin-bottom: 14px;
 }
 #login-screen #registerForm > div:first-child p {
   font-family: "Spectral", serif !important;
@@ -5218,7 +5258,7 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  margin: 20px 0;
+  margin: 10px 0;
   text-transform: none;
   letter-spacing: 0;
   font-weight: 400;
@@ -5238,8 +5278,8 @@
 
 /* ── Footer (demo mode + footer prompt + badges) ────────────────────── */
 #login-screen > section:last-child > div > footer {
-  margin-top: 36px !important;
-  padding-top: 28px !important;
+  margin-top: 20px !important;
+  padding-top: 18px !important;
   border-top: 1px solid rgba(28, 32, 24, 0.08) !important;
 }
 #login-screen [data-demo-mode] {
@@ -5322,10 +5362,24 @@ html.dark #login-screen input:focus {
 html.dark #login-screen label {
   color: var(--hv-amber, #d4a44c) !important;
 }
+html.dark #login-screen .auth-switch-track {
+  background: rgba(245, 238, 232, 0.06) !important;
+  border-color: rgba(245, 238, 232, 0.08) !important;
+}
+html.dark #login-screen .auth-switch-thumb {
+  background: #2a2622 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.12) !important;
+}
+html.dark #login-screen .auth-switch-track:hover .auth-switch-thumb {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.15) !important;
+}
 html.dark #login-screen .auth-tab {
   color: #8a8f80 !important;
 }
-html.dark #login-screen .auth-tab[aria-selected="true"] {
+html.dark #login-screen .auth-tab.active {
+  color: #f5eee8 !important;
+}
+html.dark #login-screen .auth-tab:not(.active):hover {
   color: #f5eee8 !important;
 }
 html.dark #login-screen button[type="submit"] {
@@ -5698,20 +5752,21 @@ html.dark .hv-mobile-toggle:hover {
       </section>
 
       <section class="flex w-full items-center justify-center bg-surface p-margin-mobile md:p-margin-desktop lg:w-1/2">
-        <div class="fade-in-up w-full max-w-md rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-8 md:p-10 card-elevation">
-          <header class="mb-8 text-center">
+        <div class="fade-in-up w-full max-w-md rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-6 md:p-8 card-elevation">
+          <header class="mb-4 text-center">
             <img class="mx-auto mb-6 h-12 w-12" src="data:image/png;base64,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" alt="Heritage Atlas" />
             <h2 class="mb-2 font-display-lg text-headline-md text-primary">Enter the Vault</h2>
             <p class="font-body-md text-on-surface-variant">Sign in to continue preserving what matters.</p>
             <p id="authError" class="mt-4 hidden rounded-lg border border-error/20 bg-error-container/60 px-4 py-3 text-left text-sm text-on-error-container" role="alert"></p>
-          </header>
+          </header><div class="auth-switch-wrapper" role="tablist" aria-label="Account access">
+              <div class="auth-switch-track">
+                <div class="auth-switch-thumb"></div>
+                <button class="auth-tab active" data-mode="login" role="tab" aria-selected="true" type="button">Sign in</button>
+                <button class="auth-tab" data-mode="register" role="tab" aria-selected="false" type="button">Register</button>
+              </div>
+            </div>
 
-          <div class="auth-switch mb-8 grid grid-cols-2 border-b border-outline-variant/40" role="tablist" aria-label="Account access">
-            <button class="auth-tab py-3 font-label-md text-label-md text-primary" data-mode="login" role="tab" aria-selected="true" type="button">Sign in</button>
-            <button class="auth-tab py-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:text-primary" data-mode="register" role="tab" aria-selected="false" type="button">Register</button>
-          </div>
-
-          <div class="mb-8 grid grid-cols-2 gap-4">
+          <div class="mb-4 grid grid-cols-2 gap-4">
             <button
               class="group flex items-center justify-center gap-2 rounded-full border border-outline-variant px-4 py-3 transition-colors duration-200 hover:bg-surface-container-low"
               type="button"
@@ -5750,7 +5805,7 @@ html.dark .hv-mobile-toggle:hover {
             </button>
           </div>
 
-          <div class="relative mb-8 flex items-center">
+          <div class="relative mb-4 flex items-center">
             <div class="flex-grow border-t border-outline-variant/50"></div>
             <span class="mx-4 flex-shrink font-caption text-caption uppercase tracking-widest text-on-tertiary-container"
               >Or login with email</span
@@ -5758,7 +5813,7 @@ html.dark .hv-mobile-toggle:hover {
             <div class="flex-grow border-t border-outline-variant/50"></div>
           </div>
 
-          <form class="space-y-6" id="loginForm" novalidate>
+          <form class="space-y-4" id="loginForm" novalidate>
             <div class="space-y-1.5">
               <label class="block font-label-md text-label-md text-secondary" for="email">Email Address</label>
               <div class="relative">
@@ -5816,21 +5871,21 @@ html.dark .hv-mobile-toggle:hover {
             </div>
 
             <button
-              class="w-full rounded-xl bg-primary py-4 font-label-md text-label-md tracking-widest text-on-primary shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-xl active:scale-[0.98]"
+              class="w-full rounded-xl bg-primary py-3 font-label-md text-label-md tracking-widest text-on-primary shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-xl active:scale-[0.98]"
               type="submit"
             >
               Enter the Vault
             </button>
           </form>
 
-          <form class="auth-panel is-hidden space-y-5" id="registerForm" novalidate>
+          <form class="auth-panel is-hidden space-y-4" id="registerForm" novalidate>
             <div class="rounded-xl border border-secondary/20 bg-surface-container-low px-4 py-3">
               <div class="flex gap-3">
                 <span class="material-symbols-outlined text-secondary">auto_awesome</span>
                 <p class="font-caption text-on-surface-variant">Create a private space for the memories, people, and moments your family wants to keep close.</p>
               </div>
             </div>
-            <div class="grid gap-5 sm:grid-cols-2">
+            <div class="grid gap-4 sm:grid-cols-2">
               <div class="space-y-1.5">
                 <label class="block font-label-md text-label-md text-secondary" for="firstName">First name</label>
                 <input class="input-focus-border w-full border-b border-outline-variant bg-transparent py-3 font-body-md text-on-surface placeholder:text-on-tertiary-container/50" id="firstName" placeholder="Amara" required type="text" />
@@ -5852,7 +5907,7 @@ html.dark .hv-mobile-toggle:hover {
               <input class="mt-1 h-4 w-4 rounded-sm border-outline-variant bg-transparent text-primary focus:ring-primary/20" required type="checkbox" />
               <span class="font-caption text-on-surface-variant">I agree to the HeritageVault terms and privacy promise.</span>
             </label>
-            <button class="w-full rounded-xl bg-primary py-4 font-label-md text-label-md tracking-widest text-on-primary shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-xl active:scale-[0.98]" type="submit">Create my vault</button>
+            <button class="w-full rounded-xl bg-primary py-3 font-label-md text-label-md tracking-widest text-on-primary shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-xl active:scale-[0.98]" type="submit">Create my vault</button>
           </form>
 
           <footer class="mt-10 border-t border-outline-variant/20 pt-8">
@@ -6006,8 +6061,7 @@ html.dark .hv-mobile-toggle:hover {
 
       const loginForm = document.getElementById("loginForm");
       const registerForm = document.getElementById("registerForm");
-      const authSwitch = document.querySelector(".auth-switch");
-      const authTabs = document.querySelectorAll(".auth-tab");
+  const authTabs = document.querySelectorAll(".auth-tab");
       const authHeading = document.querySelector("header h2");
       const authSubheading = document.querySelector("header p");
       const emailDivider = document.querySelector(".relative.mb-8.flex.items-center");
@@ -6024,24 +6078,26 @@ html.dark .hv-mobile-toggle:hover {
         history.pushState({ view: "vault" }, "", "#vault");
       }
 
-      function setAuthMode(mode) {
-        const isRegister = mode === "register";
-        loginForm.classList.toggle("is-hidden", isRegister);
-        registerForm.classList.toggle("is-hidden", !isRegister);
-        authSwitch.classList.toggle("register-active", isRegister);
-        authHeading.textContent = isRegister ? "Begin your legacy" : "Enter the Vault";
-        authSubheading.textContent = isRegister ? "Create a sanctuary for the stories that matter." : "Sign in to continue preserving what matters.";
-        emailDivider.classList.toggle("is-hidden", isRegister);
-        footerPrompt.innerHTML = isRegister
-          ? 'Already have a vault? <a class="font-semibold text-primary hover:underline" href="#" data-login-link>Enter the Vault</a>'
-          : 'Don\'t have a vault yet? <a class="font-semibold text-primary hover:underline" href="#" data-register-link>Request access</a>';
-        authTabs.forEach((tab) => {
-          const active = tab.dataset.mode === mode;
-          tab.setAttribute("aria-selected", active);
-          tab.classList.toggle("text-primary", active);
-          tab.classList.toggle("text-on-surface-variant", !active);
-        });
-      }
+const authThumb = document.querySelector(".auth-switch-thumb");
+function setAuthMode(mode) {
+  const isRegister = mode === "register";
+  loginForm.classList.toggle("is-hidden", isRegister);
+  registerForm.classList.toggle("is-hidden", !isRegister);
+  authHeading.textContent = isRegister ? "Begin your legacy" : "Enter the Vault";
+  authSubheading.textContent = isRegister ? "Create a sanctuary for the stories that matter." : "Sign in to continue preserving what matters.";
+  emailDivider.classList.toggle("is-hidden", isRegister);
+  footerPrompt.innerHTML = isRegister
+    ? 'Already have a vault? <a class="font-semibold text-primary hover:underline" href="#" data-login-link>Enter the Vault</a>'
+    : 'Don\'t have a vault yet? <a class="font-semibold text-primary hover:underline" href="#" data-register-link>Request access</a>';
+  authTabs.forEach((tab) => {
+    const active = tab.dataset.mode === mode;
+    tab.setAttribute("aria-selected", active);
+    tab.classList.toggle("active", active);
+  });
+  if (authThumb) {
+    authThumb.setAttribute("data-active", mode);
+  }
+}
 
       authTabs.forEach((tab) => tab.addEventListener("click", () => setAuthMode(tab.dataset.mode)));
       footerPrompt.addEventListener("click", (event) => {
