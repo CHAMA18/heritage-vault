@@ -5625,7 +5625,60 @@ html.dark #login-screen > section:last-child > div > .grid button {
       </main>
 
       </div>
-    <style>body > main { display: none; }</style>
+    <style>body > main { display: none; }
+.hv-unified-sidebar{position:sticky;top:0;flex:0 0 280px;width:280px;min-width:280px;max-width:280px;height:100vh;overflow-y:auto;overflow-x:hidden;background:linear-gradient(180deg,rgba(243,234,217,.92) 0%,rgba(251,245,236,.88) 100%);border-right:1px solid rgba(28,32,24,.08);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;flex-direction:column;padding:20px 22px;z-index:10;transition:width .3s cubic-bezier(.22,1,.36,1),min-width .3s cubic-bezier(.22,1,.36,1),max-width .3s cubic-bezier(.22,1,.36,1),padding .3s cubic-bezier(.22,1,.36,1)}
+.hv-unified-sidebar.is-collapsed{width:72px;min-width:72px;max-width:72px;padding:20px 12px}
+.hv-unified-sidebar.is-collapsed .hv-unified-sidebar__nav-link span:last-child,.hv-unified-sidebar.is-collapsed .hv-unified-sidebar__divider,.hv-unified-sidebar.is-collapsed .hv-unified-sidebar__theme span:nth-child(2),.hv-unified-sidebar.is-collapsed .hv-unified-sidebar__theme-arrow,.hv-unified-sidebar.is-collapsed .hv-unified-sidebar__logout span:nth-child(2),.hv-unified-sidebar.is-collapsed .hv-unified-sidebar__logout-arrow,.hv-unified-sidebar.is-collapsed .hv-unified-sidebar__user>div:last-child,.hv-unified-sidebar.is-collapsed .hv-unified-sidebar__info{display:none}
+.hv-unified-sidebar.is-collapsed .hv-unified-sidebar__brand img{height:32px;width:32px;object-fit:cover;border-radius:8px}
+.hv-unified-sidebar.is-collapsed .hv-unified-sidebar__nav-link{justify-content:center;padding:12px}
+.hv-unified-sidebar.is-collapsed .hv-unified-sidebar__theme,.hv-unified-sidebar.is-collapsed .hv-unified-sidebar__logout{justify-content:center;padding:12px}
+.hv-unified-sidebar.is-collapsed .hv-unified-sidebar__user{justify-content:center;padding:8px}
+.hv-unified-sidebar__drag-handle{position:absolute;top:50%;right:-14px;transform:translateY(-50%);width:28px;height:48px;border-radius:0 12px 12px 0;background:linear-gradient(135deg,var(--hv-forest,#2c3a2e),var(--hv-forest-deep,#1c2820));border:1px solid rgba(28,32,24,.08);border-left:none;cursor:grab;display:flex;align-items:center;justify-content:center;z-index:20;box-shadow:2px 0 8px rgba(28,32,24,.1);transition:width .2s ease,height .2s ease,box-shadow .2s ease;touch-action:none;user-select:none}
+.hv-unified-sidebar__drag-handle:hover{width:32px;height:52px;box-shadow:2px 0 12px rgba(28,32,24,.15)}
+.hv-unified-sidebar__drag-handle:active{cursor:grabbing;width:32px;height:52px}
+.hv-unified-sidebar__drag-icon{font-size:18px;color:var(--hv-amber,#d4a44c);transition:transform .3s ease}
+.hv-unified-sidebar.is-collapsed .hv-unified-sidebar__drag-icon{transform:rotate(180deg)}
+.hv-unified-sidebar__brand{display:flex;align-items:center;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid rgba(28,32,24,.06)}
+.hv-unified-sidebar__brand a{display:flex;align-items:center;text-decoration:none}
+.hv-unified-sidebar__brand img{height:38px;width:auto;max-width:220px}
+.hv-unified-sidebar__nav{display:flex;flex-direction:column;gap:4px;margin-bottom:20px}
+.hv-unified-sidebar__nav-link{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;font-size:.9rem;font-weight:500;color:var(--hv-ink-soft,#3a3f33);text-decoration:none;transition:all .25s cubic-bezier(.22,1,.36,1);white-space:nowrap;overflow:hidden}
+.hv-unified-sidebar__nav-link .material-symbols-outlined{font-size:20px;color:var(--hv-ink-mute,#6b7060);transition:color .25s ease;flex-shrink:0}
+.hv-unified-sidebar__nav-link:hover{background:rgba(28,32,24,.05);color:var(--hv-ink,#1d2018)}
+.hv-unified-sidebar__nav-link.is-active{background:linear-gradient(135deg,var(--hv-forest,#2c3a2e),var(--hv-forest-deep,#1c2820));color:var(--hv-cream,#fbf5ec);box-shadow:0 4px 14px rgba(28,40,32,.22)}
+.hv-unified-sidebar__nav-link.is-active .material-symbols-outlined{color:var(--hv-amber,#d4a44c)}
+.hv-unified-sidebar__divider{height:1px;background:linear-gradient(90deg,transparent,rgba(28,32,24,.12),transparent);margin:4px 0 16px}
+.hv-unified-sidebar__info{padding:16px 18px;border-radius:14px;background:rgba(251,245,236,.5);border:1px solid rgba(28,32,24,.06);margin-bottom:16px}
+.hv-unified-sidebar__info-label{font-size:.62rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--hv-terracotta,#c0623a);margin:0 0 6px}
+.hv-unified-sidebar__info-value{font-family:"Fraunces",serif;font-weight:500;font-size:.9rem;color:var(--hv-ink,#1d2018);margin:0 0 2px}
+.hv-unified-sidebar__info-sub{font-family:"Spectral",serif;font-style:italic;font-size:.72rem;color:var(--hv-ink-mute,#6b7060);margin:0}
+.hv-unified-sidebar__footer{margin-top:auto;padding-top:16px;border-top:1px solid rgba(28,32,24,.06);display:flex;flex-direction:column;gap:6px}
+.hv-unified-sidebar__theme,.hv-unified-sidebar__logout{display:flex;align-items:center;gap:12px;padding:10px 14px;border:none;border-radius:10px;background:transparent;font-size:.85rem;font-weight:500;color:var(--hv-ink-soft,#3a3f33);cursor:pointer;transition:background .2s ease;text-align:left;width:100%;white-space:nowrap;overflow:hidden}
+.hv-unified-sidebar__theme:hover,.hv-unified-sidebar__logout:hover{background:rgba(28,32,24,.05)}
+.hv-unified-sidebar__theme .material-symbols-outlined,.hv-unified-sidebar__logout .material-symbols-outlined{font-size:18px;color:var(--hv-ink-mute,#6b7060);flex-shrink:0}
+.hv-unified-sidebar__theme-arrow,.hv-unified-sidebar__logout-arrow{margin-left:auto;font-size:16px!important;opacity:.5}
+.hv-unified-sidebar__user{display:flex;align-items:center;gap:12px;padding:12px 14px;margin-top:8px;border-radius:12px;background:rgba(251,245,236,.6);white-space:nowrap;overflow:hidden}
+.hv-unified-sidebar__avatar{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--hv-forest,#2c3a2e),var(--hv-forest-deep,#1c2820));color:var(--hv-amber,#d4a44c);font-family:"Fraunces",serif;font-weight:500;font-size:.88rem;flex-shrink:0}
+.hv-unified-sidebar__user-name{font-size:.86rem;font-weight:600;color:var(--hv-ink,#1d2018);margin:0}
+.hv-unified-sidebar__user-role{font-size:.72rem;color:var(--hv-ink-mute,#6b7060);margin:0}
+html.dark .hv-unified-sidebar{background:linear-gradient(180deg,#292622 0%,#211d19 100%)!important;border-color:rgba(231,189,177,.12)!important}
+html.dark .hv-unified-sidebar__brand{border-color:rgba(231,189,177,.08)!important}
+html.dark .hv-unified-sidebar__nav-link{color:#c9bdb4!important}
+html.dark .hv-unified-sidebar__nav-link .material-symbols-outlined{color:#8a8f80!important}
+html.dark .hv-unified-sidebar__nav-link:hover{background:rgba(231,189,177,.06)!important;color:#f5eee8!important}
+html.dark .hv-unified-sidebar__nav-link.is-active{background:linear-gradient(135deg,#4a5b49,#344333)!important;color:#fffdf9!important}
+html.dark .hv-unified-sidebar__nav-link.is-active .material-symbols-outlined{color:#d4a44c!important}
+html.dark .hv-unified-sidebar__info{background:rgba(36,33,30,.6)!important;border-color:rgba(231,189,177,.08)!important}
+html.dark .hv-unified-sidebar__info-label{color:#d4a44c!important}
+html.dark .hv-unified-sidebar__info-value{color:#f5eee8!important}
+html.dark .hv-unified-sidebar__info-sub{color:#8a8f80!important}
+html.dark .hv-unified-sidebar__user{background:rgba(36,33,30,.6)!important}
+html.dark .hv-unified-sidebar__user-name{color:#f5eee8!important}
+html.dark .hv-unified-sidebar__theme,html.dark .hv-unified-sidebar__logout{color:#c9bdb4!important}
+html.dark .hv-unified-sidebar__drag-handle{background:linear-gradient(135deg,#4a5b49,#344333)!important;border-color:rgba(231,189,177,.12)!important}
+@media(max-width:1024px){.hv-unified-sidebar{position:fixed;top:0;left:0;z-index:100;transform:translateX(-100%);transition:transform .3s cubic-bezier(.22,1,.36,1);box-shadow:0 0 60px rgba(28,32,24,.2)}.hv-unified-sidebar.is-open{transform:translateX(0)}.hv-unified-sidebar__drag-handle{display:none}}
+
+</style>
     <div class="paper-overlay"></div>
     
     <section class="memory-detail-page" id="memoryDetailModal" role="dialog" aria-modal="true" aria-labelledby="memoryDetailTitle">
