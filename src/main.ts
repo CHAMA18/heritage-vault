@@ -46,7 +46,7 @@ const elements: AppElements = {
   registerForm: query<HTMLFormElement>("#registerForm"),
   authHeading: query<HTMLElement>("#login-screen header h2"),
   authSubheading: query<HTMLElement>("#login-screen header p"),
-  authSwitch: query<HTMLElement>(".auth-switch"),
+  authSwitch: query<HTMLElement>(".auth-switch-wrapper"),
   emailDivider: query<HTMLElement>(".relative.mb-8.flex.items-center"),
   footerPrompt: query<HTMLElement>("#footerPrompt"),
   authError: query<HTMLElement>("#authError"),
@@ -164,7 +164,8 @@ function setAuthMode(mode: AuthMode): void {
   const isRegister = mode === "register";
   elements.loginForm.classList.toggle("is-hidden", isRegister);
   elements.registerForm.classList.toggle("is-hidden", !isRegister);
-  elements.authSwitch.classList.toggle("register-active", isRegister);
+  const authThumb = elements.authSwitch.querySelector<HTMLElement>(".auth-switch-thumb");
+  if (authThumb) authThumb.setAttribute("data-active", mode);
   elements.authHeading.textContent = isRegister ? "Begin your legacy" : "Enter the Vault";
   elements.authSubheading.textContent = isRegister
     ? "Create a sanctuary for the stories that matter."
@@ -178,8 +179,7 @@ function setAuthMode(mode: AuthMode): void {
   document.querySelectorAll<HTMLButtonElement>(".auth-tab").forEach((tab) => {
     const isActive = tab.dataset.mode === mode;
     tab.setAttribute("aria-selected", String(isActive));
-    tab.classList.toggle("text-primary", isActive);
-    tab.classList.toggle("text-on-surface-variant", !isActive);
+    tab.classList.toggle("active", isActive);
   });
 }
 

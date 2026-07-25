@@ -188,24 +188,6 @@
         display: none;
       }
 
-      .auth-switch {
-        position: relative;
-      }
-
-      .auth-switch::after {
-        position: absolute;
-        bottom: -1px;
-        left: 0;
-        height: 2px;
-        width: 50%;
-        background: #283327;
-        content: "";
-        transition: transform 0.3s ease;
-      }
-
-      .auth-switch.register-active::after {
-        transform: translateX(100%);
-      }
 
       .landing-page {
         background: #fff8f4;
@@ -5030,12 +5012,7 @@
   margin: 0 !important;
 }
 
-/* ── Auth tabs (Sign in / Register) ─────────────────────────────────── */
-#login-screen .auth-switch {
-  margin-bottom: 32px !important;
-  border-bottom: 1px solid rgba(28, 32, 24, 0.1) !important;
-  position: relative;
-}/* ── Floating Segmented Control ─────────────────────────────────────── */
+/* ── Floating Segmented Control ─────────────────────────────────────── */
 #login-screen .auth-switch-wrapper {
   margin-bottom: 16px;
   display: flex;
@@ -6060,8 +6037,7 @@ html.dark .hv-mobile-toggle:hover {
       });
 
       const loginForm = document.getElementById("loginForm");
-      const registerForm = document.getElementById("registerForm");
-  const authTabs = document.querySelectorAll(".auth-tab");
+      const registerForm = document.getElementById("registerForm");      const authTabs = document.querySelectorAll(".auth-tab");
       const authHeading = document.querySelector("header h2");
       const authSubheading = document.querySelector("header p");
       const emailDivider = document.querySelector(".relative.mb-8.flex.items-center");
@@ -6078,26 +6054,26 @@ html.dark .hv-mobile-toggle:hover {
         history.pushState({ view: "vault" }, "", "#vault");
       }
 
-const authThumb = document.querySelector(".auth-switch-thumb");
-function setAuthMode(mode) {
-  const isRegister = mode === "register";
-  loginForm.classList.toggle("is-hidden", isRegister);
-  registerForm.classList.toggle("is-hidden", !isRegister);
-  authHeading.textContent = isRegister ? "Begin your legacy" : "Enter the Vault";
-  authSubheading.textContent = isRegister ? "Create a sanctuary for the stories that matter." : "Sign in to continue preserving what matters.";
-  emailDivider.classList.toggle("is-hidden", isRegister);
-  footerPrompt.innerHTML = isRegister
-    ? 'Already have a vault? <a class="font-semibold text-primary hover:underline" href="#" data-login-link>Enter the Vault</a>'
-    : 'Don\'t have a vault yet? <a class="font-semibold text-primary hover:underline" href="#" data-register-link>Request access</a>';
-  authTabs.forEach((tab) => {
-    const active = tab.dataset.mode === mode;
-    tab.setAttribute("aria-selected", active);
-    tab.classList.toggle("active", active);
-  });
-  if (authThumb) {
-    authThumb.setAttribute("data-active", mode);
-  }
-}
+      const authThumb = document.querySelector(".auth-switch-thumb");
+      function setAuthMode(mode) {
+        const isRegister = mode === "register";
+        loginForm.classList.toggle("is-hidden", isRegister);
+        registerForm.classList.toggle("is-hidden", !isRegister);
+        authHeading.textContent = isRegister ? "Begin your legacy" : "Enter the Vault";
+        authSubheading.textContent = isRegister ? "Create a sanctuary for the stories that matter." : "Sign in to continue preserving what matters.";
+        emailDivider.classList.toggle("is-hidden", isRegister);
+        footerPrompt.innerHTML = isRegister
+          ? 'Already have a vault? <a class="font-semibold text-primary hover:underline" href="#" data-login-link>Enter the Vault</a>'
+          : 'Don\'t have a vault yet? <a class="font-semibold text-primary hover:underline" href="#" data-register-link>Request access</a>';
+        authTabs.forEach((tab) => {
+          const active = tab.dataset.mode === mode;
+          tab.setAttribute("aria-selected", active);
+          tab.classList.toggle("active", active);
+        });
+        if (authThumb) {
+          authThumb.setAttribute("data-active", mode);
+        }
+      }
 
       authTabs.forEach((tab) => tab.addEventListener("click", () => setAuthMode(tab.dataset.mode)));
       footerPrompt.addEventListener("click", (event) => {
