@@ -3,7 +3,6 @@ import { initStoryMode } from "./story-mode";
 import { initFamilyMap } from "./family-map";
 import { AgentChat } from "./agent/chat";
 import { demoAtlasDataset } from "./demo-data";
-
 const initState: Record<string, boolean> = {};
 function initScreen(view: string): void {
   if (initState[view]) return;

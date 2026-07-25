@@ -113,6 +113,7 @@ export function initVaultDashboard(root: HTMLElement): void {
     </div>
     <div class="hv-vd-grain" aria-hidden="true"></div>
 
+    <section class="hv-vd-main">
     <header class="hv-vd-topbar">
       <div>
         <p class="hv-vd-topbar__date">${esc(dateStr)}</p>
