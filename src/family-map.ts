@@ -141,6 +141,129 @@ export function initFamilyMap(root: HTMLElement): void {
 
   wireSidebarCollapse(root);
 
+  // ── "Add relative" + "Invite family" inline forms ──────────────
+  const addBtn = root.querySelector<HTMLElement>("[data-add-relative]");
+  const inviteBtn = root.querySelector<HTMLElement>("[data-invite-family]");
+  const canvas = root.querySelector<HTMLElement>("[data-fm-canvas]");
+
+  function showInlineForm(html: string) {
+    if (!canvas) return;
+    canvas.querySelector(".hv-fm-inline-form")?.remove();
+    const form = document.createElement("div");
+    form.className = "hv-fm-inline-form";
+    form.innerHTML = html;
+    canvas.prepend(form);
+    form.querySelector(".hv-fm-inline-form__close")?.addEventListener("click", () => form.remove());
+    form.querySelector(".hv-fm-inline-form__cancel")?.addEventListener("click", () => form.remove());
+    return form;
+  }
+
+  function showSuccess(form: HTMLElement, title: string, msg: string) {
+    form.innerHTML = `
+      <div class="hv-fm-inline-form__success">
+        <span class="material-symbols-outlined">check_circle</span>
+        <h3>${title}</h3>
+        <p>${msg}</p>
+        <button type="button" class="hv-fm-inline-form__submit">Done</button>
+      </div>`;
+    form.querySelector(".hv-fm-inline-form__submit")?.addEventListener("click", () => form.remove());
+  }
+
+  if (addBtn) {
+    addBtn.addEventListener("click", () => {
+      const form = showInlineForm(`
+        <div class="hv-fm-inline-form__card">
+          <div class="hv-fm-inline-form__head">
+            <h3>Add a relative</h3>
+            <button type="button" class="hv-fm-inline-form__close" aria-label="Close">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+          <form class="hv-fm-inline-form__body">
+            <div class="hv-fm-inline-form__row">
+              <div class="hv-fm-inline-form__field">
+                <label>Full name</label>
+                <input type="text" placeholder="e.g. Samuel Banda" required />
+              </div>
+              <div class="hv-fm-inline-form__field">
+                <label>Relationship</label>
+                <input type="text" placeholder="e.g. Grandfather" required />
+              </div>
+            </div>
+            <div class="hv-fm-inline-form__row">
+              <div class="hv-fm-inline-form__field">
+                <label>Birth year</label>
+                <input type="number" placeholder="e.g. 1897" min="1700" max="2099" />
+              </div>
+              <div class="hv-fm-inline-form__field">
+                <label>Parent</label>
+                <select>
+                  <option value="">— Select parent —</option>
+                  ${demoAtlasDataset.members.map(m => `<option value="${m.id}">${m.fullName}</option>`).join("")}
+                </select>
+              </div>
+            </div>
+            <div class="hv-fm-inline-form__field">
+              <label>Notes</label>
+              <textarea placeholder="A brief note about this person..." rows="2"></textarea>
+            </div>
+            <div class="hv-fm-inline-form__actions">
+              <button type="button" class="hv-fm-inline-form__cancel">Cancel</button>
+              <button type="submit" class="hv-fm-inline-form__submit">
+                <span class="material-symbols-outlined">person_add</span>
+                Add to family map
+              </button>
+            </div>
+          </form>
+        </div>
+      `);
+      if (form) {
+        form.querySelector("form")?.addEventListener("submit", (e) => {
+          e.preventDefault();
+          showSuccess(form, "Relative added", "The new family member has been added to your map.");
+        });
+      }
+    });
+  }
+
+  if (inviteBtn) {
+    inviteBtn.addEventListener("click", () => {
+      const form = showInlineForm(`
+        <div class="hv-fm-inline-form__card">
+          <div class="hv-fm-inline-form__head">
+            <h3>Invite family</h3>
+            <button type="button" class="hv-fm-inline-form__close" aria-label="Close">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+          <form class="hv-fm-inline-form__body">
+            <div class="hv-fm-inline-form__field">
+              <label>Email address</label>
+              <input type="email" placeholder="relative@family.com" required />
+            </div>
+            <div class="hv-fm-inline-form__field">
+              <label>Personal message (optional)</label>
+              <textarea placeholder="Join me on HeritageAtlas to explore our family archive..." rows="3"></textarea>
+            </div>
+            <div class="hv-fm-inline-form__actions">
+              <button type="button" class="hv-fm-inline-form__cancel">Cancel</button>
+              <button type="submit" class="hv-fm-inline-form__submit">
+                <span class="material-symbols-outlined">send</span>
+                Send invitation
+              </button>
+            </div>
+          </form>
+        </div>
+      `);
+      if (form) {
+        form.querySelector("form")?.addEventListener("submit", (e) => {
+          e.preventDefault();
+          showSuccess(form, "Invitation sent", "Your family member will receive an email invitation to join HeritageAtlas.");
+        });
+      }
+    });
+  }
+
   // Wire node clicks → inspector
   const inspector = root.querySelector<HTMLElement>("[data-fm-inspector]");
   root.querySelectorAll<HTMLElement>("[data-fm-node]").forEach((node) => {

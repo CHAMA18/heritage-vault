@@ -104,6 +104,36 @@ export function injectSidebarCSS(): void {
     .hv-unified-sidebar__user-name{font-size:.86rem;font-weight:600;color:var(--hv-ink,#1d2018);margin:0}
     .hv-unified-sidebar__user-role{font-size:.72rem;color:var(--hv-ink-mute,#6b7060);margin:0}
     @media(max-width:1024px){.hv-unified-sidebar{position:fixed;top:0;left:0;z-index:100;transform:translateX(-100%);transition:transform .3s cubic-bezier(.22,1,.36,1);box-shadow:0 0 60px rgba(28,32,24,.2)}.hv-unified-sidebar.is-open{transform:translateX(0)}.hv-unified-sidebar.is-collapsed{width:280px;min-width:280px;max-width:280px;padding:20px 22px}.hv-unified-sidebar.is-collapsed .hv-unified-sidebar__collapse-text,.hv-unified-sidebar.is-collapsed .hv-unified-sidebar__nav-link span:last-child,.hv-unified-sidebar.is-collapsed .hv-unified-sidebar__divider,.hv-unified-sidebar.is-collapsed .hv-unified-sidebar__theme span:nth-child(2),.hv-unified-sidebar.is-collapsed .hv-unified-sidebar__logout span:nth-child(2),.hv-unified-sidebar.is-collapsed .hv-unified-sidebar__user>div:last-child{display:block}}
+    .hv-fm-inline-form{position:relative;z-index:5;margin-bottom:24px;animation:hvFmFormIn .4s cubic-bezier(.22,1,.36,1) both}
+    @keyframes hvFmFormIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+    .hv-fm-inline-form__card{background:rgba(255,253,247,.95);backdrop-filter:blur(20px);border:1px solid rgba(28,32,24,.1);border-radius:20px;box-shadow:0 12px 36px rgba(28,32,24,.08);overflow:hidden}
+    .hv-fm-inline-form__head{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid rgba(28,32,24,.06)}
+    .hv-fm-inline-form__head h3{font-family:"Fraunces",serif;font-weight:500;font-size:1.2rem;color:var(--hv-ink,#1d2018);margin:0}
+    .hv-fm-inline-form__close{width:36px;height:36px;border-radius:10px;border:none;background:transparent;color:var(--hv-ink-mute,#6b7060);cursor:pointer;display:grid;place-items:center;transition:background .2s ease}
+    .hv-fm-inline-form__close:hover{background:rgba(28,32,24,.06)}
+    .hv-fm-inline-form__body{padding:24px}
+    .hv-fm-inline-form__row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:0}
+    .hv-fm-inline-form__field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+    .hv-fm-inline-form__field label{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--hv-terracotta,#c0623a)}
+    .hv-fm-inline-form__field input,.hv-fm-inline-form__field select,.hv-fm-inline-form__field textarea{padding:11px 14px;border:1px solid rgba(28,32,24,.14);border-radius:10px;background:rgba(251,245,236,.6);font-family:"Spectral",serif;font-size:.95rem;color:var(--hv-ink,#1d2018);transition:border-color .2s ease,box-shadow .2s ease}
+    .hv-fm-inline-form__field input:focus,.hv-fm-inline-form__field select:focus,.hv-fm-inline-form__field textarea:focus{outline:none;border-color:var(--hv-forest,#2c3a2e);box-shadow:0 0 0 3px rgba(45,58,46,.08)}
+    .hv-fm-inline-form__field textarea{resize:vertical;min-height:60px}
+    .hv-fm-inline-form__actions{display:flex;justify-content:flex-end;gap:10px;margin-top:8px}
+    .hv-fm-inline-form__cancel{padding:11px 20px;border-radius:999px;border:1px solid rgba(28,32,24,.14);background:transparent;color:var(--hv-ink-soft,#3a3f33);font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s ease}
+    .hv-fm-inline-form__cancel:hover{background:rgba(28,32,24,.05)}
+    .hv-fm-inline-form__submit{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:999px;border:none;background:linear-gradient(135deg,var(--hv-forest,#2c3a2e),var(--hv-forest-deep,#1c2820));color:var(--hv-cream,#fbf5ec);font-size:.85rem;font-weight:600;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease}
+    .hv-fm-inline-form__submit:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(28,40,32,.22)}
+    .hv-fm-inline-form__submit .material-symbols-outlined{font-size:18px;color:var(--hv-amber,#d4a44c)}
+    .hv-fm-inline-form__success{padding:48px 24px;text-align:center}
+    .hv-fm-inline-form__success .material-symbols-outlined{font-size:48px;color:var(--hv-moss,#6f8266)}
+    .hv-fm-inline-form__success h3{font-family:"Fraunces",serif;font-weight:500;font-size:1.4rem;color:var(--hv-ink,#1d2018);margin:16px 0 8px}
+    .hv-fm-inline-form__success p{font-family:"Spectral",serif;font-style:italic;font-size:.95rem;color:var(--hv-ink-soft,#3a3f33);margin:0 0 24px}
+    html.dark .hv-fm-inline-form__card{background:rgba(36,33,30,.95)!important;border-color:rgba(231,189,177,.12)!important}
+    html.dark .hv-fm-inline-form__head h3{color:#f5eee8!important}
+    html.dark .hv-fm-inline-form__field input,html.dark .hv-fm-inline-form__field select,html.dark .hv-fm-inline-form__field textarea{background:rgba(36,33,30,.6)!important;color:#f5eee8!important;border-color:rgba(231,189,177,.12)!important}
+    html.dark .hv-fm-inline-form__field label{color:#d4a44c!important}
+    html.dark .hv-fm-inline-form__success h3{color:#f5eee8!important}
+    html.dark .hv-fm-inline-form__success p{color:#c9bdb4!important}
     html.dark .hv-unified-sidebar{background:linear-gradient(180deg,#292622 0%,#211d19 100%);border-color:rgba(231,189,177,.12)}
     html.dark .hv-unified-sidebar__collapse{background:rgba(36,33,30,.6);border-color:rgba(231,189,177,.12);color:#c9bdb4}
     html.dark .hv-unified-sidebar__nav-link{color:#c9bdb4}
