@@ -96,3 +96,4 @@ npx trigger.dev@latest deploy    # deploys chat.agent() + 10 tools
 - **GitHub:** [CHAMA18/heritage-vault](https://github.com/CHAMA18/heritage-vault)
 - **Live preview:** [https://chama18.github.io/heritage-vault/#family-map](https://chama18.github.io/heritage-vault/#family-map)
 - **10 commits** on `main` — clean history, no credential leaks
+# heritage-atlas
