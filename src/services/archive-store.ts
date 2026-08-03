@@ -13,9 +13,9 @@
  *      so the Vault dashboard activity timeline reflects real user
  *      actions instead of synthesised fake ones.
  *
- * In dev (Vite middleware running), the store ALSO best-effort syncs
- * writes to ClickHouse via /api/memories, /api/family-members, etc.
- * Failures are swallowed — localStorage remains the source of truth.
+ * localStorage remains the source of truth — the app is fully self-contained
+ * on static hosting, and the Agent computes its visual answers in-browser
+ * directly from this store.
  */
 
 import { demoAtlasDataset } from "../demo-data";
@@ -140,29 +140,6 @@ function saveToStorage(snapshot: ArchiveSnapshot): void {
   }
 }
 
-// ── Dev-mode ClickHouse sync (best-effort) ───────────────────────────
-
-async function syncToClickHouse(
-  table: "memories" | "family-members" | "stories",
-  method: "POST" | "PUT" | "DELETE",
-  payload: unknown,
-): Promise<void> {
-  try {
-    const res = await fetch(`/api/${table}`, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) {
-      console.warn(
-        `[archive-store] ClickHouse sync ${method} /api/${table} → ${res.status}`,
-      );
-    }
-  } catch {
-    // Static deploy (GitHub Pages) — no /api/* available. Silent fail.
-  }
-}
-
 // ── The store ────────────────────────────────────────────────────────
 
 class ArchiveStore {
@@ -268,7 +245,6 @@ class ArchiveStore {
       memory.id,
       `Added “${memory.title}” to the archive.`,
     );
-    void syncToClickHouse("memories", "POST", memory);
     this.emit("memories");
     return clone(memory);
   }
@@ -291,7 +267,6 @@ class ArchiveStore {
       id,
       `Updated “${updated.title}”.`,
     );
-    void syncToClickHouse("memories", "PUT", updated);
     this.emit("memories");
     return clone(updated);
   }
@@ -305,7 +280,6 @@ class ArchiveStore {
       id,
       `Removed “${removed.title}” from the archive.`,
     );
-    void syncToClickHouse("memories", "DELETE", { id });
     this.emit("memories");
     return true;
   }
@@ -343,7 +317,6 @@ class ArchiveStore {
       member.id,
       `Added ${member.fullName} to the family map.`,
     );
-    void syncToClickHouse("family-members", "POST", member);
     this.emit("members");
     return clone(member);
   }
@@ -366,7 +339,6 @@ class ArchiveStore {
       id,
       `Updated ${updated.fullName}’s profile.`,
     );
-    void syncToClickHouse("family-members", "PUT", updated);
     this.emit("members");
     return clone(updated);
   }
@@ -388,7 +360,6 @@ class ArchiveStore {
       id,
       `Removed ${removed.fullName} from the family map.`,
     );
-    void syncToClickHouse("family-members", "DELETE", { id });
     this.emit("members");
     return true;
   }
@@ -424,7 +395,6 @@ class ArchiveStore {
       story.id,
       `Started a new chapter: “${story.title}”.`,
     );
-    void syncToClickHouse("stories", "POST", story);
     this.emit("stories");
     return clone(story);
   }
@@ -447,7 +417,6 @@ class ArchiveStore {
       id,
       `Updated “${updated.title}”.`,
     );
-    void syncToClickHouse("stories", "PUT", updated);
     this.emit("stories");
     return clone(updated);
   }
@@ -461,7 +430,6 @@ class ArchiveStore {
       id,
       `Removed the chapter “${removed.title}”.`,
     );
-    void syncToClickHouse("stories", "DELETE", { id });
     this.emit("stories");
     return true;
   }

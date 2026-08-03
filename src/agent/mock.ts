@@ -1,19 +1,15 @@
 /**
  * HeritageAtlas Agent — Browser-side Mock Runtime
  *
- * Produces VizSpecs from the in-memory demo dataset (`demo-data.ts`) using the
- * SAME intent interpretation as the Trigger.dev task. This is what the chat
- * agent uses when Trigger.dev / ClickHouse credentials aren't configured —
- * which is the case in this live preview.
- *
- * The shape of every VizSpec is identical to what the Trigger.dev task would
- * return, so the renderer doesn't care which path produced it. Swap in real
- * credentials and the same chat UI invokes the Trigger.dev task instead.
+ * Computes VizSpecs from the archive dataset using a deterministic intent
+ * interpreter. This is the in-browser archive runtime: every answer is
+ * derived from the user's archive (memories, members, relationships) with no
+ * external database or backend.
  */
 import type { AtlasDataset } from "../atlas/types";
 import type { VizSpec } from "./spec";
 
-/** Local copy of the interpreter (the Trigger.dev task exports the same one). */
+/** Deterministic intent interpreter shared by the Agent and Atlas views. */
 export type AgentIntent =
   | "timeline"
   | "geography"
@@ -124,8 +120,7 @@ export function buildSpec(dataset: AtlasDataset, prompt: string): VizSpec {
         caption: `Memory density by year${interp.decade ? ` · ${interp.decade}s` : ""}.`,
         verdict: `${years.length} years with preserved memories, peaking in ${peak}.`,
         prompt,
-        sql: `SELECT event_year, sum(fact_count) FROM heritage_atlas_timeline_yearly GROUP BY event_year ORDER BY event_year`,
-        source: "ClickHouse · heritage_atlas_timeline_yearly",
+        source: "Archive · memories by year",
         series: [
           {
             name: "Memories",
@@ -160,8 +155,7 @@ export function buildSpec(dataset: AtlasDataset, prompt: string): VizSpec {
         caption: "Memory density by location.",
         verdict: `${places.length} places appear in your archive, led by ${places[0]?.[0] ?? "—"}.`,
         prompt,
-        sql: `SELECT location, sum(fact_count) FROM heritage_atlas_locations GROUP BY location ORDER BY fact_count DESC LIMIT 12`,
-        source: "ClickHouse · heritage_atlas_locations",
+        source: "Archive · memory locations",
         points: places.map(([place, count]) => ({
           place,
           count,
@@ -200,8 +194,7 @@ export function buildSpec(dataset: AtlasDataset, prompt: string): VizSpec {
         caption: "People in the archive, connected by recorded relationships.",
         verdict: `${members.length} people, ${edges.length} recorded parent-child edges.`,
         prompt,
-        sql: `SELECT entity_id, title, count() FROM heritage_atlas_facts WHERE entity_type='person' GROUP BY entity_id, title`,
-        source: "ClickHouse · heritage_atlas_facts + heritage_atlas_edges",
+        source: "Archive · people + relationships",
         nodes: members.map((m) => ({
           id: m.id,
           label: m.fullName,
@@ -233,8 +226,7 @@ export function buildSpec(dataset: AtlasDataset, prompt: string): VizSpec {
         caption: `Traceable records${interp.person ? ` mentioning ${interp.person}` : ""}.`,
         verdict: `${rows.length} records, each linkable back to its source.`,
         prompt,
-        sql: `SELECT title, event_year, location, entity_type FROM heritage_atlas_facts ORDER BY event_year LIMIT 12`,
-        source: "ClickHouse · heritage_atlas_facts",
+        source: "Archive · source records",
         headers: ["Year", "Title", "Location", "Kind"],
         rows: rows.map((r) => ({
           cells: [
@@ -269,8 +261,7 @@ export function buildSpec(dataset: AtlasDataset, prompt: string): VizSpec {
         caption: "How the archive grew, in ten-year windows.",
         verdict: `${decades.length} decades represented; the ${peak}s is the densest.`,
         prompt,
-        sql: `SELECT floor(event_year/10)*10 AS decade, sum(fact_count) FROM heritage_atlas_timeline_yearly GROUP BY decade ORDER BY decade`,
-        source: "ClickHouse · heritage_atlas_timeline_yearly",
+        source: "Archive · memories by year",
         series: [
           {
             name: "Memories",
@@ -300,8 +291,7 @@ export function buildSpec(dataset: AtlasDataset, prompt: string): VizSpec {
         caption: "The archive broken down by record type.",
         verdict: `${types.length} record types; ${types[0]?.[0] ?? "—"} is the most common.`,
         prompt,
-        sql: `SELECT entity_type, count() FROM heritage_atlas_facts GROUP BY entity_type ORDER BY count() DESC`,
-        source: "ClickHouse · heritage_atlas_facts",
+        source: "Archive · source records",
         series: [
           {
             name: "Records",
@@ -335,8 +325,7 @@ export function buildSpec(dataset: AtlasDataset, prompt: string): VizSpec {
           ? `${interp.intent === "oldest" ? "Earliest" : "Newest"}: ${sorted[0].year} · ${sorted[0].title}`
           : "No dated memories yet.",
         prompt,
-        sql: `SELECT title, event_year, location FROM heritage_atlas_facts WHERE event_year IS NOT NULL ORDER BY event_year ${interp.intent === "oldest" ? "ASC" : "DESC"} LIMIT 6`,
-        source: "ClickHouse · heritage_atlas_facts",
+        source: "Archive · source records",
         events: sorted.map((m) => ({
           year: m.year!,
           label: m.title,
@@ -368,8 +357,7 @@ export function buildSpec(dataset: AtlasDataset, prompt: string): VizSpec {
         caption: `Comparing the ${first}s and the ${last}s, side by side.`,
         verdict: `${decades.length} decades compared across ${memories.length} records.`,
         prompt,
-        sql: `SELECT floor(event_year/10)*10 AS decade, entity_type, count() FROM heritage_atlas_facts GROUP BY decade, entity_type`,
-        source: "ClickHouse · heritage_atlas_facts",
+        source: "Archive · source records",
         compare: {
           leftLabel: `${first}s`,
           rightLabel: `${last}s`,
@@ -394,8 +382,7 @@ export function buildSpec(dataset: AtlasDataset, prompt: string): VizSpec {
         caption: "The shape of your family's preserved story.",
         verdict: `${memories.length} memories across ${years.size} years and ${places.size} places.`,
         prompt,
-        sql: `SELECT count(), uniq(event_year), uniq(location) FROM heritage_atlas_facts`,
-        source: "ClickHouse · heritage_atlas_facts",
+        source: "Archive · source records",
         kpi: [
           { label: "Memories", value: String(memories.length), icon: "inventory_2", trend: "up" },
           { label: "People", value: String(members.length), icon: "group", trend: "flat" },

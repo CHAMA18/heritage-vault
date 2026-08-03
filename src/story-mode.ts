@@ -30,6 +30,14 @@ interface SmChapter {
   body: string;      // story.body (the long form)
   icon: string;      // material symbol name
   memoryIds: string[];
+  narrationUrl?: string | null;
+  narrationSha256?: string | null;
+  illustrationUrl?: string | null;
+  illustrationSha256?: string | null;
+  genblazeRunId?: string | null;
+  genblazeManifestHash?: string | null;
+  genblazeManifestUri?: string | null;
+  genblazeVerified?: boolean | null;
 }
 
 // Map story.id → chapter metadata (label + icon chosen to mirror the screenshot)
@@ -64,6 +72,14 @@ function buildChapters(): SmChapter[] {
         body: s.body ?? "",
         icon: meta.icon,
         memoryIds: s.memoryIds ?? [],
+        narrationUrl: s.narrationUrl ?? null,
+        narrationSha256: s.narrationSha256 ?? null,
+        illustrationUrl: s.illustrationUrl ?? null,
+        illustrationSha256: s.illustrationSha256 ?? null,
+        genblazeRunId: s.genblazeRunId ?? null,
+        genblazeManifestHash: s.genblazeManifestHash ?? null,
+        genblazeManifestUri: s.genblazeManifestUri ?? null,
+        genblazeVerified: s.genblazeVerified ?? null,
       };
     });
 }
@@ -75,10 +91,92 @@ const esc = (s: string | undefined | null): string => {
   return el.innerHTML;
 };
 
+/** Styles for the Genblaze narration block (kept here to avoid touching the giant index.html stylesheet). */
+function injectNarrationCSS(): void {
+  if (document.getElementById("hv-sm-narration-css")) return;
+  const style = document.createElement("style");
+  style.id = "hv-sm-narration-css";
+  style.textContent = `
+    #story-mode-screen .hv-sm-narration {
+      margin: 40px -32px;
+      padding: 26px 32px;
+      background: linear-gradient(135deg, rgba(192,98,58,.08), rgba(111,130,102,.08));
+      border: 1px solid rgba(192,98,58,.18);
+      border-radius: 18px;
+    }
+    #story-mode-screen .hv-sm-narration__head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    #story-mode-screen .hv-sm-narration__head > .material-symbols-outlined {
+      font-size: 24px;
+      color: var(--hv-moss, #6f8266);
+    }
+    #story-mode-screen .hv-sm-narration__head b {
+      display: block;
+      font-family: "Fraunces", serif;
+      font-size: 1.12rem;
+      line-height: 1.2;
+    }
+    #story-mode-screen .hv-sm-narration__head small {
+      color: var(--hv-ink-soft, #7a746a);
+    }
+    #story-mode-screen .hv-sm-narration__badge {
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: .7rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(111,130,102,.14);
+      color: var(--hv-moss, #4f5f49);
+      border: 1px solid rgba(111,130,102,.3);
+      white-space: nowrap;
+    }
+    #story-mode-screen .hv-sm-narration audio {
+      width: 100%;
+      height: 44px;
+      border-radius: 10px;
+    }
+    #story-mode-screen .hv-sm-narration__prov {
+      margin-top: 14px;
+      font-size: .85rem;
+    }
+    #story-mode-screen .hv-sm-narration__prov summary {
+      cursor: pointer;
+      color: var(--hv-ink-soft, #7a746a);
+      font-weight: 600;
+    }
+    #story-mode-screen .hv-sm-narration__prov code {
+      display: block;
+      margin-top: 8px;
+      padding: 10px 12px;
+      background: rgba(0,0,0,.05);
+      border-radius: 8px;
+      font-size: .72rem;
+      line-height: 1.7;
+      word-break: break-all;
+    }
+    #story-mode-screen .hv-sm-chapter-bar__btn--gen {
+      color: var(--hv-moss, #6f8266);
+    }
+    #story-mode-screen .hv-sm-chapter-bar__btn--gen:hover:not(:disabled) {
+      background: rgba(111,130,102,.16);
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 let activeIdx = 0;
 const readSet = new Set<string>();
 
 export function initStoryMode(root: HTMLElement): void {
+  injectNarrationCSS();
   renderStoryMode(root);
   const unsubscribe = onArchiveChange(() => {
     if (root.offsetParent !== null || root.style.display !== "none") {
@@ -176,6 +274,10 @@ function renderStoryMode(root: HTMLElement): void {
           <div class="hv-sm-chapter-bar" data-sm-reveal>
             <span class="hv-sm-chapter-bar__label" data-sm-chapter-label>Chapter ${chapters[activeIdx].num} · ${chapters[activeIdx].label}</span>
             <div class="hv-sm-chapter-bar__nav">
+              <button class="hv-sm-chapter-bar__btn hv-sm-chapter-bar__btn--gen" data-sm-narrate title="Generate narrated audio + archival illustration (Genblaze → Backblaze B2)" type="button">
+                <span class="material-symbols-outlined">auto_awesome</span>
+                <span data-sm-narrate-label>Narrate</span>
+              </button>
               <button class="hv-sm-chapter-bar__btn" data-sm-edit title="Edit this chapter" type="button">
                 <span class="material-symbols-outlined">edit</span>
               </button>
@@ -292,6 +394,12 @@ function renderStoryMode(root: HTMLElement): void {
     const evidenceMems = c.memoryIds.map(memoryById).filter(Boolean);
     const figure = evidenceMems.find((m) => m?.type === "photo") ?? evidenceMems[0];
     const pullQuoteText = c.excerpt;
+    const generatedFigure = Boolean(c.illustrationUrl);
+    const figureImg =
+      c.illustrationUrl ??
+      figure?.thumbnailUrl ??
+      figure?.assetUrl ??
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuBw1w7ZGV-Mn7TPkS2VI8cmZq03Sw9CGO9cYtQzKEjMEMQAMVGaJW3YlObPIDsGD6sgTlWQMhOwczomm_hQtsxBSG0bMHICQ1PEgCN1hNsA2coITZaO1tI8T_rIdi0CQjv4mGBDGnkdGZ4kfwSBMATeJNVtvsNHHIpaIyMlnjPFMu35PpeZiHun3U9KvACNIHwi4CO5DRuKQRlyACmIbTOyv7qngi08VdNlyu9at02lclaSacS7KvpwICz2xw2xlXQrAkLM_lrcyUM";
 
     const sentences = c.body.split(/(?<=[.!?])\s+/);
     const paras: string[] = [];
@@ -304,23 +412,43 @@ function renderStoryMode(root: HTMLElement): void {
       paras.push(p1, p2, p3);
     }
 
+    const narrationBlock = c.narrationUrl
+      ? `
+      <section class="hv-sm-narration" data-sm-reveal>
+        <div class="hv-sm-narration__head">
+          <span class="material-symbols-outlined">graphic_eq</span>
+          <div><b>Narrated by the family archive</b><small>ElevenLabs TTS · stored on Backblaze B2</small></div>
+          <span class="hv-sm-narration__badge"><span class="material-symbols-outlined" style="font-size:14px">verified</span>Genblaze</span>
+        </div>
+        <audio controls preload="none" src="${esc(c.narrationUrl)}"></audio>
+        <details class="hv-sm-narration__prov">
+          <summary>Provenance manifest — SHA-256 ${c.genblazeVerified ? "verified" : "recorded"}</summary>
+          <code>run&nbsp;&nbsp; ${esc(c.genblazeRunId ?? "—")}
+hash ${esc(c.genblazeManifestHash ?? "—")}
+${esc(c.genblazeManifestUri ?? "")}</code>
+        </details>
+      </section>
+    `
+      : "";
+
     return `
       <p class="hv-sm-narrative__eyebrow">Chapter ${c.num} · ${c.label}</p>
       <h2 class="hv-sm-narrative__title">${esc(c.title)}</h2>
       <p class="hv-sm-narrative__excerpt">${esc(c.excerpt)}</p>
+      ${narrationBlock}
       <div class="hv-sm-narrative__body">
         <p data-sm-reveal>${esc(paras[0] ?? c.body)}</p>
         ${
-          figure
+          figure || generatedFigure
             ? `
           <figure class="hv-sm-figure" data-sm-reveal>
             <img class="hv-sm-figure__img" data-sm-parallax-img
-              src="${figure.thumbnailUrl || figure.assetUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuBw1w7ZGV-Mn7TPkS2VI8cmZq03Sw9CGO9cYtQzKEjMEMQAMVGaJW3YlObPIDsGD6sgTlWQMhOwczomm_hQtsxBSG0bMHICQ1PEgCN1hNsA2coITZaO1tI8T_rIdi0CQjv4mGBDGnkdGZ4kfwSBMATeJNVtvsNHHIpaIyMlnjPFMu35PpeZiHun3U9KvACNIHwi4CO5DRuKQRlyACmIbTOyv7qngi08VdNlyu9at02lclaSacS7KvpwICz2xw2xlXQrAkLM_lrcyUM"}"
-              alt="${esc(figure.title)}" />
+              src="${figureImg}"
+              alt="${esc(c.title)}" />
             <div class="hv-sm-figure__overlay"></div>
             <figcaption class="hv-sm-figure__caption">
-              <b>${esc(figure.title)}</b>
-              ${esc(figure.dateLabel ?? figure.location ?? "")}
+              <b>${esc(generatedFigure ? `${c.title} — archival scene` : (figure?.title ?? c.title))}</b>
+              ${generatedFigure ? "Genblaze-reconstructed · provenance-verified" : esc(figure?.dateLabel ?? figure?.location ?? "")}
             </figcaption>
           </figure>
         `
@@ -464,6 +592,13 @@ function renderStoryMode(root: HTMLElement): void {
   });
   nextBtn.addEventListener("click", () => {
     if (activeIdx < chapters.length - 1) renderChapter(activeIdx + 1, true);
+  });
+
+  // Wire the Genblaze narrate button (generates audio + illustration → B2)
+  root.querySelector<HTMLButtonElement>("[data-sm-narrate]")?.addEventListener("click", () => {
+    const c = chapters[activeIdx];
+    const btn = root.querySelector<HTMLButtonElement>("[data-sm-narrate]");
+    if (c && btn) void generateNarration(c, btn);
   });
 
   // Wire AI query form
@@ -634,4 +769,54 @@ function deleteStory(id: string): void {
   );
   if (activeIdx > 0) activeIdx -= 1;
   archiveStore.deleteStory(id);
+}
+
+// ── Genblaze narration (story → media → Backblaze B2) ─────────────────
+
+interface GenblazeResult {
+  runId?: string;
+  audio?: { url?: string; sha256?: string };
+  image?: { url?: string; sha256?: string };
+  manifest?: { uri?: string | null; hash?: string; verified?: boolean };
+}
+
+async function generateNarration(c: SmChapter, btn: HTMLButtonElement): Promise<void> {
+  const label = btn.querySelector<HTMLElement>("[data-sm-narrate-label]");
+  const icon = btn.querySelector<HTMLElement>(".material-symbols-outlined");
+  const original = label?.textContent ?? "Narrate";
+  const setBusy = (busy: boolean) => {
+    btn.disabled = busy;
+    if (label) label.textContent = busy ? "Generating…" : original;
+    if (icon) icon.textContent = busy ? "hourglass_top" : "auto_awesome";
+  };
+
+  setBusy(true);
+  try {
+    const res = await fetch("/api/genblaze/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ storyId: c.id, title: c.title, excerpt: c.excerpt, text: c.body }),
+    });
+    if (!res.ok) throw new Error(`Worker responded ${res.status}`);
+    const data = (await res.json()) as GenblazeResult;
+    archiveStore.updateStory(c.id, {
+      narrationUrl: data.audio?.url ?? null,
+      narrationSha256: data.audio?.sha256 ?? null,
+      illustrationUrl: data.image?.url ?? null,
+      illustrationSha256: data.image?.sha256 ?? null,
+      genblazeRunId: data.runId ?? null,
+      genblazeManifestHash: data.manifest?.hash ?? null,
+      genblazeManifestUri: data.manifest?.uri ?? null,
+      genblazeVerified: Boolean(data.manifest?.verified),
+    });
+    toast.success("Narration ready", `“${c.title}” now has provenance-verified media on Backblaze B2.`);
+  } catch (err) {
+    console.error("[genblaze] generate failed:", err);
+    toast.error(
+      "Pipeline offline",
+      "Run the Genblaze worker (`cd genblaze-worker && uvicorn server:app --port 8787`) and restart `npm run dev`. Static deploys have no /api proxy.",
+    );
+  } finally {
+    setBusy(false);
+  }
 }

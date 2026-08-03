@@ -66,7 +66,7 @@ function bindSearch(navigate: Navigate): void {
     closeOverlay();
     const overlay = document.createElement("div");
     overlay.className = "ha-overlay";
-    overlay.innerHTML = `<section class="ha-dialog ha-search" role="dialog" aria-modal="true" aria-label="Search archive"><button class="ha-dialog__close" aria-label="Close">×</button><h2 style="margin:0 0 .8rem;font:700 1.55rem Satoshi,system-ui">Search the live archive</h2><input autofocus placeholder="Search titles, places, or descriptions…" aria-label="Search archive"/><p class="ha-search__meta">ClickHouse Cloud · heritage_atlas_facts</p><div class="ha-search__results"><p class="ha-search__empty">Start typing to search the preserved archive.</p></div></section>`;
+    overlay.innerHTML = `<section class="ha-dialog ha-search" role="dialog" aria-modal="true" aria-label="Search archive"><button class="ha-dialog__close" aria-label="Close">×</button><h2 style="margin:0 0 .8rem;font:700 1.55rem Satoshi,system-ui">Search the archive</h2><input autofocus placeholder="Search titles, places, or descriptions…" aria-label="Search archive"/><p class="ha-search__meta">Your archive · memories</p><div class="ha-search__results"><p class="ha-search__empty">Start typing to search the preserved archive.</p></div></section>`;
     const input = overlay.querySelector<HTMLInputElement>("input")!;
     const results = overlay.querySelector<HTMLElement>(".ha-search__results")!;
     let timer = 0;
@@ -74,16 +74,19 @@ function bindSearch(navigate: Navigate): void {
       window.clearTimeout(timer);
       const term = input.value.trim();
       if (term.length < 2) { results.innerHTML = '<p class="ha-search__empty">Enter at least two letters.</p>'; return; }
-      timer = window.setTimeout(async () => {
-        results.innerHTML = '<p class="ha-search__empty">Searching ClickHouse Cloud…</p>';
-        try {
-          const response = await fetch(`/api/search?q=${encodeURIComponent(term)}`);
-          const payload = await response.json();
-          const rows = payload.results ?? [];
-          results.innerHTML = rows.length ? rows.map((row: any) => `<button type="button" class="ha-search__result" data-search-result="${esc(row.fact_id)}"><b>${esc(row.title)}</b><small>${esc(row.event_year ?? "Undated")} · ${esc(row.location ?? "Location pending")} · ${esc(row.entity_type ?? "memory")}</small></button>`).join("") : '<p class="ha-search__empty">No preserved memories match that search.</p>';
-          rows.forEach((row: any) => results.querySelector<HTMLElement>(`[data-search-result="${CSS.escape(row.fact_id)}"]`)?.addEventListener("click", () => openMemory(row, navigate)));
-          eventLog("archive_search", { term, results: rows.length });
-        } catch { results.innerHTML = '<p class="ha-search__empty">Search could not reach the live archive. Please retry.</p>'; }
+      timer = window.setTimeout(() => {
+        const q = input.value.trim().toLowerCase();
+        const rows = archiveStore
+          .getSnapshot()
+          .memories.filter((m) =>
+            [m.title, m.description, m.location ?? ""].some((field) => field.toLowerCase().includes(q))
+          )
+          .slice(0, 20);
+        results.innerHTML = rows.length
+          ? rows.map((row) => `<button type="button" class="ha-search__result" data-search-result="${esc(row.id)}"><b>${esc(row.title)}</b><small>${esc(row.year ?? "Undated")} · ${esc(row.location ?? "Location pending")} · ${esc(row.type)}</small></button>`).join("")
+          : '<p class="ha-search__empty">No preserved memories match that search.</p>';
+        rows.forEach((row) => results.querySelector<HTMLElement>(`[data-search-result="${CSS.escape(row.id)}"]`)?.addEventListener("click", () => openMemory(row, navigate)));
+        eventLog("archive_search", { term: q, results: rows.length });
       }, 220);
     });
     overlay.addEventListener("click", (event) => { if (event.target === overlay) closeOverlay(); });
@@ -103,7 +106,7 @@ function ensureLandingBadge(navigate: Navigate): void {
   const badge = document.createElement("a");
   badge.href = "#agent";
   badge.className = "ha-live-badge";
-  badge.innerHTML = "<i></i> Live demo — Trigger.dev + ClickHouse";
+  badge.innerHTML = "<i></i> Live demo — in-browser archive";
   badge.addEventListener("click", (event) => { event.preventDefault(); eventLog("live_demo_opened"); navigate("agent"); });
   row.append(badge);
 }
@@ -112,7 +115,7 @@ function ensureFooter(): void {
   if (document.querySelector(".ha-powered-footer")) return;
   const footer = document.createElement("div");
   footer.className = "ha-powered-footer";
-  footer.innerHTML = '<b>Powered by</b> Trigger.dev chat.agent() · ClickHouse Cloud · Claude Sonnet <button type="button" data-ha-settings aria-label="Open settings">⚙</button>';
+  footer.innerHTML = '<b>Powered by</b> HeritageVault · in-browser archive runtime <button type="button" data-ha-settings aria-label="Open settings">⚙</button>';
   footer.querySelector<HTMLButtonElement>("[data-ha-settings]")?.addEventListener("click", openSettings);
   document.body.append(footer);
 }

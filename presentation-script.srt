@@ -20,7 +20,7 @@ The Heritage Atlas Agent turns questions into answers you can see: charts, maps,
 
 6
 00:01:05,000 --> 00:01:22,000
-ClickHouse powers fast archive queries, while Trigger.dev orchestrates the agent workflow from real evidence.
+Every answer is computed in your browser directly from the archive, so nothing is invented and nothing leaves your device.
 
 7
 00:01:22,000 --> 00:01:38,000

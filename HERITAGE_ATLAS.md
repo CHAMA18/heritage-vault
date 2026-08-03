@@ -1,25 +1,40 @@
 # HeritageAtlas implementation guide
 
-HeritageAtlas is the interactive visual-answer layer for HeritageVault. Firebase remains the source of truth for the archive; ClickHouse stores query-optimized facts and relationships for high-speed visual exploration.
+HeritageAtlas is the interactive visual-answer layer for HeritageVault. The
+archive lives in Firebase (and a browser localStorage store); every visual
+answer — charts, maps, timelines, constellations — is computed **in the
+browser** from the user's own archive. There is no external database: the
+agent is a deterministic VizSpec builder over the archive snapshot.
 
 ## What is implemented
 
-- An interactive `#atlas` product view with prompt suggestions, a relationship constellation, timeline, memory geography, and source-evidence cards.
-- Answers are computed from the signed-in user’s actual Firebase vault data. Empty archives receive an intentional onboarding state instead of fabricated results.
-- ClickHouse DDL in `clickhouse/schema.sql` for facts, relationships, timeline rollups, and location rollups.
-- Trigger.dev v4 background tasks that index archive facts and family edges into ClickHouse.
+- An interactive Agent view with prompt suggestions, a relationship
+  constellation, timeline, memory geography, and source-evidence cards.
+- Answers are computed from the signed-in user's actual archive data via
+  `buildSpec(dataset, prompt)` (`src/agent/mock.ts`). Empty archives receive
+  an intentional onboarding state instead of fabricated results.
+- The Atlas view (`src/atlas/`) reuses the same intent interpreter.
+- A **Genblaze media pipeline** (`genblaze-worker/`) that turns Story Mode
+  chapters into narrated audio + archival illustration stored on Backblaze B2
+  with SHA-256 provenance manifests.
 
-## Configure analytics
+## Configure the media pipeline (optional)
 
-1. Create a ClickHouse Cloud service and run `clickhouse/schema.sql` in its SQL console.
-2. Copy `.env.example` to `.env` locally and set the ClickHouse and Trigger.dev values. Do not put these in `VITE_*` variables.
-3. In Trigger.dev, create a project, set the same server-side environment variables, then run `npm run trigger:dev`.
-4. Deploy with `npm run trigger:deploy` when ready.
+The Agent, Vault, Family Map, and Story Mode need **no configuration**. Only
+the Genblaze media pipeline requires credentials:
 
-## Indexing flow
-
-Your Firebase or server webhook should trigger `heritage-atlas-ingest-archive-fact` after a memory, person, story, or event is created or updated. Trigger `heritage-atlas-ingest-family-edge` when a `parentId` relationship changes. Use a stable idempotency key such as `vaultId:entityId:updatedAt` when triggering jobs.
+1. Copy `.env.example` to `.env` and set the Backblaze B2 + provider values
+   (`B2_KEY_ID`, `B2_APP_KEY`, `B2_BUCKET`, `B2_PUBLIC_URL_BASE`,
+   `ELEVENLABS_API_KEY`, `OPENAI_API_KEY`). Never put these in `VITE_*`
+   variables.
+2. Install + run the worker: `cd genblaze-worker && pip install -r
+   requirements.txt && uvicorn server:app --port 8787`
+3. In dev, the Vite middleware proxies `/api/genblaze/*` to the worker — see
+   `vite-agent-plugin.ts`. Story Mode's **Narrate** button uses it.
 
 ## Security model
 
-The browser never receives ClickHouse credentials or Trigger.dev secret keys. It reads the private archive from Firebase and renders the Atlas. Only server-side Trigger.dev jobs write derived, minimal analytical facts into ClickHouse.
+The browser never receives B2, ElevenLabs, or OpenAI credentials. It only ever
+talks to `/api/genblaze/*` (proxied server-side in dev), so no keys ship in
+the bundle. The Agent itself is fully in-browser — no archive data leaves the
+user's device, and answers are derived from the archive rather than invented.

@@ -1,18 +1,19 @@
 /**
- * HeritageAtlas Agent — Chat Orchestrator
+ * HeritageVault Agent — Chat Orchestrator
  *
- * Manages the conversation state, invokes the agent (mock runtime today;
- * Trigger.dev task when credentials are configured), renders each turn as a
- * visualization-first response, and wires drilldown interactions to the next
- * turn.
+ * Manages the conversation state and computes every answer IN THE BROWSER
+ * from the user's archive (the in-browser archive runtime — `buildSpec` over
+ * the archive-store snapshot). No backend, no external database: the agent
+ * turns each question into a visualization-first response and wires drilldown
+ * interactions to the next turn.
  *
  * The agent's response is NEVER a paragraph. It is always a VizSpec rendered
  * as an interactive chart / map / diagram / table.
  */
 import type { AtlasDataset } from "../atlas/types";
 import type { AgentMessage } from "./spec";
-import { runTurn, isTriggerConfigured, isClickHouseLive, isLive } from "./trigger-transport";
-import { renderSidebar, injectSidebarCSS, wireSidebarCollapse } from "../shared-sidebar";
+import { buildSpec } from "./mock";
+import { renderSidebar } from "../shared-sidebar";
 import { renderViz } from "./renderers";
 import { initializeSidebars } from "../components/sidebar";
 
@@ -30,7 +31,7 @@ const SUGGESTED_PROMPTS = [
 const PHASE_LABELS: Record<NonNullable<AgentMessage["phase"]>, string> = {
   queued: "Queued",
   interpreting: "Interpreting your question",
-  querying: "Querying ClickHouse",
+  querying: "Querying your archive",
   rendering: "Rendering visualization",
   done: "Done",
   error: "Something went wrong",
@@ -39,9 +40,9 @@ const PHASE_LABELS: Record<NonNullable<AgentMessage["phase"]>, string> = {
 export interface ChatOptions {
   /** The element where chat messages are rendered */
   mount: HTMLElement;
-  /** The dataset to query (mock mode) */
+  /** The archive dataset to compute answers from (in-browser runtime) */
   dataset: AtlasDataset;
-  /** The vault id (passed to the Trigger.dev task in production) */
+  /** Reserved for future server-backed paths */
   vaultId: string;
   /** Optional callback when a follow-up is suggested */
   onFollowup?: (prompt: string) => void;
@@ -56,10 +57,8 @@ export class AgentChat {
   constructor(opts: ChatOptions) {
     this.mount = opts.mount;
     this.dataset = opts.dataset;
-    // opts.vaultId and opts.onFollowup are reserved for the production path:
-    // when Trigger.dev credentials are configured, the chat will invoke
-    // the heritage-atlas-agent-query task with this vaultId and surface
-    // followups via the callback. The mock runtime uses the dataset directly.
+    // vaultId / onFollowup are reserved for a future server-backed path.
+    // Today every answer is computed in-browser from this.dataset.
     void opts.vaultId;
     void opts.onFollowup;
   }
@@ -75,7 +74,7 @@ export class AgentChat {
     }
   }
 
-  /** Send a user prompt and stream the agent response */
+  /** Send a user prompt and produce the visual answer */
   async send(prompt: string): Promise<void> {
     if (this.isStreaming || !prompt.trim()) return;
     this.isStreaming = true;
@@ -91,9 +90,8 @@ export class AgentChat {
     this.rememberPrompt(prompt);
     this.renderMessages();
 
-    // Push a placeholder agent message that we mutate through phases.
-    // The phases mirror the Trigger.dev chat.agent() lifecycle:
-    //   queued → interpreting → querying (ClickHouse) → rendering → done
+    // Push a placeholder agent message that we mutate through phases:
+    //   queued → interpreting → querying (the archive) → rendering → done
     const agentMsg: AgentMessage = {
       id: `a-${Date.now()}`,
       role: "agent",
@@ -104,36 +102,21 @@ export class AgentChat {
     this.messages.push(agentMsg);
     this.renderMessages();
 
-    // Hand off to the trigger-transport adapter. When Trigger.dev +
-    // ClickHouse credentials are configured (VITE_TRIGGER_PROJECT_REF +
-    // VITE_TRIGGER_PUBLIC_TOKEN), this invokes the deployed chat.agent()
-    // worker whose tools query ClickHouse. When live ClickHouse is configured,
-    // any transport failure is surfaced rather than replacing live data with a demo.
     const start = Date.now();
     try {
-      const result = await runTurn(
-        this.dataset,
-        prompt,
-        "demo-vault",
-        (phase) => {
-          const msg = this.messages.find((m) => m.id === agentMsg.id);
-          if (msg) {
-            msg.phase = phase;
-            this.renderMessages();
-          }
+      const phases: NonNullable<AgentMessage["phase"]>[] = ["interpreting", "querying", "rendering"];
+      for (const phase of phases) {
+        const msg = this.messages.find((m) => m.id === agentMsg.id);
+        if (msg) {
+          msg.phase = phase;
+          this.renderMessages();
         }
-      );
-      result.spec.elapsedMs = Date.now() - start;
-      // Surface the data source so the chat footer shows whether this came
-      // from ClickHouse (production) or the offline demonstration runtime.
-      if (!result.spec.source) {
-        result.spec.source = isTriggerConfigured
-          ? "Trigger.dev chat.agent() · ClickHouse"
-          : isClickHouseLive
-          ? "ClickHouse Cloud · live (Vite middleware)"
-          : "Mock runtime · (configure Trigger.dev + ClickHouse for production)";
+        await new Promise((resolve) => setTimeout(resolve, phase === "rendering" ? 120 : 220));
       }
-      agentMsg.spec = result.spec;
+      const spec = buildSpec(this.dataset, prompt);
+      spec.elapsedMs = Date.now() - start;
+      spec.source = "Your archive · in-browser runtime";
+      agentMsg.spec = spec;
       agentMsg.phase = "done";
       this.renderMessages();
     } catch (err) {
@@ -161,25 +144,9 @@ export class AgentChat {
             </div>
           </div>
           <div class="hv-agent__header-right">
-            <span class="hv-agent__powered${
-              isLive ? " hv-agent__powered--live" : " hv-agent__powered--fallback"
-            }" title="${
-              isTriggerConfigured
-                ? "Live: Trigger.dev chat.agent() worker querying ClickHouse Cloud"
-                : isClickHouseLive
-                ? "Live: Vite middleware querying ClickHouse Cloud directly. Trigger.dev secret key pending — once set, the chat.agent() worker takes over."
-                : "Fallback mode: set VITE_TRIGGER_PROJECT_REF + VITE_TRIGGER_PUBLIC_TOKEN or VITE_CLICKHOUSE_LIVE=true in .env"
-            }">
-              <span class="material-symbols-outlined" style="font-size:14px">${
-                isLive ? "bolt" : "cloud_off"
-              }</span>
-              ${
-                isTriggerConfigured
-                  ? "Trigger.dev + ClickHouse · live"
-                  : isClickHouseLive
-                  ? "ClickHouse · live"
-                  : "Mock runtime · configure Trigger.dev + ClickHouse"
-              }
+            <span class="hv-agent__powered hv-agent__powered--live" title="Answers are computed in your browser from your archive — no external database needed.">
+              <span class="material-symbols-outlined" style="font-size:14px">bolt</span>
+              Archive runtime · in-browser
             </span>
           </div>
         </header>
@@ -330,7 +297,7 @@ export class AgentChat {
         <div class="hv-agent__msg hv-agent__msg--agent">
           <div class="hv-agent__msg-avatar"><span class="material-symbols-outlined">error</span></div>
           <div class="hv-agent__msg-body">
-            <div class="hv-agent__error"><b>We could not complete that visual answer.</b><span>${this.esc(m.text ?? "The live archive did not respond.")}</span><div><button type="button" data-agent-retry="${this.esc(m.prompt ?? "")}">Retry</button><button type="button" data-agent-suggest>Try a different question</button></div></div>
+            <div class="hv-agent__error"><b>We could not complete that visual answer.</b><span>${this.esc(m.text ?? "The archive did not respond.")}</span><div><button type="button" data-agent-retry="${this.esc(m.prompt ?? "")}">Retry</button><button type="button" data-agent-suggest>Try a different question</button></div></div>
           </div>
         </div>
       `;
@@ -362,11 +329,6 @@ export class AgentChat {
               ${
                 spec.elapsedMs !== undefined
                   ? `<span class="hv-agent__viz-elapsed"><span class="material-symbols-outlined" style="font-size:13px">schedule</span>${spec.elapsedMs} ms</span>`
-                  : ""
-              }
-              ${
-                spec.sql
-                  ? `<details class="hv-agent__viz-sql"><summary><span class="material-symbols-outlined" style="font-size:13px">code</span>SQL</summary><pre><code>${this.esc(spec.sql)}</code></pre></details>`
                   : ""
               }
             </footer>

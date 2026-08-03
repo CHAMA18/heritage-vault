@@ -4,7 +4,7 @@
  * button position, same branding, nav, footer.
  */
 
-export type ScreenView = "vault" | "family-map" | "story-mode" | "agent";
+export type ScreenView = "vault" | "family-map" | "story-mode" | "atlas" | "agent";
 
 export interface SidebarOptions {
   activeView: ScreenView;
@@ -14,6 +14,7 @@ const NAV_ITEMS: Array<{ view: ScreenView; href: string; icon: string; label: st
   { view: "vault", href: "#vault", icon: "inventory_2", label: "The Vault" },
   { view: "family-map", href: "#family-map", icon: "account_tree", label: "Family Map" },
   { view: "story-mode", href: "#story-mode", icon: "auto_stories", label: "Story Mode" },
+  { view: "atlas", href: "#atlas", icon: "explore", label: "Heritage Atlas" },
   { view: "agent", href: "#agent", icon: "smart_toy", label: "Agent" },
 ];
 

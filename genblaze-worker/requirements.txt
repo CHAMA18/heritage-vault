@@ -1,0 +1,10 @@
+# HeritageVault × Genblaze worker
+# genblaze umbrella = genblaze-core (Pipeline/Manifest) + genblaze-s3 (B2 storage)
+genblaze>=0.3
+genblaze-elevenlabs>=0.1
+genblaze-openai>=0.1
+genblaze-s3>=0.1
+
+# HTTP server
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0

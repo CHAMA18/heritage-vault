@@ -67,9 +67,9 @@ cp -a "$REPO_DIR/dist/." .
 touch .nojekyll
 
 # Remove any non-deploy files
-rm -rf node_modules src trigger scripts public clickhouse .github .vite dist 2>/dev/null
-rm -f .env .env.example .gitignore package.json package-lock.json tsconfig.json vite.config.ts vite-agent-plugin.ts trigger.config.ts 2>/dev/null
-rm -f README.md DEMO.md TRIGGER_DEPLOY.md HERITAGE_ATLAS.md FIREBASE_SCHEMA.md 2>/dev/null
+rm -rf node_modules src scripts public .github .vite dist 2>/dev/null
+rm -f .env .env.example .gitignore package.json package-lock.json tsconfig.json vite.config.ts vite-agent-plugin.ts 2>/dev/null
+rm -f README.md DEMO.md HERITAGE_ATLAS.md FIREBASE_SCHEMA.md 2>/dev/null
 rm -f firebase.json firestore.indexes.json firestore.rules 2>/dev/null
 rm -f presentation-*.md presentation-*.mp3 HeritageVault-demo-presentation-final.mp4 2>/dev/null
 rm -f Capture-*.png preview.cjs preview.js 2>/dev/null

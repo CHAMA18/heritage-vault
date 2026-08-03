@@ -341,14 +341,14 @@ function renderDashboard(root: HTMLElement): void {
         <p class="hv-vd-metric__sub">Curated from ${memories.length} source memories</p>
       </article>
 
-      <article class="hv-vd-metric hv-vd-metric--span4" data-vd-users-card>
+      <article class="hv-vd-metric hv-vd-metric--span4">
         <div class="hv-vd-metric__top">
-          <span class="hv-vd-metric__icon"><span class="material-symbols-outlined">person_add</span></span>
-          <span class="hv-vd-metric__trend"><span class="material-symbols-outlined" style="font-size:14px">trending_up</span> live</span>
+          <span class="hv-vd-metric__icon"><span class="material-symbols-outlined">auto_stories</span></span>
+          <span class="hv-vd-metric__trend"><span class="material-symbols-outlined" style="font-size:14px">trending_flat</span> stable</span>
         </div>
-        <p class="hv-vd-metric__value" data-vd-users-count>—</p>
-        <p class="hv-vd-metric__label">Users registered</p>
-        <p class="hv-vd-metric__sub">Stored in ClickHouse · heritage_atlas_users</p>
+        <p class="hv-vd-metric__value"><em>${new Set(years.map((y) => Math.floor(y / 10) * 10)).size}</em></p>
+        <p class="hv-vd-metric__label">Decades preserved</p>
+        <p class="hv-vd-metric__sub">From ${years[0] ?? "—"} to ${years[years.length - 1] ?? "—"}</p>
       </article>
 
       <article class="hv-vd-metric hv-vd-metric--span8 hv-vd-metric--accent">
@@ -549,25 +549,8 @@ function renderDashboard(root: HTMLElement): void {
     root.querySelectorAll<HTMLElement>("[data-vd-reveal]").forEach((el) => el.classList.add("is-revealed"));
   });
 
-  // Fetch the live user count from ClickHouse (via the /api/users endpoint)
-  fetchUsersCount(root);
 }
 
-async function fetchUsersCount(root: HTMLElement) {
-  try {
-    const res = await fetch("/api/users");
-    if (!res.ok) return;
-    const data = await res.json();
-    const count = data.count ?? 0;
-    const countEl = root.querySelector<HTMLElement>("[data-vd-users-count]");
-    if (countEl) {
-      countEl.textContent = String(count);
-      countEl.innerHTML = count > 0 ? `${count}` : `<em>0</em>`;
-    }
-  } catch {
-    // ClickHouse may be unreachable — leave the dash
-  }
-}
 
 function setupReveals(scope: HTMLElement) {
   const targets = scope.querySelectorAll<HTMLElement>("[data-vd-reveal], [data-vd-stagger]");

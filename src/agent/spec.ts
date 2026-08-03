@@ -1,9 +1,9 @@
 /**
  * HeritageAtlas Agent — Visualization Spec
  *
- * The contract between the Trigger.dev task (which interprets a natural-language
- * question, queries ClickHouse, and emits a viz spec) and the browser renderer
- * (which turns the spec into an interactive SVG component).
+ * The contract between the in-browser archive runtime (which interprets a
+ * natural-language question against the user's archive and emits a viz spec)
+ * and the renderer (which turns the spec into an interactive SVG component).
  *
  * The principle: the agent's response is NEVER a paragraph. It is always a
  * structured `VizSpec` — a chart, map, diagram, or interactive component
@@ -100,11 +100,11 @@ export interface VizSpec {
   verdict?: string;
   /** The natural-language prompt that produced this spec */
   prompt: string;
-  /** The (obfuscated) ClickHouse SQL the agent ran — surfaced as evidence */
+  /** Reserved for future backend evidence (e.g. the query behind this spec) */
   sql?: string;
   /** Optional: how long the agent took (ms) — surfaced in the chat footer */
   elapsedMs?: number;
-  /** Optional: data source label (e.g. "ClickHouse · heritage_atlas_facts") */
+  /** Optional: data source label (e.g. "Archive · source records") */
   source?: string;
 
   // Kind-specific payloads — only one is populated per spec

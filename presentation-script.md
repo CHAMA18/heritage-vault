@@ -25,9 +25,9 @@ The Family Map turns relatives into a visual constellation. Every person can be 
 
 The breakthrough is the Heritage Atlas Agent. Instead of returning a wall of text, it turns questions into answers you can see: charts, maps, timelines, and relationship diagrams.
 
-### 01:05-01:22 - ClickHouse + Trigger.dev
+### 01:05-01:22 - In-browser archive runtime
 
-Behind the scenes, ClickHouse powers fast archive queries across people, places, years, and source evidence. Trigger dot dev orchestrates the agent workflow so every answer is generated from the archive, not invented.
+Every answer is computed in your browser directly from the archive — people, places, years, and source evidence — so nothing is invented and nothing leaves your device.
 
 ### 01:22-01:38 - Visual Answers
 
@@ -57,7 +57,7 @@ The Family Map turns relatives into a visual constellation. Every person can be 
 
 The breakthrough is the Heritage Atlas Agent. Instead of returning a wall of text, it turns questions into answers you can see: charts, maps, timelines, and relationship diagrams.
 
-Behind the scenes, ClickHouse powers fast archive queries across people, places, years, and source evidence. Trigger dot dev orchestrates the agent workflow so every answer is generated from the archive, not invented.
+Every answer is computed in your browser directly from the archive — people, places, years, and source evidence — so nothing is invented and nothing leaves your device.
 
 Ask where the family lived, and the answer becomes a geography view. Ask who appears most often, and the archive becomes a network. Ask how the story unfolded, and the answer becomes a timeline.
 

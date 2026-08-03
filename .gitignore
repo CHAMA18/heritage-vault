@@ -3,6 +3,14 @@
 .env.local
 .env.*.local
 !.env.example
+.env.local.save
+
+# Accidental nested repo
+heritage-atlas/
+
+# Python
+__pycache__/
+*.pyc
 
 # Generated artifacts
 dist/
